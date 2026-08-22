@@ -1,0 +1,20 @@
+知屿写作 Omniisle Write 社区版公开候选
+
+Copyright (C) 2026 Zeyu
+
+外部贡献的版权归各贡献者所有，并按 CLA 授权项目使用和再许可。
+
+除另有说明外，本项目自身代码仅按 GNU Affero General Public License
+Version 3（AGPL-3.0-only）授权。完整条款见根目录 LICENSE。
+
+本候选包含或构建时使用以下第三方开源组件：
+
+- Tiptap 3.28.0，MIT License
+- ProseMirror（由 @tiptap/pm 引入），MIT License
+- JSZip 3.10.1，MIT License
+- jsonrepair 3.15.0，ISC License
+- esbuild 0.28.1，MIT License
+
+相应许可证正文保存在 docs/licenses/。
+
+第三方组件继续适用各自许可证，本 NOTICE 不能替代相应许可证正文。

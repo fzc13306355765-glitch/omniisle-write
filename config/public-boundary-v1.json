@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "ignoredDirectories": [
+    ".git",
+    ".codegraph",
+    "node_modules"
+  ],
+  "requiredPublicFiles": [
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "README_EN.md",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "SECURITY.md",
+    "PRIVACY.md",
+    "TRADEMARKS.md",
+    "CONTRIBUTING.md",
+    "CLA.md",
+    "CODE_OF_CONDUCT.md",
+    "GOVERNANCE.md",
+    "SUPPORT.md",
+    "ASSETS-LICENSES.md",
+    "COMMERCIAL.md",
+    "OPEN-SOURCE-STATUS.md"
+  ],
+  "forbiddenPaths": [
+    {
+      "path": "cloudfunctions",
+      "reason": "正式云函数和计费、支付、管理实现必须留在私有仓库"
+    },
+    {
+      "path": "services",
+      "reason": "正式服务和网关配置不得进入社区仓库"
+    },
+    {
+      "path": "specs",
+      "reason": "当前规格目录属于私有全文分析实现"
+    },
+    {
+      "path": "scripts/legacy",
+      "reason": "历史入口和兼容备份不得进入新仓库"
+    },
+    {
+      "path": "app-test.original.html",
+      "reason": "历史单页快照不得公开"
+    },
+    {
+      "path": "app-modular-test.html",
+      "reason": "社区仓库只保留 index.html 正式入口"
+    },
+    {
+      "path": "landing-test.html",
+      "reason": "官方营销和账号入口不属于社区版"
+    },
+    {
+      "path": "design-qa.md",
+      "reason": "内部设计审查记录不能代替公开贡献文档"
+    }
+  ],
+  "forbiddenPathPatterns": [
+    {
+      "pattern": "^admin(?:[-.].*)?\\.html$",
+      "reason": "管理后台页面不得公开"
+    },
+    {
+      "pattern": "^config/(?:cloudbase-|runtime-endpoints\\.json$|release-)",
+      "reason": "生产云环境和发布配置不得公开"
+    },
+    {
+      "pattern": "^docs/(?!licenses/|full-analysis-open-source-notices\\.md$).+",
+      "reason": "当前 docs 中除许可证归属外均为内部交接、部署或历史审查资料"
+    },
+    {
+      "pattern": "^scripts/boot/cloud-backup-",
+      "reason": "正式云备份启动代码不得公开"
+    },
+    {
+      "pattern": "^scripts/vendor/(?:cos-js-sdk|tiptap-cloud-backup-formal-)",
+      "reason": "云备份 SDK 和历史正式供应包不得公开"
+    },
+    {
+      "pattern": "^scripts/tools/.*(?:admin|payment|billing|redeem|cloud|production|migration|deploy|release-package|live-parity|official-template|member-monthly|account|auth|naturalize|full-analysis|full-text|backend|distributed-rate|scheduled-trigger|model-health|credit|upload-chunk|user-presence|version-switch|legacy).*$",
+      "reason": "后台、商业、生产或历史工具必须从社区工具链排除"
+    }
+  ],
+  "codeScanRoots": [
+    "index.html",
+    "package.json",
+    "config",
+    "scripts/boot",
+    "scripts/core",
+    "scripts/dist",
+    "scripts/editor",
+    "scripts/tools",
+    "scripts/vendor",
+    "styles"
+  ],
+  "codeScanExclusions": [
+    "config/public-boundary-v1.json",
+    "scripts/tools/audit-public-boundary.mjs",
+    "scripts/tools/build-community-runtime.mjs",
+    "scripts/boot/community-mode.js"
+  ],
+  "forbiddenCodePatterns": [
+    {
+      "pattern": "(?:www\\.)?omniisle\\.com",
+      "label": "知屿正式域名"
+    },
+    {
+      "pattern": "tcloudbaseapp\\.com|(?:[a-z0-9-]+\\.)*app\\.tcloudbase\\.com|tencentcloudapi\\.com",
+      "label": "正式云服务域名"
+    },
+    {
+      "pattern": "\\/ai-(?:proxy|stream)",
+      "label": "正式 AI 中转路径"
+    },
+    {
+      "pattern": "\\bcloudbase\\b",
+      "label": "CloudBase 正式实现"
+    },
+    {
+      "pattern": "\\b(?:payment|billing|membership|redeem|admin|hotlist|naturalize)\\b",
+      "label": "商业或后台实现"
+    }
+  ],
+  "highConfidenceSecretPatterns": [
+    "-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+    "AKID[A-Za-z0-9]{13,}",
+    "sk-[A-Za-z0-9_-]{16,}",
+    "gh[pousr]_[A-Za-z0-9]{20,}",
+    "AIza[A-Za-z0-9_-]{30,}",
+    "xox[baprs]-[A-Za-z0-9-]{10,}",
+    "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}"
+  ],
+  "assetReviewPaths": [
+    "assets/model-logos",
+    "assets/character-avatars",
+    "assets/douyin-group-qr.jpg",
+    "assets/wallpapers",
+    "assets/writing-background.png",
+    "assets/writing-background-sunset.png",
+    "assets/writing-background-cool-white.png",
+    "UI背景.jpg",
+    "UI背景-optimized.jpg"
+  ]
+}

@@ -1,0 +1,69 @@
+/* New-work dialog: cover generation, mixed genre selection and synopsis generation. */
+.create-book-dialog { width: min(900px, 94vw); height: min(720px, 90vh); max-height: 90vh; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; }
+.create-book-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px 16px; border-bottom: 1px solid var(--border); }
+.create-book-head h3 { margin: 0; font-size: 20px; color: var(--text); }
+.create-book-head p { margin: 7px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.create-book-close { border: 0; background: transparent; color: var(--text-muted); font-size: 24px; line-height: 1; cursor: pointer; }
+.create-book-layout { min-height: 0; flex: 1; display: grid; grid-template-columns: 240px minmax(0, 1fr); overflow: hidden; }
+.create-book-cover-panel { padding: 24px; border-right: 1px solid var(--border); background: #fff; }
+.create-book-cover-preview { position: relative; width: 176px; aspect-ratio: 3 / 4; margin: 0 auto 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg-input); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, opacity .16s ease; }
+.create-book-cover-preview:hover { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+.create-book-cover-preview:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.create-book-cover-preview.is-loading { opacity: .58; pointer-events: none; }
+.create-book-cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+.create-book-cover-preview img.is-placeholder { object-fit: contain; padding: 34px; opacity: .18; filter: grayscale(1); }
+.create-book-cover-preview span { position: absolute; inset: auto 12px 22px; color: var(--text-muted); font-size: 13px; font-weight: 800; text-align: center; }
+.create-book-cover-actions { display: flex; flex-direction: column; gap: 8px; }
+.create-book-cover-action { width: 100%; justify-content: center; }
+.create-book-cover-action[hidden] { display: none !important; }
+.create-book-cover-panel > p { margin: 12px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.65; text-align: center; }
+.create-book-form { min-width: 0; min-height: 0; padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.create-book-field { position: relative; display: flex; flex-direction: column; gap: 8px; color: var(--text); }
+.create-book-field > span,
+.create-book-field-head > span { font-size: 13px; font-weight: 800; color: var(--text); }
+.create-book-field em { color: #dc2626; font-style: normal; }
+.create-book-field input,
+.create-book-field textarea { width: 100%; border: 1px solid var(--border); border-radius: 9px; background: var(--bg-input); color: var(--text); font: inherit; box-sizing: border-box; }
+.create-book-field input { height: 42px; padding: 0 12px; }
+.create-book-field input[readonly] { cursor: not-allowed; color: var(--text-muted); background: color-mix(in srgb, var(--bg-input) 82%, var(--border)); }
+.create-book-field textarea { min-height: 116px; padding: 12px; line-height: 1.7; resize: vertical; }
+.create-book-field input:focus,
+.create-book-field textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent) 36%, transparent); border-color: var(--accent); }
+.create-book-field-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.create-book-field-head small { color: var(--text-muted); font-size: 12px; }
+.create-book-genre-field { min-height: 0; flex: 1 1 auto; }
+.create-book-genre-combined { min-height: 0; flex: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; overflow: hidden; }
+.create-book-genre-column { min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 9px; background: var(--bg-input); overflow: hidden; }
+.create-book-channel-option { min-height: 44px; padding: 8px 11px; border: 0; border-bottom: 1px solid var(--border); background: var(--bg-card); color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; cursor: pointer; }
+.create-book-channel-option strong { font-size: 14px; }
+.create-book-channel-option small { color: var(--text-muted); font-size: 11px; }
+.create-book-channel-option.active { background: color-mix(in srgb, var(--accent) 14%, var(--bg-card)); color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+.create-book-genre-tags { min-height: 0; padding: 9px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 7px; overflow-y: auto; overscroll-behavior: contain; }
+.create-book-genre-tag { min-height: 32px; padding: 6px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-card); color: var(--text); font-size: 12px; cursor: pointer; }
+.create-book-genre-tag:hover { border-color: var(--accent); }
+.create-book-genre-tag.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.create-book-synopsis-action { position: absolute; right: 10px; bottom: 10px; }
+.create-book-synopsis-field { flex: 0 0 118px; min-height: 0; }
+.create-book-form .create-book-synopsis-field textarea { min-height: 0; height: 96px; padding-right: 108px; resize: none; overflow-y: auto; }
+.create-book-actions { flex: 0 0 auto; display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--border); }
+.create-book-synopsis-dialog { width: min(620px, 92vw); max-height: 88vh; padding: 0 !important; overflow: auto; }
+.create-book-synopsis-dialog > .create-book-field { margin: 18px 24px 0; }
+.create-book-synopsis-generate-row { margin: 14px 24px 0; padding: 11px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg-input); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.create-book-synopsis-generate-row span { min-width: 0; color: var(--text-muted); font-size: 12px; line-height: 1.55; }
+.create-book-synopsis-dialog #createBookSynopsisPreviewText.is-generating {
+    background: var(--chapter-generation-highlight, #e3f2fd);
+    border-color: var(--chapter-generation-highlight-border, #90caf9);
+}
+.create-book-synopsis-dialog .create-book-actions { margin-top: 20px; }
+
+[data-theme="dark"] .create-book-cover-panel { background: var(--bg-card); }
+[data-theme="dark"] .create-book-channel-option.active { background: #1d3854; }
+[data-theme="dark"] .create-book-cover-preview img.is-placeholder { opacity: .32; filter: grayscale(1) brightness(1.6); }
+
+@media (max-width: 720px) {
+    .create-book-layout { grid-template-columns: 1fr; overflow-y: auto; }
+    .create-book-cover-panel { border-right: 0; border-bottom: 1px solid var(--border); }
+    .create-book-cover-preview { width: 140px; }
+    .create-book-form { overflow: visible; }
+    .create-book-genre-combined { min-height: 320px; grid-template-columns: 1fr; overflow: visible; }
+}

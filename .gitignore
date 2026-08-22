@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Browser test profiles and generated smoke-test output
+tmp-edge-*/
+.tmp-edge-*/
+tmp-*/
+.tmp-*/
+.tmp/
+/.tmp-old-*
+*.out.html
+*.err.log
+*.latest.log
+check-latest.log
+smoke-latest.log
+split-preview.log
+split-preview.err.log
+
+# Local CodeGraph index
+/.codegraph/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Local backup/archive files
+backup-*/
+备份-*/
+*.backup
+*.zip
+*.rar
+*.7z

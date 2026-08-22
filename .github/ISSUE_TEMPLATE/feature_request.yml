@@ -1,0 +1,47 @@
+name: Feature request / 功能建议
+description: Suggest a community edition improvement / 提出社区版改进建议
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The community edition is local-first and uses a model API configured by the user. It does not include Zhiyu accounts, cloud storage, billing, payments, or production backend services.
+
+        社区版以本地使用和用户自备模型 API 为边界，不包含知屿账号、云存储、计费、支付或正式后端服务。
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / 要解决的问题
+      description: Describe the writing task or difficulty, not only the requested button.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives tried / 已尝试的方法
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / 所属范围
+      options:
+        - Writing and editing / 写作与编辑
+        - Local data and backup / 本地数据与备份
+        - Bring-your-own-model AI / 用户自备模型 AI
+        - Full-text analysis / 全文分析
+        - Documentation and onboarding / 文档与上手指引
+        - Other community feature / 其他社区功能
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Community boundary / 社区版边界
+      options:
+        - label: This request can work without Zhiyu production accounts, billing, payments, or backend services. / 此建议不依赖知屿正式账号、计费、支付或后端服务。
+          required: true

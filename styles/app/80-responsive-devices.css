@@ -1,0 +1,1046 @@
+/* 手机、平板与 iPad 响应式收口：只调整布局、触控和可视范围，不改变业务行为。 */
+
+html,
+body {
+    max-width: 100%;
+}
+
+body,
+.main-container,
+.content-wrapper,
+.main-content,
+.page {
+    min-width: 0;
+}
+
+img,
+video,
+canvas {
+    max-width: 100%;
+}
+
+.og-input-toggle {
+    display: none;
+}
+
+#stepLogFloat .log-collapse,
+#stepLogFloat .log-status-dot {
+    display: none;
+}
+
+#stepLogFloat[data-tablet-log="true"][data-tablet-positioned="true"]:not(.is-collapsed) {
+    right: auto !important;
+    left: var(--zhiyu-tablet-log-left, 0px) !important;
+    top: var(--zhiyu-tablet-log-top, 0px) !important;
+}
+
+#stepLogFloat .log-header {
+    min-height: 48px;
+    justify-content: flex-start;
+    gap: 8px;
+    cursor: grab;
+    touch-action: none;
+}
+
+#stepLogFloat .log-header:active {
+    cursor: grabbing;
+}
+
+#stepLogFloat .log-collapse {
+    display: inline-flex;
+    width: 34px;
+    height: 24px;
+    min-width: 34px;
+    min-height: 24px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-card);
+    box-shadow: none;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    touch-action: manipulation;
+    align-items: center;
+    justify-content: center;
+}
+
+#stepLogFloat .log-collapse:hover {
+    background: var(--bg-input);
+    color: var(--text);
+}
+
+#stepLogFloat .log-title {
+    white-space: nowrap;
+}
+
+#stepLogFloat .log-header-spacer {
+    flex: 1 1 auto;
+}
+
+#stepLogFloat.is-collapsed {
+    top: var(--zhiyu-tablet-log-collapsed-top, 80px) !important;
+    right: max(0px, env(safe-area-inset-right)) !important;
+    left: auto !important;
+    width: 46px !important;
+    height: 54px !important;
+    min-width: 46px !important;
+    min-height: 54px !important;
+    max-width: 46px !important;
+    max-height: 54px !important;
+    border-radius: 16px 0 0 16px;
+    resize: none !important;
+    cursor: ns-resize;
+}
+
+#stepLogFloat.is-collapsed .log-header {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    justify-content: center;
+    cursor: ns-resize;
+}
+
+#stepLogFloat.is-collapsed :is(
+    .log-collapse,
+    .log-title,
+    .log-header-spacer,
+    .log-close,
+    .log-body
+) {
+    display: none !important;
+}
+
+#stepLogFloat.is-collapsed .log-status-dot {
+    display: block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #9ca3af;
+}
+
+#stepLogFloat.is-collapsed[data-log-status="running"] .log-status-dot {
+    background: #2684ff;
+    box-shadow: 0 0 0 0 rgba(38, 132, 255, .45);
+    animation: zhiyu-log-running-pulse 1.25s ease-out infinite;
+}
+
+#stepLogFloat.is-collapsed[data-log-status="success"] .log-status-dot {
+    background: #22a95a;
+}
+
+#stepLogFloat.is-collapsed[data-log-status="warning"] .log-status-dot {
+    background: #e5ad16;
+}
+
+#stepLogFloat.is-collapsed[data-log-status="error"] .log-status-dot {
+    background: #e5484d;
+}
+
+@keyframes zhiyu-log-running-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(38, 132, 255, .48); }
+    72% { box-shadow: 0 0 0 10px rgba(38, 132, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(38, 132, 255, 0); }
+}
+
+@supports (height: 100dvh) {
+    body,
+    .sidebar,
+    .main-container,
+    .content-wrapper,
+    .main-content {
+        height: 100dvh;
+    }
+
+    .single-auth-screen {
+        min-height: 100dvh;
+    }
+}
+
+@supports (height: 100dvh) {
+    @media (min-width: 901px) {
+        .single-auth-left,
+        .single-auth-right {
+            min-height: 100dvh;
+        }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+        .single-auth-left {
+            min-height: 34dvh;
+        }
+
+        .single-auth-right {
+            min-height: 66dvh;
+        }
+    }
+}
+
+@media (max-width: 1180px), (any-pointer: coarse) and (max-width: 1440px) {
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        box-sizing: border-box;
+        height: 100vh;
+        height: 100dvh;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .sidebar .nav-item.active {
+        margin-right: 0;
+        padding-right: 8px;
+    }
+
+    .main-container {
+        padding-right: env(safe-area-inset-right) !important;
+    }
+
+    .main-content {
+        padding: clamp(8px, 1.6vw, 18px) 0 0 clamp(8px, 1.6vw, 18px) !important;
+    }
+
+    .page {
+        max-width: 100%;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+    }
+
+    .modal-overlay {
+        box-sizing: border-box;
+        padding:
+            max(8px, env(safe-area-inset-top))
+            max(8px, env(safe-area-inset-right))
+            max(8px, env(safe-area-inset-bottom))
+            max(8px, env(safe-area-inset-left)) !important;
+    }
+
+    .modal-overlay > .modal-box,
+    .modal-overlay > [role="dialog"] {
+        box-sizing: border-box;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100vh - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+        overscroll-behavior: contain;
+    }
+
+    .step-log-float,
+    .ai-feedback-float,
+    .og-file-float {
+        right: max(8px, env(safe-area-inset-right)) !important;
+        left: auto !important;
+        width: min(420px, calc(100vw - 74px)) !important;
+        max-width: calc(100vw - 74px) !important;
+        max-height: calc(100vh - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+    }
+
+    .divider-v .divider-toggle {
+        width: 36px;
+        height: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #page-write .btn-row > :is(.btn, .format-split-btn, .ai-feedback-toggle) {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    #page-write .word-stats > span {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    [data-drag="catalog-main"] .divider-toggle {
+        right: -18px;
+    }
+
+    [data-drag="main-action"] .divider-toggle {
+        left: -18px;
+    }
+
+    #page-overview.workbench-page {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    #page-overview .workbench-shell {
+        height: auto;
+        min-height: 100%;
+        overflow: visible;
+    }
+
+    #page-overview .workbench-head {
+        flex: 0 0 auto;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    #page-overview .overview-head-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: auto minmax(260px, 305px);
+        justify-content: end;
+    }
+
+    #page-overview #panel-works {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(420px, auto) auto;
+        gap: 14px;
+        overflow: visible;
+    }
+
+    #page-overview .overview-top-grid,
+    #page-overview .overview-list-panel,
+    #page-overview .overview-side-grid {
+        grid-column: 1;
+    }
+
+    #page-overview .overview-top-grid {
+        grid-row: 1;
+        grid-template-columns: 190px minmax(0, 1fr);
+    }
+
+    #page-overview .overview-list-panel {
+        grid-row: 2;
+        min-height: 420px;
+    }
+
+    #page-overview .overview-side-grid {
+        grid-row: 3;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: minmax(320px, auto);
+    }
+
+    #page-overview .overview-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: repeat(2, 88px);
+        height: auto;
+    }
+
+    #page-overview .overview-stat-item {
+        height: 88px;
+        padding: 12px 10px 10px;
+    }
+
+    #page-overview .overview-stat-item strong {
+        margin-top: 9px;
+    }
+
+    #page-overview .overview-book-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow-y: visible;
+    }
+
+    #templateGrid {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    #page-template > div,
+    #page-template #templateTabs,
+    #page-template #templateLength,
+    #page-template #templateSubCat,
+    #page-template .template-pagination {
+        box-sizing: border-box;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #page-template .template-pagination {
+        flex-wrap: wrap;
+    }
+
+    .template-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .workbench-head {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 900px) {
+    .single-auth-screen.active {
+        align-content: start;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 1440px) {
+    html[data-zhiyu-device="tablet"] body,
+    html[data-zhiyu-device="tablet"] .sidebar,
+    html[data-zhiyu-device="tablet"] .main-container {
+        height:
+            calc(
+                var(--zhiyu-tablet-viewport-height, 100dvh)
+                + var(--zhiyu-tablet-viewport-top, 0px)
+            ) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] .sidebar {
+        padding-top:
+            calc(12px + max(
+                env(safe-area-inset-top),
+                var(--zhiyu-tablet-viewport-top, 0px)
+            )) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] .main-content {
+        padding-top:
+            calc(8px + max(
+                env(safe-area-inset-top),
+                var(--zhiyu-tablet-viewport-top, 0px)
+            )) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] body:has(#page-template.active) .main-content,
+    html[data-zhiyu-device="tablet"] body:has(#page-setting.active) .main-content {
+        padding-right: clamp(8px, 1.6vw, 18px) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] body:has(#page-overview.active) .main-content {
+        padding-right: max(4px, env(safe-area-inset-right)) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview.workbench-page {
+        box-sizing: border-box;
+        padding-right: calc(clamp(8px, 1.6vw, 18px) - 4px);
+        scrollbar-gutter: stable;
+    }
+
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) .main-content {
+        padding-left: 4px !important;
+    }
+
+    /* 平板横屏恢复原始三栏宽度；窄竖屏在后续 860px 规则中按比例收窄。 */
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) #writeCatalog:not(.collapsed) {
+        width: 220px !important;
+        flex-shrink: 0;
+    }
+
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) .write-action-panel:not(.collapsed) {
+        width: 380px !important;
+        flex-shrink: 0;
+    }
+
+    /* 平板展开的章节目录和三 Tab 操作栏继续透出统一写作壁纸。 */
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) #writeCatalog:not(.collapsed),
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) .write-action-panel:not(.collapsed),
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) #writeCatalog + .divider-v[data-drag="catalog-main"],
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) .divider-v[data-drag="main-action"] {
+        background: transparent !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar #collapseBtn {
+        display: none !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar #homeBtn {
+        top:
+            calc(13px + max(
+                env(safe-area-inset-top),
+                var(--zhiyu-tablet-viewport-top, 0px)
+            )) !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar.collapsed #userBar {
+        width: 100%;
+        padding: 10px 4px !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar.collapsed #userBar > div {
+        justify-content: center;
+        gap: 0 !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar.collapsed #userBar > div > div:not(#userAvatar) {
+        display: none !important;
+    }
+
+    html[data-zhiyu-device="tablet"] #sidebar.collapsed #userAvatar {
+        margin-inline: auto;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="catalog-main"],
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="main-action"] {
+        cursor: default;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="catalog-main"] .drag-handle,
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="main-action"] .drag-handle {
+        display: none;
+    }
+
+    /* 平板写作页的面板收起/展开按钮统一沿用关联文件区域的胶囊样式。 */
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="catalog-main"] .divider-toggle,
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="main-action"] .divider-toggle,
+    html[data-zhiyu-device="tablet"] #page-write #ogInputToggleBtn {
+        display: inline-flex;
+        top: 50% !important;
+        width: 34px;
+        height: 24px;
+        min-height: 24px;
+        padding: 0;
+        border: 1px solid #d4d8de;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: none;
+        color: #999;
+        font-size: 14px !important;
+        font-weight: 800;
+        line-height: 1;
+        touch-action: manipulation;
+        align-items: center;
+        justify-content: center;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="catalog-main"] .divider-toggle:hover,
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="main-action"] .divider-toggle:hover,
+    html[data-zhiyu-device="tablet"] #page-write #ogInputToggleBtn:hover {
+        background: #fff;
+        color: #999;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="catalog-main"] .divider-toggle {
+        right: -17px;
+        transform: translateY(-50%);
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write .divider-v[data-drag="main-action"] .divider-toggle {
+        left: -17px;
+        transform: translateY(-50%);
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider {
+        cursor: default;
+        position: relative;
+        overflow: visible;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider .drag-handle {
+        display: none;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write #ogInputToggleBtn {
+        position: absolute;
+        left: 50%;
+        z-index: 12;
+        transform: translate(-50%, -50%);
+    }
+
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #ogInputArea,
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #btnActionModelSelect,
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #btnOGSend,
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #fineOutlineStepStrip,
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #decomposeStepStrip,
+    html[data-zhiyu-device="tablet"] #page-write #ogDragDivider.tablet-input-collapsed ~ #actionBtnsBottom {
+        display: none !important;
+    }
+
+    html[data-zhiyu-device="tablet"] body:has(#page-write.active) .write-plot {
+        min-height: 168px !important;
+    }
+}
+
+@media (max-width: 860px) {
+    /* 窄平板和窄桌面继续使用三栏流式布局，三栏共同收缩并为正文按钮保留空间。 */
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) #writeCatalog:not(.collapsed) {
+        width: clamp(120px, 20vw, 180px) !important;
+        min-width: 100px;
+        flex-shrink: 1;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .write-action-panel:not(.collapsed) {
+        width: clamp(180px, 30vw, 260px) !important;
+        min-width: 180px;
+        flex-shrink: 1;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .write-right > div:first-child {
+        min-width: 200px !important;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .write-plot {
+        height: 270px !important;
+        padding-inline: 4px;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .chapter-compose-shell {
+        min-height: 0;
+        padding-inline: 2px;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .chapter-compose-bottom > button {
+        padding-inline: 6px;
+    }
+
+    button,
+    [role="button"],
+    input,
+    select,
+    textarea {
+        touch-action: manipulation;
+    }
+
+    #page-overview .workbench-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .overview-head-actions {
+        grid-template-columns: minmax(0, 1fr);
+        justify-content: stretch;
+    }
+
+    #page-overview .overview-recharge-entry,
+    #page-overview .workbench-tabs {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #page-overview .overview-announcement-progress {
+        display: none;
+    }
+
+    #page-overview #panel-works {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #page-overview .overview-top-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .overview-quick-panel {
+        height: auto;
+    }
+
+    #page-overview .overview-action-row {
+        height: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: 46px;
+    }
+
+    #page-overview .overview-action-tile {
+        min-width: 0;
+        padding-inline: 10px;
+    }
+
+    #page-overview .overview-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, 82px);
+        gap: 10px;
+    }
+
+    #page-overview .overview-stat-item {
+        height: 82px;
+    }
+
+    #page-overview .overview-list-panel,
+    #page-overview .overview-bottom-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    #page-overview .overview-section-head {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #page-overview .overview-list-tools {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #page-overview .workbench-search {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+    }
+
+    #page-overview .overview-book-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .overview-side-grid {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(300px, auto));
+    }
+
+    #page-overview .overview-edit-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .overview-table-select {
+        justify-self: stretch;
+        width: 100%;
+        min-height: 44px;
+        margin-right: 0;
+    }
+
+    #page-template > div {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    #page-template > div:first-child {
+        flex-wrap: wrap;
+    }
+
+    #page-template > div:first-child > span {
+        display: none;
+    }
+
+    #page-template #templateTabs,
+    #templateLength,
+    #templateSubCat {
+        width: 100%;
+        min-width: 0;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+    }
+
+    #page-template #templateTabs {
+        order: 1;
+    }
+
+    #btnManageTemplates {
+        order: 2;
+        min-height: 44px;
+        margin-left: auto;
+    }
+
+    #templateLength .btn,
+    #templateSubCat .btn {
+        min-height: 40px;
+        flex: 0 0 auto;
+    }
+
+    #templateSort {
+        min-height: 44px;
+    }
+
+    #templateSearch {
+        width: 100%;
+        min-width: 0 !important;
+        min-height: 44px;
+        flex-basis: 100% !important;
+    }
+
+    .memory-main-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)) !important;
+    }
+
+    .workbench-title {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 600px) {
+    .single-auth-screen.active {
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .single-auth-left {
+        min-height: 150px;
+        padding:
+            max(24px, env(safe-area-inset-top))
+            max(18px, env(safe-area-inset-right))
+            24px
+            max(18px, env(safe-area-inset-left));
+    }
+
+    .single-auth-brand h1 {
+        margin-bottom: 4px;
+        font-size: 30px;
+    }
+
+    .single-auth-brand .single-auth-en {
+        margin-bottom: 0;
+    }
+
+    .single-auth-points {
+        display: none;
+    }
+
+    .single-auth-right {
+        min-height: calc(100dvh - 150px);
+        padding:
+            22px
+            max(16px, env(safe-area-inset-right))
+            max(24px, env(safe-area-inset-bottom))
+            max(16px, env(safe-area-inset-left));
+        align-items: flex-start;
+    }
+
+    .single-auth-logo-wrap img {
+        width: 112px;
+        height: 112px;
+    }
+
+    .single-auth-account-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-overlay > .modal-box,
+    .modal-overlay > [role="dialog"] {
+        width: calc(100vw - 16px) !important;
+        border-radius: 12px !important;
+    }
+
+    #page-overview .overview-announcement-bar {
+        padding-inline: 14px;
+    }
+
+    #page-overview .overview-book-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .overview-action-title {
+        font-size: 14px;
+    }
+
+    #page-overview .overview-list-panel,
+    #page-overview .overview-bottom-card {
+        padding: 14px 12px;
+    }
+
+    #page-overview .overview-sixday-bars {
+        left: 44px;
+        right: 6px;
+        gap: 6px;
+    }
+
+    #page-overview .overview-sixday-bar {
+        width: min(22px, 8vw);
+    }
+
+    #page-overview .book-card .overview-book-card-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #page-overview .book-card .btn-row .btn {
+        min-height: 40px;
+    }
+
+    .settings-menu-item {
+        min-height: 64px;
+    }
+}
+
+@media (min-width: 861px) and (max-width: 1180px) {
+    /* 窄桌面仍保留三栏，适度收窄两侧栏，避免中间生成区被压成极窄列。 */
+    html:is([data-zhiyu-device="desktop"], [data-zhiyu-device="tablet"]) body:has(#page-write.active) #writeCatalog:not(.collapsed) {
+        width: clamp(170px, 20vw, 220px) !important;
+    }
+
+    html:is([data-zhiyu-device="desktop"], [data-zhiyu-device="tablet"]) body:has(#page-write.active) .write-action-panel:not(.collapsed) {
+        width: clamp(280px, 34vw, 380px) !important;
+    }
+}
+
+@media (min-width: 861px) and (max-width: 1024px) {
+    /* 该宽度下顶部工具会换成两行，给模型与生成按钮留出稳定的纵向空间。 */
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .write-plot {
+        height: 220px !important;
+    }
+
+    html:not([data-zhiyu-device="phone"]) body:has(#page-write.active) .chapter-compose-shell {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 1440px) {
+    html[data-zhiyu-device="tablet"] #page-overview #panel-works {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(420px, auto) auto;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-top-grid {
+        --overview-tablet-top-height: 96px;
+        grid-column: 1;
+        grid-row: 1;
+        grid-template-columns: clamp(170px, 24vw, 220px) minmax(0, 1fr);
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-quick-panel,
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-panel {
+        box-sizing: border-box;
+        min-width: 0;
+        height: var(--overview-tablet-top-height);
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-action-row {
+        height: 100%;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-action-tile {
+        min-height: 0;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-grid {
+        height: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-item {
+        min-width: 0;
+        height: auto;
+        padding: 0 8px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-head {
+        width: auto;
+        min-width: 0;
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        gap: 4px;
+        font-size: 13px;
+        line-height: 1.15;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-head > span:last-child {
+        display: inline-block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transform: scale(.82);
+        transform-origin: left center;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-stat-item strong {
+        width: auto;
+        min-width: 0;
+        max-width: 55%;
+        flex: 0 1 auto;
+        margin: 0 0 0 6px;
+        font-size: 24px;
+        line-height: 1.1;
+        text-align: right;
+        transform: scale(.7);
+        transform-origin: right center;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-list-panel {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-side-grid {
+        grid-column: 1;
+        grid-row: 3;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(300px, auto));
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .overview-book-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview :is(#archiveContainer, #trashContainer) {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-flow: row;
+        grid-auto-rows: minmax(190px, auto);
+        align-content: start;
+        align-items: stretch;
+        gap: 18px;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview :is(#archiveContainer, #trashContainer) > .book-card {
+        min-width: 0;
+        min-height: 190px;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview :is(#archiveContainer, #trashContainer) > .book-card .btn-row > .btn {
+        min-width: 0;
+        flex: 1 1 0;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview :is(#archiveContainer, #trashContainer) > :only-child:not(.book-card) {
+        grid-column: 1 / -1;
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .book-card .overview-book-card-actions {
+        grid-template-columns: minmax(0, .88fr) minmax(0, .88fr) minmax(0, 1.24fr);
+    }
+
+    html[data-zhiyu-device="tablet"] #page-overview .book-card .btn-row .btn {
+        min-height: 28px;
+    }
+}
+
+@media (max-width: 1180px), (any-pointer: coarse) and (max-width: 1440px) {
+    :is(
+        #page-overview,
+        #page-write,
+        #page-template,
+        #page-memory,
+        #page-publish,
+        #page-setting,
+        .single-auth-screen
+    ) :is(input, select, textarea):not([data-responsive-font-opt-out]) {
+        font-size: 16px !important;
+    }
+}
+
+@media (hover: none) {
+    #page-overview .overview-action-tile:hover,
+    #page-overview .book-card:hover {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #stepLogFloat .log-status-dot {
+        animation: none !important;
+    }
+
+    .overview-announcement-text,
+    .overview-announcement-progress::before {
+        animation: none !important;
+    }
+}

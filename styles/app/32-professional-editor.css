@@ -1,0 +1,79 @@
+/* TipTap/ProseMirror professional long-form editor surfaces. */
+.professional-editor-host {
+    position: relative;
+    display: block;
+    padding: 0;
+}
+
+.professional-editor-host > .zhiyu-tiptap-surface,
+.professional-editor-host > .professional-editor-raw-layer,
+.professional-editor-host > .professional-editor-legacy-layer {
+    width: 100%;
+    min-height: inherit;
+    box-sizing: border-box;
+}
+
+.professional-editor-host > .zhiyu-tiptap-surface {
+    min-height: 100%;
+    padding: 14px 18px;
+    outline: none;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    caret-color: #1976d2;
+}
+
+.professional-editor-host > .zhiyu-tiptap-surface p {
+    margin: 0 0 0.9em;
+    line-height: 1.8;
+}
+
+.professional-editor-host > .zhiyu-tiptap-surface p:last-child {
+    margin-bottom: 0;
+}
+
+.professional-editor-host > .professional-editor-raw-layer,
+.professional-editor-host > .professional-editor-legacy-layer {
+    padding: 14px 18px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.professional-editor-host > [hidden] {
+    display: none !important;
+}
+
+#outlineResultBox.professional-editor-host > .zhiyu-tiptap-surface,
+#ogContentBox.professional-editor-host > .zhiyu-tiptap-surface,
+#dcContentBox.professional-editor-host > .zhiyu-tiptap-surface {
+    padding: 12px;
+}
+
+#edText.professional-editor-host,
+#ogFileEditor.professional-editor-host {
+    border: 1px solid #d4d8de;
+    border-radius: 8px;
+    background: #fff;
+    overflow: auto;
+}
+
+#edText.professional-editor-host,
+#ogFileEditor.professional-editor-host {
+    border-color: var(--border);
+    background: var(--bg-input);
+    color: var(--text);
+}
+
+#edText.professional-editor-host > .zhiyu-tiptap-surface,
+#ogFileEditor.professional-editor-host > .zhiyu-tiptap-surface {
+    min-height: inherit;
+    padding: 10px;
+    font: inherit;
+}
+
+html[data-professional-editor="fallback"] .professional-editor-host {
+    white-space: pre-wrap;
+}
+
+[data-theme="dark"] .professional-editor-host > .zhiyu-tiptap-surface {
+    caret-color: #64b5f6;
+}

@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="zhiyu-community-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' blob:; frame-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>知屿写作 Omniisle Write 社区版</title>
+    <link rel="icon" href="LOGO-256.png" type="image/png">
+    <link rel="shortcut icon" href="LOGO-256.png" type="image/png">
+    <script src="./scripts/boot/community-mode.js?v=2026082201"></script>
+    <script src="./scripts/boot/theme-bootstrap.js?v=202607280442"></script>
+        <link rel="stylesheet" href="./styles/community-runtime.css?v=8be4cd7aded1">
+    <link rel="stylesheet" href="./styles/community-mode.css?v=2026082201">
+</head>
+<body>
+    <div class="app-wallpaper-layer" id="appWallpaperLayer" aria-hidden="true"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div style="position:absolute;top:13px;left:12px;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;width:28px;height:28px;transition:all 0.3s;" data-zhiyu-static-click="goToHome()" id="homeBtn" title="返回知屿写作主页">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="collapse-btn" id="collapseBtn" title="收起导航栏">◀</div>
+        <div class="logo">知屿写作</div>
+        <div class="logo-sub">Omniisle Write</div>
+        <div class="nav" id="sideNav">
+            <div class="nav-item active" data-page="overview">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18"/></svg>
+                <span>总览</span>
+            </div>
+            <div class="nav-item" data-page="write">
+                <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>写作</span>
+            </div>
+            <div class="nav-item" data-page="memory">
+                <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                <span>记忆</span>
+            </div>
+            <div class="nav-item" data-page="template">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                <span>模版</span>
+            </div>
+            <div class="nav-item" data-page="publish">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>发布</span>
+            </div>
+            <div class="nav-item" data-page="setting">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>设置</span>
+            </div>
+            <div class="sidebar-help-entry" aria-label="帮助入口">
+                <button class="sidebar-help-btn" id="btnOverviewTutorial" type="button" data-zhiyu-static-click="openOverviewTutorial()" title="B站教程">
+                    <svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4z"/><rect x="3" y="5" width="18" height="14" rx="3"/></svg>
+                    <span>教程</span>
+                </button>
+            </div>
+        </div>
+        <!-- 同步状态 -->
+        <div id="syncBar" style="display:none;padding:8px 12px;border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <span style="font-size:13px;">
+                    <span id="syncDot" style="margin-right:2px;">✓</span>
+                    <span id="syncLabel" style="color:rgba(255,255,255,0.7);">已同步</span>
+                </span>
+                <button class="sidebar-theme-quick" id="sidebarDarkModeToggle" type="button" role="switch" aria-checked="false" aria-pressed="false" title="切换夜间模式">
+                    <span>夜间模式</span>
+                    <span class="sidebar-theme-quick-state" id="sidebarDarkModeState">关</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-retired-version-space" aria-hidden="true"></div>
+        <div class="version" id="sidebarVersion">V3.2</div>
+    </div>
+    <div class="main-container">
+        <div class="content-wrapper">
+            <div class="main-content" id="mainContent">
+                <div class="page active workbench-page" id="page-overview">
+                    <div class="workbench-shell">
+                        <div class="workbench-head">
+                            <div class="overview-announcement-bar" id="overviewAnnouncementBar" role="status">
+                                <span class="overview-announcement-viewport"><span class="overview-announcement-text">社区版：作品保存在当前浏览器，请定期导出备份</span></span>
+                                <span class="overview-announcement-progress" aria-hidden="true"></span>
+                            </div>
+                            <div class="overview-head-actions">
+                                <div class="workbench-tabs" id="overviewTabs">
+                                    <span class="tab-item active" data-tab="works">作品</span>
+                                    <span class="tab-item" data-tab="archive">归档</span>
+                                    <span class="tab-item" data-tab="trash">回收站</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="panel-works" style="padding-top:0;">
+                            <div class="overview-top-grid">
+                                <div class="overview-quick-panel">
+                                    <div class="overview-action-row">
+                                        <button class="overview-action-tile" id="createBookCard" type="button">
+                                            <span class="overview-action-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+                                            <span><span class="overview-action-title">新建作品</span><span class="overview-action-desc">创建新的长篇作品</span></span>
+                                        </button>
+                                        <button class="overview-action-tile" id="importBookCard" type="button">
+                                            <span class="overview-action-icon"><svg viewBox="0 0 24 24"><path d="M12 4v12"/><path d="M8 8l4-4 4 4"/><path d="M5 20h14"/></svg></span>
+                                            <span><span class="overview-action-title">导入作品</span><span class="overview-action-desc">从本地文件导入</span></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="overview-stat-panel">
+                                    <div class="overview-stat-grid">
+                                        <div class="overview-stat-item"><span class="overview-stat-head"><span class="overview-stat-icon"><svg viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"/><path d="M15 4v4h4"/><path d="M9 13h6"/><path d="M9 17h4"/></svg></span><span>作品数量</span></span><strong id="overviewActiveCount">0</strong></div>
+                                        <div class="overview-stat-item"><span class="overview-stat-head"><span class="overview-stat-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span>今日字数</span></span><strong id="overviewTodayWords">0</strong></div>
+                                        <div class="overview-stat-item"><span class="overview-stat-head"><span class="overview-stat-icon overview-stat-icon-text">Aa</span><span>全部字数</span></span><strong id="overviewTotalWords">0</strong></div>
+                                        <div class="overview-stat-item"><span class="overview-stat-head"><span class="overview-stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></span><span>创作时长</span></span><strong id="overviewWritingTime">0h</strong></div>
+                                        <div class="overview-stat-item"><span class="overview-stat-head"><span class="overview-stat-icon overview-stat-icon-text">AI</span><span>模型调用</span></span><strong id="overviewModelCalls">0</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overview-list-panel">
+                                <div class="overview-section-head">
+                                    <span>作品列表</span>
+                                    <div class="overview-list-tools">
+                                        <input class="workbench-search" type="text" id="searchBooksInput" placeholder="搜索作品..." value="" autocomplete="new-password" name="search-books">
+                                        <button class="btn btn-outline btn-sm" id="batchManageBtn">批量管理</button>
+                                        <button class="btn btn-outline btn-sm" id="batchArchiveBtn" style="display:none;">归档</button>
+                                        <button class="btn btn-outline btn-sm" id="batchDeleteBtn" style="display:none;color:#e74c3c;">删除</button>
+                                    </div>
+                                </div>
+                                <div class="overview-cards overview-book-list" id="overviewCardsContainer"></div>
+                            </div>
+                            <div class="overview-bottom-grid overview-side-grid">
+                                <div class="overview-bottom-card overview-edit-card" id="overviewEditCard">
+                                    <div class="overview-table-toolbar overview-edit-toolbar">
+                                        <div class="overview-table-title">当前编辑</div>
+                                        <select class="overview-table-select" id="overviewEditBookSelect" title="选择作品"></select>
+                                    </div>
+                                    <div id="overviewEditList"></div>
+                                </div>
+                                <div class="overview-bottom-card overview-sixday-card" id="overviewSixDayCard">
+                                    <h3 class="overview-sixday-title">近6日数据</h3>
+                                    <div class="overview-sixday-chart" id="overviewSixDayChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="panel-archive" class="archive-panel" style="display:none;"><div class="overview-cards" id="archiveContainer"></div></div>
+                        <div id="panel-trash" class="archive-panel" style="display:none;"><div class="overview-cards" id="trashContainer"></div></div>
+                    </div>
+                </div>
+                <div class="page" id="page-write">
+                    <div class="write-layout">
+                        <div class="write-catalog" id="writeCatalog">
+                            <div class="writing-book-picker-bar">
+                                <strong id="currentWritingBookName" class="writing-book-current-name">未选择作品</strong>
+                                <button class="btn btn-outline btn-sm" id="btnChooseWritingBook" type="button">选择作品</button>
+                            </div>
+                            <select id="bookSel" hidden aria-hidden="true" tabindex="-1"><option value="">-- 选择书籍 --</option></select>
+                            <div style="border-bottom:1px dashed var(--border);margin-bottom:8px;"></div>
+                            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;margin-bottom:6px;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                                <button class="btn btn-outline btn-sm" id="btnCatalogTransfer" style="width:100%;min-width:0;justify-content:center;border:none;border-radius:0;border-right:1px solid var(--border);white-space:nowrap;">文件管理</button>
+                                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-width:0;">
+                                    <button class="btn btn-outline btn-sm" id="btnSortAsc" style="width:100%;min-width:0;justify-content:center;border:none;border-radius:0;padding-left:4px;padding-right:4px;white-space:nowrap;">正序</button>
+                                    <button class="btn btn-outline btn-sm" id="btnSortDesc" style="width:100%;min-width:0;justify-content:center;border:none;border-radius:0;padding-left:4px;padding-right:4px;white-space:nowrap;">倒序</button>
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;margin-bottom:6px;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                                <button class="btn btn-outline btn-sm" id="btnNewVolume" style="width:100%;min-width:0;justify-content:center;border:none;border-radius:0;border-right:1px solid var(--border);white-space:nowrap;">新分卷</button>
+                                <button class="btn btn-outline btn-sm" id="btnNewChapter" style="width:100%;min-width:0;justify-content:center;border:none;border-radius:0;white-space:nowrap;">新章节</button>
+                            </div>
+                            <div id="treeContent" style="flex:1; overflow-y:auto;"></div>
+                            <div id="treeRefs" class="catalog-refs"></div>
+                        </div>
+                        <div class="divider-v" data-drag="catalog-main">
+                            <div class="drag-handle"></div>
+                            <button class="divider-toggle" id="catalogToggleBtn" data-target="catalog" title="收起章节目录">◀</button>
+                        </div>
+                        <div class="write-right">
+                            <div style="flex:1;display:flex;flex-direction:column;gap:0;overflow:hidden;min-width:0;">
+                                <div class="btn-row">
+                                    <button class="btn btn-outline btn-sm" id="btnGen" style="display:none;">生成本章</button>
+                                    <button class="btn btn-outline btn-sm" id="btnOutline">生成大纲/功能</button>
+                                    <button class="btn btn-outline btn-sm" id="btnPolish">局部润色</button>
+                                    <button class="btn btn-outline btn-sm" id="btnRewrite">局部重写</button>
+                                    <div class="format-split-btn" id="btnAutoFormat" title="左侧智能整理正文，右侧打开手动排版设置">
+                                        <button type="button" id="btnAutoFormatSmart">智能</button>
+                                        <button type="button" id="btnManualFormatOpen">手动排版</button>
+                                    </div>
+                                    <span style="flex:1;"></span>
+                                    <button class="btn btn-outline btn-sm" id="btnToggleLog" title="执行日志">📋 执行日志</button>
+                                    <button class="btn btn-outline btn-sm" id="btnStop" disabled>暂未生成</button>
+                                </div>
+                                <div class="word-stats" id="wordStats">
+                                    <span>当前编辑：<strong id="editingChapterName">-</strong><span id="dirtyMarker" style="color:#e74c3c;display:none;margin-left:4px;">●</span></span>
+                                    <span style="margin-left:20px;">字数：<strong id="chapWordCount" title="点击切换计数方式" style="cursor:pointer;border-bottom:1px dashed #999;">0</strong><span id="wordCountMode" style="font-size:10px;color:#999;margin-left:4px;">纯字</span></span>
+                                    <span style="margin-left:20px;font-size:12px;color:#999;" id="syncStatusText">-</span>
+                                    <span style="margin-left:20px;">全书：<strong id="totalWordCount">0</strong></span>
+                                    <span id="generatingStatus" style="margin-left:20px;display:none;color:#2196f3;">📡 正在生成：<strong id="generatingChapterName">-</strong></span>
+                                </div>
+                                <div id="wordProgressBar" style="display:none;height:6px;background:#e2e5ea;border-radius:3px;margin:4px 0;overflow:hidden;">
+                                    <div id="wordProgressFill" style="height:100%;background:#4caf50;border-radius:3px;transition:width 0.3s;width:0;"></div>
+                                </div>
+                                <div class="chapter-title-bar" id="chapterTitleBar" style="display:none;"></div>
+                                <div class="write-main-row">
+                                    <div class="write-main-left">
+                                        <div class="write-body" id="resultBox" contenteditable="true" spellcheck="false"></div>
+                                        <div class="btn-row">
+                                            <button class="btn btn-outline btn-sm" id="btnSaveNewChapter">保存章节</button>
+                                            <button class="btn btn-outline btn-sm" id="btnHistoryVersions" style="display:none;" title="查看该章节的历史版本">历史版本</button>
+                                            <button class="btn btn-outline btn-sm" id="btnSaveRefFile" style="display:none;">💾 保存文件</button>
+                                            <button class="btn btn-outline btn-sm" id="btnFindReplace" style="display:none;">🔍 查询替换</button>
+                                            <button class="btn btn-outline btn-sm" id="btnCopy" type="button">复制</button>
+                                            <button class="btn btn-outline btn-sm" id="btnRegen" type="button" style="display:none;">🔄 重新润色</button>
+                                            <button class="btn btn-outline btn-sm" id="btnConfirm" disabled>确定使用</button>
+                                <button class="btn btn-outline btn-sm ai-feedback-toggle plot-feedback-btn member-feature-btn" id="btnToggleAIFeedback" title="打开知屿助手，仅用于独立对话" type="button">知屿助手<span class="ai-feedback-badge" id="aiFeedbackBadge"></span></button>
+                                        </div>
+                                        <div class="divider-h" data-drag="body-plot">
+                                            <div class="drag-handle"></div>
+                                        </div>
+                                        <div class="write-plot">
+                                            <div class="plot-chat-shell chapter-compose-shell">
+                                                <div class="chapter-compose-top">
+                                                    <button class="chapter-compose-btn" id="btnComposerLinkFiles" title="选择本章生成时必须参考的关联文件" type="button">@ 关联文件 <span id="composerLinkedFileCount"></span></button>
+                                                    <button class="chapter-compose-btn" id="btnComposerRefChapters" title="选择前文章节正文、章节概要和关键事件概要" type="button"><svg class="chapter-compose-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21.4 11.6 12 21a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 1 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.9-2.8l8.6-8.6"/></svg>参考上文 <span id="composerRefChapterCount">已选择 0</span></button>
+                                                    <div class="chapter-compose-template-wrap">
+                                                        <div class="chapter-compose-template" role="group" aria-label="提示词模版">
+                                                            <button class="chapter-compose-template-main" id="btnComposerTemplate" title="打开提示词模板选择弹窗" type="button"><span id="composerTemplateName">选择提示词模版</span></button>
+                                                            <button class="chapter-compose-template-arrow" id="btnComposerTemplateMenu" title="展开常用提示词模版" aria-label="展开常用提示词模版" aria-expanded="false" type="button"><svg class="chapter-compose-template-arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5l8 14L20 5" /></svg></button>
+                                                        </div>
+                                                    </div>
+                                                    <label class="chapter-compose-word-target" title="留空时优先读取提示词模版中的明确字数；模版未写则按 3000 字">
+                                                        <span>本章字数：</span><input id="chapterTargetWordsInput" type="number" min="1" step="100" inputmode="numeric" placeholder="自动"><span>字</span>
+                                                    </label>
+                                                </div>
+                                                <textarea id="plotInput" placeholder="输入剧情描述生成的内容会更加精准 . . . . . ." style="font-size:13px;font-family:inherit;"></textarea>
+                                                <div class="chapter-compose-bottom">
+                                                    <button class="chapter-compose-btn" id="btnModelSelect" title="选择模型" type="button">🤖 模型 ▼</button>
+                                                    <div class="chapter-compose-generate-group">
+                                                        <button class="chapter-compose-generate" id="btnComposerGenerate" title="按当前输入、模板和关联文件生成本章正文" type="button" disabled>生成本章</button>
+                                                        <button class="flow-help-trigger chapter-compose-readiness-help" type="button" data-flow-help="chapter-generate-readiness" title="查看生成本章的使用条件" aria-label="查看生成本章的使用条件" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="divider-v" data-drag="main-action"><div class="drag-handle"></div><button class="divider-toggle" data-target="action" title="收起操作栏">▶</button></div>
+                            <div class="write-action-panel">
+                                <div class="action-tab-bar">
+                                    <button class="action-tab-btn active" data-tab="fineOutline"><span class="action-tab-label">细纲</span><span class="action-tab-clear" data-clear-tab="fineOutline" title="清除细纲内容">清除</span></button>
+                                    <button class="action-tab-btn" data-tab="decompose" ><span class="action-tab-label">拆书</span><span class="action-tab-clear" data-clear-tab="decompose" title="清除拆书内容">清除</span></button>
+                                </div>
+                                <!-- 两个独立 AI 生成结果框（每个标签一个，各含停止按钮） -->
+                                <div class="og-content-wrap" id="ogContentWrap">
+                                    <div class="action-content-box" id="ogContentBox" contenteditable="true"></div>
+                                    <button class="gen-stop-btn" id="ogStopBtn" title="停止生成" data-zhiyu-static-click="stopOGGeneration()">✕</button>
+                                </div>
+                                <div class="og-content-wrap" id="dcContentWrap" style="display:none;">
+                                    <div class="action-content-box" id="dcContentBox" contenteditable="true"></div>
+                                    <button class="gen-stop-btn" id="dcStopBtn" title="停止生成" data-zhiyu-static-click="stopDCGeneration()">✕</button>
+                                </div>
+
+                                <!-- 细纲工具区 -->
+                                <div class="og-tool-panel" id="ogFileStacksRow">
+                                    <div class="og-stacks-wrap" style="display:none;">
+                                        <div class="og-file-stack" id="ogStackChapters" data-stack="chapters" style="display:none;">
+                                            <div class="og-stack-label">章节</div>
+                                            <div class="og-stack-icons" id="ogStackChaptersIcons"></div>
+                                        </div>
+                                        <div class="og-file-stack" id="ogStackLinked" data-stack="linked" style="display:none;">
+                                            <div class="og-stack-label">关联</div>
+                                            <div class="og-stack-icons" id="ogStackLinkedIcons"></div>
+                                        </div>
+                                    </div>
+                                    <div class="og-tool-actions">
+                                        <div class="og-tool-main-row">
+                                            <button class="btn-og-action" id="btnOGPickOutline">选择大纲</button>
+                                            <button class="btn-og-action" id="btnOGLinkFiles">@ 关联文件</button>
+                                            <button class="btn-og-action" id="btnOGSave" title="保存细纲到记忆库">保存细纲</button>
+                                        </div>
+                                        <div class="og-tool-template-row">
+                                            <div class="action-template-picker" role="group" aria-label="细纲提示词模版">
+                                                <button class="btn-og-action btn-og-template" id="btnOGTemplate">提示词模版</button>
+                                                <button class="action-template-arrow" id="btnOGTemplateMenu" type="button" title="展开细纲常用提示词模版" aria-label="展开细纲常用提示词模版" aria-expanded="false">⌄</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 拆书工具区 -->
+                                <div class="og-tool-panel" id="dcFileStacksRow" style="display:none;">
+                                    <div class="og-stacks-wrap" style="display:none;">
+                                        <div class="og-file-stack" id="dcStackChapters" data-stack="chapters" style="display:none;">
+                                            <div class="og-stack-label">导入</div>
+                                            <div class="og-stack-icons" id="dcStackChaptersIcons"></div>
+                                        </div>
+                                    </div>
+                                    <div class="og-tool-actions">
+                                        <div class="og-tool-main-row">
+                                            <button class="btn-og-action" id="btnDCImportBook" title="从书籍导入章节">导入书籍</button>
+                                            <button class="btn-og-action" id="btnDCSave" title="保存拆书">保存拆书</button>
+                                        </div>
+                                        <div class="og-tool-template-row">
+                                            <div class="action-template-picker" role="group" aria-label="拆书提示词模版">
+                                                <button class="btn-og-action btn-og-template" id="btnDCTemplate">提示词模版</button>
+                                                <button class="action-template-arrow" id="btnDCTemplateMenu" type="button" title="展开拆书常用提示词模版" aria-label="展开拆书常用提示词模版" aria-expanded="false">⌄</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 可上下拖动分割线（仅细纲Tab显示） -->
+                                <div class="divider-h og-drag-divider" id="ogDragDivider" data-drag="og-content-input" style="display:none;"><div class="drag-handle"></div><button class="og-input-toggle" id="ogInputToggleBtn" type="button" aria-controls="ogInputArea" aria-expanded="true" title="收起剧情描述输入区">▼</button></div>
+                                <!-- 细纲描述输入区（仅细纲Tab显示） -->
+                                <div class="og-input-area" id="ogInputArea" style="display:none;">
+                                    <textarea id="ogDescInput" placeholder="在此输入大纲描述或剧情走向..."></textarea>
+                                </div>
+                                <button class="action-model-btn" id="btnActionModelSelect" type="button" title="选择细纲和拆书使用的模型" style="display:none;">模型 ▼</button>
+<button class="og-send-btn" id="btnOGSend" title="开始生成细纲" style="display:none;">↑</button>
+<div class="ai-step-strip" id="fineOutlineStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
+<div class="ai-step-strip" id="decomposeStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
+                                <!-- 底部按钮（拆书/AI消痕Tab用） -->
+                                <div class="action-btns-bottom" id="actionBtnsBottom">
+                                    <button id="btnRegenAction">重新生成</button>
+                                    <button id="btnConfirmAction">确定使用</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-log-float" id="stepLogFloat">
+                    <div class="log-header">📋 执行日志 <span class="log-close" id="btnCloseLog">✕</span></div>
+                    <div class="log-body" id="stepLogBody"></div>
+                </div>
+                <div class="step-log-float ai-feedback-float" id="aiFeedbackFloat">
+                    <div class="log-header ai-feedback-header"><span>知屿助手</span><span class="ai-feedback-count" id="aiFeedbackDailyCount">当日对话：0 次</span><button class="ai-feedback-clear" id="btnClearAIFeedback" title="清空当前知屿助手聊天记录" type="button">清空聊天记录</button><span class="log-close" id="btnCloseAIFeedback">✕</span></div>
+                    <div class="log-body" id="aiFeedbackBody"><div class="ai-feedback-empty">还没有消息。你可以在下方输入内容与知屿助手对话。</div></div>
+                    <div class="ai-feedback-input-shell">
+                        <textarea id="aiFeedbackInput" placeholder="输入你的消息，只用于知屿助手，不参与生成本章正文"></textarea>
+                        <input type="file" id="plotRefFileInput" accept=".txt,.md,.markdown,.csv,.json" style="display:none;">
+                        <input type="file" id="plotRefFolderInput" webkitdirectory multiple style="display:none;">
+                        <button class="ai-feedback-tool-btn ai-feedback-upload-btn" id="btnPlotUpload" title="添加仅供知屿助手使用的参考文件" type="button">+</button>
+                        <div class="plot-upload-menu ai-feedback-upload-menu" id="plotUploadMenu">
+                            <button type="button" id="btnPlotChooseMemory">选择记忆库文件</button>
+                            <button type="button" id="btnPlotUploadFile">上传本地文件</button>
+                            <button type="button" id="btnPlotUploadFolder">上传本地文件夹</button>
+                        </div>
+                        <div class="plot-file-chip ai-feedback-file-chip" id="plotFileChip"></div>
+                        <button class="ai-feedback-tool-btn ai-feedback-send-btn" id="btnPlotSend" title="发送给知屿助手" type="button">↑</button>
+                    </div>
+                </div>
+                <div class="page" id="page-template">
+                    <div style="display:flex; gap:20px; margin-bottom:12px; align-items:center;">
+                        <div style="display:flex; gap:15px;" id="templateTabs">
+                            <span class="tab-item active" data-tab="all">全部</span>
+                            <span class="tab-item" data-tab="fav">已收藏</span>
+                            <span class="tab-item" data-tab="used">曾经用过</span>
+                        </div>
+                        <span style="flex:1;"></span>
+                        <button class="btn btn-outline btn-sm" id="btnManageTemplates">管理我的模版</button>
+                    </div>
+                    <div style="display:flex; gap:20px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center; font-size:13px; color:#555;">篇幅类型</div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;" id="templateLength">
+                            <button class="btn btn-outline btn-sm active" data-len="all">全部</button>
+                            <button class="btn btn-outline btn-sm" data-len="general">通用</button>
+                            <button class="btn btn-outline btn-sm" data-len="super-short">超短篇</button>
+                            <button class="btn btn-outline btn-sm" data-len="short">短篇</button>
+                            <button class="btn btn-outline btn-sm" data-len="medium">中篇</button>
+                            <button class="btn btn-outline btn-sm" data-len="long">长篇</button>
+                            <button class="btn btn-outline btn-sm" data-len="script">剧本</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:20px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center; font-size:13px; color:#555;">模板分类</div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;" id="templateSubCat">
+                            <button class="btn btn-outline btn-sm active" data-sub="all">全部</button>
+                            <button class="btn btn-outline btn-sm" data-sub="通用">通用</button>
+                            <button class="btn btn-outline btn-sm" data-sub="正文">正文</button>
+                            <button class="btn btn-outline btn-sm" data-sub="续写">续写</button>
+                            <button class="btn btn-outline btn-sm" data-sub="大纲">大纲</button>
+                            <button class="btn btn-outline btn-sm" data-sub="拆书">拆书</button>
+                            <button class="btn btn-outline btn-sm" data-sub="细纲">细纲</button>
+                            <button class="btn btn-outline btn-sm" data-sub="AI消痕">AI消痕</button>
+                            <button class="btn btn-outline btn-sm" data-sub="开篇">开篇</button>
+                            <button class="btn btn-outline btn-sm" data-sub="角色">角色</button>
+                            <button class="btn btn-outline btn-sm" data-sub="分镜">分镜</button>
+                            <button class="btn btn-outline btn-sm" data-sub="其他">其他</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:20px; margin-bottom:12px; align-items:center; flex-wrap:wrap;">
+                        <div style="display:flex; gap:8px; align-items:center; font-size:13px; color:#555;">内容排序</div>
+                        <select id="templateSort" style="width:auto; padding:6px 12px; border-radius:10px; border:1px solid #d4d8de; font-size:13px;">
+                            <option value="综合">综合</option>
+                            <option value="热门">热门</option>
+                            <option value="最新">最新</option>
+                            <option value="榜单">榜单</option>
+                        </select>
+                        <input type="text" id="templateSearch" placeholder="请输入关键词...." style="flex:1; min-width:200px; padding:8px 12px;">
+                        <span id="templateCount" style="font-size:13px; color:#888; white-space:nowrap;">共找到 0 个模版</span>
+                    </div>
+                    <div id="templateGrid"></div>
+                    <div id="templatePagination" class="template-pagination"></div>
+                </div>
+                <div class="page workbench-page" id="page-memory">
+                    <div id="memMain">
+                        <div class="workbench-shell">
+                            <div class="workbench-head">
+                                <div>
+                                    <div class="workbench-kicker">MEMORY FILES</div>
+                                    <h2 class="workbench-title">记忆文件</h2>
+                                    <div class="workbench-subtitle">按书籍管理关联文件、细纲和拆书结果。</div>
+                                </div>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                                    <button class="btn btn-outline btn-sm" id="btnMemBatchManageMain">批量管理</button>
+                                    <button class="btn btn-outline btn-sm" id="btnImportMemBook">导入记忆书籍</button>
+                                </div>
+                            </div>
+                            <div class="memory-main-grid" id="memBookGrid"></div>
+                            <div id="memMainBatchActions" style="display:none;margin-top:12px;gap:8px;align-items:center;">
+                                <button class="btn btn-outline btn-sm" id="btnMemMainBatchDelete" style="color:#e74c3c;">删除选中</button>
+                                <span id="memMainSelectedCount" style="font-size:12px;color:#888;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="memSub" style="display:none;flex-direction:column;height:100%;">
+                        <div class="btn-row" style="margin-bottom:12px;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;">
+                            <div style="display:flex;gap:10px;align-items:center;">
+                                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="closeMem()" style="gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>返回</button>
+                                <span id="memTitle" style="font-weight:600;"></span>
+                            </div>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                                <button class="btn btn-outline btn-sm" id="btnNewMemFolder">新建文件夹</button>
+                                <button class="btn btn-outline btn-sm" id="btnMemFileImport">导入文件</button>
+                                <button class="btn btn-outline btn-sm" id="btnMemFolderImport">导入文件夹</button>
+                                <button class="btn btn-outline btn-sm" id="btnMemBatchDelete" style="display:none;color:#e74c3c;font-weight:500;">删除</button>
+                                <button class="btn btn-outline btn-sm" id="btnMemBatchMove" style="display:none;">移动</button>
+                                <button class="btn btn-outline btn-sm" id="btnMemBatchTag" style="display:none;">标签</button>
+                                <span style="flex:1;min-width:10px;"></span>
+                                <button class="btn btn-outline btn-sm" id="btnMemBatchManageSub" style="font-weight:500;">批量管理</button>
+                            </div>
+                        </div>
+                        <div id="memBatchActions" style="display:none;margin-bottom:10px;gap:10px;align-items:center;">
+                            <span id="memSelectedCount" style="font-size:13px;color:#666;">已选择: 0 项</span>
+                            <button class="btn btn-dark btn-sm" id="btnMemSelectAll">全选</button>
+                            <button class="btn btn-outline btn-sm" id="btnMemSelectInverse">反选</button>
+                        </div>
+                        <div class="memory-sub-browser">
+                            <!-- 左侧文件夹列表 -->
+                            <div id="memFolderSidebar" class="memory-folder-sidebar" style="overflow-y:auto;"></div>
+                            <!-- 右侧文件列表 -->
+                            <div class="tree-container memory-file-grid" id="memTree" style="flex:1;width:100%;max-width:none;overflow-y:auto;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" id="page-publish">
+                    <div style="font-size:20px;font-weight:700;margin-bottom:16px;">发布设置</div>
+                    <div style="color:#999;font-size:14px;margin-bottom:20px;">之后会上线一键发布功能</div>
+                    <div id="pubList" style="display:flex;flex-wrap:wrap;gap:16px;"></div>
+                </div>
+                <div class="page workbench-page" id="page-setting">
+                    <div class="workbench-shell">
+                        <div class="workbench-head">
+                            <div>
+                                <div class="workbench-kicker">SETTINGS</div>
+                                <h2 class="workbench-title">设置中心</h2>
+                                <div class="workbench-subtitle">管理通用选项、客户端外观和版本信息。</div>
+                            </div>
+                        </div>
+                        <div class="settings-layout">
+                            <aside class="settings-menu" aria-label="设置分类">
+                                <button class="settings-menu-item active" data-target="settingSectionGeneral" type="button">
+                                    <strong>通用设置</strong><span>字体、夜间模式、备份和安全</span>
+                                </button>
+                                <button class="settings-menu-item" data-target="settingSectionAppearance" type="button">
+                                    <strong>外观</strong><span>主题配色与界面风格</span>
+                                </button>
+                                <button class="settings-menu-item" data-target="settingSectionAbout" type="button">
+                                    <strong>版本关于</strong><span>版本信息与更新日志</span>
+                                </button>
+                            </aside>
+                            <div class="settings-content-grid">
+                                <div class="settings-section active" id="settingSectionGeneral">
+                                <section class="settings-panel settings-feature-panel" id="settingPanelGeneral">
+                                    <h3>基础设置</h3>
+                                    <div class="settings-preference-row">
+                                        <div><strong>字体大小</strong><span>调整客户端主要界面的文字大小。</span></div>
+                                        <div class="settings-segmented" id="fontSizeOptions" aria-label="字体大小">
+                                            <button type="button" data-font-size="small">小</button>
+                                            <button type="button" data-font-size="medium">中</button>
+                                            <button type="button" data-font-size="large">大</button>
+                                            <button type="button" data-font-size="xlarge">超大</button>
+                                        </div>
+                                    </div>
+                                    <div class="settings-preference-row">
+                                        <div><strong>夜间模式</strong><span>降低暗光环境下的屏幕亮度与视觉刺激。</span></div>
+                                        <label class="settings-switch">
+                                            <input type="checkbox" id="darkModeToggle">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </section>
+                                <section class="settings-panel" id="settingPanelBackup">
+                                    <h3>数据备份</h3>
+                                    <div class="settings-panel-desc">按作品导入或导出知屿 ZIP；同名作品会作为新副本导入，不覆盖本地原作品。</div>
+                                    <div class="settings-actions">
+                                        <button class="btn btn-outline btn-sm" id="btnExportAll">导出作品备份</button>
+                                        <button class="btn btn-outline btn-sm" id="btnImportAll">导入作品备份</button>
+                                        <button class="btn btn-outline btn-sm" id="btnExportTxt">当前作品文件管理</button>
+                                        <input type="file" id="importFilePicker" accept=".zip,.json,.md,.txt,.doc" multiple style="display:none;">
+                                    </div>
+                                </section>
+                                <section class="settings-panel" id="settingPanelSecurity">
+                                    <h3>安全设置</h3>
+                                    <div class="settings-panel-desc">API 密钥保存在本地浏览器环境中。共享电脑使用时，建议退出账号并清理本地数据。</div>
+                                </section>
+                                </div>
+                                <div class="settings-section" id="settingSectionAppearance" hidden>
+                                    <section class="settings-panel settings-feature-panel" id="settingPanelAppearance">
+                                        <div class="settings-section-heading">
+                                            <div><h3>主题</h3><p>选择喜欢的客户端配色风格，修改后将应用到整个客户端。</p></div>
+                                            <span class="settings-save-hint">修改会自动生效</span>
+                                        </div>
+                                        <div class="settings-theme-grid" id="settingsThemeGrid" aria-label="主题选择"></div>
+                                        <div class="settings-subsection-heading">
+                                            <div><h3>壁纸</h3><p>选择内置壁纸，或导入最多两张本机图片。</p></div>
+                                            <button class="btn btn-outline btn-sm" id="btnImportWallpaper" type="button">导入背景图</button>
+                                            <input type="file" id="wallpaperFilePicker" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" hidden>
+                                        </div>
+                                        <div class="settings-wallpaper-grid" id="settingsWallpaperGrid" aria-label="壁纸选择"></div>
+                                        <div class="settings-opacity-control">
+                                            <div><label for="wallpaperOpacity">背景图透明度</label><output id="wallpaperOpacityValue" for="wallpaperOpacity">50%</output></div>
+                                            <input type="range" id="wallpaperOpacity" min="0" max="100" step="1" value="50">
+                                            <p>0% 完整显示背景图；100% 在白天为白色背景、夜间为深色背景。文字和功能区不会随透明度改变。</p>
+                                        </div>
+                                        <div class="settings-local-note">导入的图片只保存在当前设备，不会发送到外部网络，也不会进入作品导出文件。</div>
+                                    </section>
+                                </div>
+                                <div class="settings-section" id="settingSectionAbout" hidden>
+                                    <section class="settings-panel settings-feature-panel" id="settingPanelAbout">
+                                        <h3>版本关于</h3>
+                                        <div class="settings-preference-row">
+                                            <div><strong>当前版本</strong><span>知屿写作拆分测试版</span></div>
+                                            <span class="settings-version" id="settingVersionValue">V3.2</span>
+                                        </div>
+                                        <div class="settings-preference-row">
+                                            <div><strong>更新说明</strong><span>查看当前版本的功能调整与问题修复记录。</span></div>
+                                            <button class="btn btn-outline btn-sm" id="btnOpenUpdateNotes" type="button">查看更新说明</button>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 悬浮工具栏 ===== -->
+    <div class="selection-toolbar" id="selectionToolbar">
+        <span class="word-count" id="selectionWordCount">已选择 0 字</span>
+        <button class="toolbar-btn" id="toolbarBold" title="加粗 (Ctrl+B)">B</button>
+        <button class="toolbar-btn" id="toolbarItalic" title="倾斜 (Ctrl+I)">I</button>
+        <button class="toolbar-btn" id="toolbarUnderline" title="下划线 (Ctrl+U)">U</button>
+        <input type="color" class="color-picker" id="toolbarColor" title="文字颜色">
+                            <button class="polish-btn" id="toolbarPolish">优化选中</button>
+    </div>
+
+    <div class="modal-overlay" id="manualFormatModal" data-zhiyu-static-click="Modal.close('manualFormatModal')">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()" style="width:520px;">
+            <h3 style="margin-bottom:8px;">手动排版</h3>
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">调整正文编辑框的显示样式；勾选段首缩进时会整理正文段落。</div>
+            <div class="manual-format-grid">
+                <div class="manual-format-field">
+                    <label for="manualFontSize">字号</label>
+                    <select id="manualFontSize">
+                        <option value="14px">14px</option>
+                        <option value="15px">15px</option>
+                        <option value="16px">16px</option>
+                        <option value="17px">17px</option>
+                        <option value="18px">18px</option>
+                        <option value="20px">20px</option>
+                    </select>
+                </div>
+                <div class="manual-format-field">
+                    <label for="manualTextColor">文字颜色</label>
+                    <input type="color" id="manualTextColor" value="#1e1e28">
+                </div>
+                <div class="manual-format-field">
+                    <label for="manualLineHeight">行距</label>
+                    <select id="manualLineHeight">
+                        <option value="1.6">1.6</option>
+                        <option value="1.8">1.8</option>
+                        <option value="2">2.0</option>
+                        <option value="2.2">2.2</option>
+                    </select>
+                </div>
+                <div class="manual-format-field">
+                    <label for="manualIndentSpaces">段首缩进</label>
+                    <select id="manualIndentSpaces">
+                        <option value="0">不整理</option>
+                        <option value="2">2个全角空格</option>
+                        <option value="4">4个全角空格</option>
+                    </select>
+                </div>
+            </div>
+            <label class="manual-format-check"><input type="checkbox" id="manualNormalizeParagraphs"> 清理多余空行并按段落重排</label>
+            <div class="manual-format-actions">
+                <button class="btn btn-outline btn-sm" id="btnManualFormatReset" type="button">恢复默认</button>
+                <button class="btn btn-outline btn-sm" type="button" data-zhiyu-static-click="Modal.close('manualFormatModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnManualFormatApply" type="button">应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模型选择弹窗（新）===== -->
+    <div class="modal-overlay" id="modelSelectModal" data-zhiyu-static-click="Modal.close('modelSelectModal')">
+        <div class="model-picker-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="model-picker-sidebar">
+                <div class="model-picker-cat active" data-cat="basic">基础模型</div>
+                <div class="model-picker-cat advanced" data-cat="advanced">高级模型</div>
+            </div>
+            <div class="model-picker-main">
+                <div class="model-picker-header">
+                    <span id="modelPickerTitle">基础模型</span>
+                    <span class="close-btn" data-zhiyu-static-click="Modal.close('modelSelectModal')">×</span>
+                </div>
+                <div class="model-picker-list" id="modelPickerList"></div>
+                <div class="model-picker-footer">
+                    <button class="btn-cancel" data-zhiyu-static-click="Modal.close('modelSelectModal')">取消</button>
+                    <button class="btn-add" data-zhiyu-static-click="Modal.open('addModelModal')">添加模型</button>
+                    <button class="btn-confirm" id="btnConfirmModelSelect">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 添加自定义模型弹窗 ===== -->
+    <div class="modal-overlay" id="addModelModal">
+        <div class="modal-box" style="width:480px;" data-zhiyu-static-click="event.stopPropagation()">
+            <h3 style="margin-bottom:16px;">添加模型</h3>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">API 提供商</label>
+                <select id="customModelProvider" style="width:100%;padding:8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
+                    <option value="">选择提供商</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="deepseek">DeepSeek</option>
+                    <option value="minimax">MiniMax</option>
+                    <option value="qwen">Qwen（通义千问）</option>
+                    <option value="glm">GLM（智谱）</option>
+                    <option value="kimi">Kimi（月之暗面）</option>
+                    <option value="claude">Claude（Anthropic）</option>
+                    <option value="siliconflow">硅基流动（免费）</option>
+                    <option value="gemini">Gemini（Google）</option>
+                    <option value="grok">Grok（xAI）</option>
+                    <option value="custom">自定义中转站</option>
+                </select>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">基础 URL</label>
+                <input id="customModelBase" placeholder="https://api.example.com" style="width:100%;padding:8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">API 密钥</label>
+                <div style="position:relative;">
+                    <input id="customModelKey" type="password" placeholder="sk-..." style="width:100%;padding:8px 36px 8px 8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
+                    <span id="toggleKeyVisibility" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;user-select:none;">👁️</span>
+                </div>
+                <div style="font-size:11px;color:#888;margin-top:4px;">此密钥存储在本地，仅用于从此扩展程序发出 API 请求</div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">模型 ID</label>
+                <input id="customModelName" placeholder="gpt-4o" style="width:100%;padding:8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('addModelModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnSaveCustomModel">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 章节生成配置弹窗 ===== -->
+    <div class="modal-overlay" id="generateModal">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>章节生成配置</h3><span style="cursor:pointer;font-size:22px;line-height:1;" data-zhiyu-static-click="Modal.close('generateModal')">&times;</span></div>
+            <div class="template-modal-picker"><button class="gen-option" type="button" data-zhiyu-static-click="openTemplateSelector({context:'chapter',subCategories:['正文','续写']})"><span>1. 📦 选择提示词模版</span><span id="selectedTemplateName">未选择</span></button><button class="action-template-arrow" type="button" data-template-quick-context="chapter" data-template-selected="gen" title="展开正文与续写常用提示词模版" aria-label="展开正文与续写常用提示词模版">⌄</button></div>
+            <div class="gen-option" data-zhiyu-static-click="openLinkMemorySelector()"><span>2. 📎 关联文件</span><span id="linkedFileCount">未选择</span></div>
+            <div class="gen-option" data-zhiyu-static-click="openRefChapterSelector()"><span>3. 📑 参考章节</span><span id="refChapterCount">已选择 0</span></div>
+            <div style="font-size:12px;color:#8b8d98;text-align:center;margin-top:8px;" id="genCreditInfo"></div>
+<button class="btn btn-dark" style="width:100%; margin-top:8px; justify-content:center;" id="btnStartGenerate">开始生成</button>
+<div class="ai-step-strip" id="chapterStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
+        </div>
+    </div>
+
+    <!-- ===== 剧本生成配置弹窗 ===== -->
+    <div class="modal-overlay" id="scriptGenerateModal">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>剧本生成配置</h3><span style="cursor:pointer;font-size:22px;line-height:1;" data-zhiyu-static-click="Modal.close('scriptGenerateModal')">&times;</span></div>
+            <div class="template-modal-picker"><button class="gen-option" type="button" data-zhiyu-static-click="openTemplateSelector({context:'script',subCategory:'分镜'})"><span>1. 📦 选择提示词模版</span><span id="scriptSelectedTplName">未选择</span></button><button class="action-template-arrow" type="button" data-template-quick-context="script" data-template-selected="gen" title="展开剧本常用提示词模版" aria-label="展开剧本常用提示词模版">⌄</button></div>
+            <div class="gen-option" data-zhiyu-static-click="openLinkMemorySelector()"><span>📎 关联文件</span><span id="scriptLinkedFileCount">未选择</span></div>
+            <div style="font-size:12px;color:#8b8d98;text-align:center;margin-top:8px;" id="scriptGenCreditInfo"></div>
+            <button class="btn btn-dark" style="width:100%; margin-top:8px;" id="btnStartScriptGenerate">开始生成剧本</button>
+        </div>
+    </div>
+
+    <!-- ===== 大纲续写弹窗 ===== -->
+    <div class="modal-overlay" id="outlineContinueModal" style="z-index:500;">
+        <div class="modal-box" style="width:700px;max-height:85vh;overflow-y:auto;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="display:flex;align-items:center;gap:6px;">大纲续写
+                    <button class="flow-help-trigger" type="button" data-flow-help="outline-continue-overview" aria-label="查看大纲续写总步骤">?</button>
+                </h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('outlineContinueModal')">&times;</span>
+            </div>
+            <!-- 1. 选择续写大纲 -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:4px;">1. 选择续写大纲（请选择要续写的大纲文件）
+                    <button class="flow-help-trigger" type="button" data-flow-help="outline-continue-source" aria-label="查看续写大纲选择说明">?</button>
+                </label>
+                <div class="full-select-bar" style="margin-bottom:4px;">
+                    <button class="btn btn-outline btn-sm" id="btnOCSelectAll1">全选</button>
+                    <button class="btn btn-outline btn-sm" id="btnOCInvert1">反选</button>
+                </div>
+                <div class="tree-container" id="ocTree1" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;"></div>
+            </div>
+            <!-- 2. 选择关联文件 -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:4px;">2. 选择关联文件（不要选择大纲文件）
+                    <button class="flow-help-trigger" type="button" data-flow-help="outline-continue-links" aria-label="查看关联文件选择说明">?</button>
+                </label>
+                <div class="full-select-bar" style="margin-bottom:4px;">
+                    <button class="btn btn-outline btn-sm" id="btnOCSelectAll2">全选</button>
+                    <button class="btn btn-outline btn-sm" id="btnOCInvert2">反选</button>
+                </div>
+                <div class="tree-container" id="ocTree2" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;"></div>
+            </div>
+            <!-- 3. 大纲续写参考 -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:4px;">3. 大纲续写参考
+                    <button class="flow-help-trigger" type="button" data-flow-help="outline-continue-reference" aria-label="查看续写约束填写说明">?</button>
+                </label>
+                <textarea id="ocRefInput" placeholder="输入后续大纲走向、关键节点、风格要求等，供AI参考..." style="min-height:80px;"></textarea>
+            </div>
+            <!-- 操作按钮 -->
+            <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:12px;">
+                <button class="btn btn-outline btn-sm" id="btnOCLocalUpload">+ 从本地上传</button>
+                <span style="flex:1;"></span>
+                <button class="btn btn-dark btn-sm" id="btnOCConfirm">确定生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 局部重写弹窗 ===== -->
+    <div class="modal-overlay" id="rewriteModal" style="z-index:500;">
+        <div class="modal-box" style="width:680px;max-height:85vh;overflow-y:auto;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+                <h3>局部重写</h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('rewriteModal')">&times;</span>
+            </div>
+            <!-- 1. 重写方向 -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:8px;">1. 重写方向</label>
+                <div style="display:flex;gap:8px;" id="rwDirectionGroup">
+                    <div class="gen-option" style="flex:1;text-align:center;margin-bottom:0;" data-direction="head" data-zhiyu-static-click="setRewriteDirection('head')">前段补写</div>
+                    <div class="gen-option" style="flex:1;text-align:center;margin-bottom:0;" data-direction="mid" data-zhiyu-static-click="setRewriteDirection('mid')">中段补写</div>
+                    <div class="gen-option is-selected" style="flex:1;text-align:center;margin-bottom:0;" data-direction="tail" data-zhiyu-static-click="setRewriteDirection('tail')">后段续写</div>
+                </div>
+            </div>
+            <!-- 2. 关联文件 -->
+            <div class="gen-option" data-zhiyu-static-click="openLinkMemoryForRewrite()"><span>2. 📎 关联文件</span><span id="rwLinkedFileCount">未选择</span></div>
+            <!-- 3. 剧情描述（可选） -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px;">3. 📝 剧情描述（第一顺位参考，可选）</label>
+                <textarea id="rwPlotDescription" placeholder="例：主角在拍卖会上发现了一件上古神器，正要举手竞拍时，一个黑衣人突然闯入..." style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;font-family:inherit;box-sizing:border-box;"></textarea>
+            </div>
+            <!-- 4. 重写部分字数 -->
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px;">4. 重写部分字数</label>
+                <div style="display:flex;gap:10px;align-items:center;font-size:13px;">
+                    <span>重写部分字数：</span>
+                    <input type="number" id="rwTargetWords" placeholder="输入重写部分字数" style="width:140px;padding:6px 10px;" min="100" step="100" value="2000">
+                </div>
+            </div>
+            <!-- 4. 参考上一章 -->
+            <div style="font-size:12px;color:#27ae60;margin-bottom:14px;" id="rwRefPrevChapter"></div>
+            <!-- 操作 -->
+            <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:12px;">
+                <button class="btn btn-outline btn-sm" id="btnRWCancel">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnRWStart">开始重写</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模板选择弹窗 ===== -->
+    <div class="modal-overlay" id="templateSelectModal" style="z-index:10060;">
+        <div class="modal-box" style="width:92vw;max-width:1050px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;" data-zhiyu-static-click="event.stopPropagation()">
+            <!-- 标题栏 -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h3>选择提示词模板</h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('templateSelectModal')">&times;</span>
+            </div>
+            <!-- 标签栏 -->
+            <div style="display:flex;gap:4px;margin-bottom:12px;border-bottom:2px solid #e2e5ea;padding-bottom:8px;">
+                <button class="btn btn-dark btn-sm tpl-tab-btn active" data-tab="public">公开模板</button>
+                <button class="btn btn-outline btn-sm tpl-tab-btn" data-tab="fav">收藏模板</button>
+                <button class="btn btn-outline btn-sm tpl-tab-btn" data-tab="custom">自定义模板</button>
+            </div>
+            <!-- 主体：侧边栏 + 内容 -->
+            <div style="display:flex;gap:16px;min-height:0;height:min(60vh,520px);max-height:min(60vh,520px);overflow:hidden;">
+                <!-- 左侧侧边栏 -->
+                <div style="width:120px;flex-shrink:0;background:#fff;border-radius:10px;padding:12px;min-height:0;overflow:hidden;display:flex;flex-direction:column;">
+                    <div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px;">模板分类</div>
+                    <div id="tplSidebar" style="display:flex;flex-direction:column;gap:2px;min-height:0;overflow-y:auto;padding-right:2px;"></div>
+                </div>
+                <!-- 右侧 -->
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+                    <div style="display:flex;gap:8px;margin-bottom:10px;">
+                        <input type="text" id="tplSearch" placeholder="搜索模板..." style="flex:1;">
+                        <select id="tplSortFilter" style="width:auto;min-width:80px;"><option value="综合">综合</option><option value="热门">热门</option><option value="最新">最新</option></select>
+                    </div>
+                    <div id="tplGrid" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-top:8px;"></div>
+                </div>
+            </div>
+            <!-- 底部按钮 -->
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #e2e5ea;">
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('templateSelectModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnApplyTemplate" style="background:#1976d2;opacity:0.5;" disabled>应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 全部模板弹窗 ===== -->
+    <div class="modal-overlay" id="fullTemplateModal">
+        <div class="modal-box" style="width:90%; max-width:1000px;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between;"><h3>全部模版</h3><span style="cursor:pointer;" data-zhiyu-static-click="document.getElementById('fullTemplateModal').style.display='none'">&times;</span></div>
+            <div id="fullTplGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; max-height:60vh; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- ===== 参考章节弹窗 ===== -->
+    <div class="modal-overlay" id="refChapterModal">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between;"><h3>参考上文</h3><button class="modal-icon-close" id="btnCloseRefChapters" type="button" aria-label="取消并关闭参考上文">&times;</button></div>
+            <div class="ref-top-bar"><span id="refTopText">已选择: 正文 0 项，概要 0 项，关键事件概要 0 项</span></div>
+            <div id="refChapterList" style="max-height:400px; overflow-y:auto;"></div>
+            <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-outline btn-sm" id="btnCancelRefChapters" type="button">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnConfirmRefChapters">确定选择</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 关联文件弹窗 ===== -->
+    <div class="modal-overlay memory-link-modal" id="memoryLinkModal">
+        <div class="modal-box memory-link-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="memory-link-modal-header">
+                <h3>选择关联文件</h3>
+                <div class="memory-link-modal-actions">
+                    <button class="btn btn-outline btn-sm" id="btnSelectAll" type="button">全选</button>
+                    <button class="btn btn-outline btn-sm" id="btnInvertSelect" type="button">反选</button>
+                    <button class="memory-link-modal-close" id="btnCloseMemoryLink" type="button" aria-label="关闭选择关联文件弹窗">&times;</button>
+                </div>
+            </div>
+            <div class="memory-link-layout" id="memoryLinkTreeWrap">
+                <div class="memory-link-folders" id="memoryLinkFolders"></div>
+                <div class="memory-link-tree" id="memoryLinkTree"></div>
+            </div>
+            <div class="memory-link-modal-footer">
+                <button class="btn btn-outline btn-sm" id="btnLocalLinkFile" type="button">+ 从本地上传</button>
+                <button class="btn btn-dark btn-sm" id="btnConfirmMemoryLink" type="button">确定选择</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 写作页作品选择弹窗 ===== -->
+    <div class="modal-overlay" id="writingBookSelectModal">
+        <div class="modal-box writing-book-select-dialog">
+            <div class="writing-book-select-header">
+                <div>
+                    <h3>选择要编辑的作品</h3>
+                    <p>选择后将进入该作品最近编辑的章节。</p>
+                </div>
+                <button class="outline-modal-close" id="btnCloseWritingBookSelect" type="button" aria-label="关闭选择作品弹窗">&times;</button>
+            </div>
+            <div class="writing-book-select-grid" id="writingBookSelectList"></div>
+        </div>
+    </div>
+
+    <!-- ===== 编辑器弹窗 ===== -->
+    <div class="modal-overlay" id="editorModal">
+        <div class="modal-box" style="width:94vw;max-width:1400px;height:90vh;display:flex;flex-direction:column;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;flex-shrink:0;"><h3 id="edTitle">编辑</h3><span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="closeMemoryEditor()">&times;</span></div>
+            <div style="flex:1;display:flex;gap:16px;min-height:0;overflow:hidden;">
+                <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+                    <div style="font-size:12px;font-weight:600;color:#888;margin-bottom:4px;flex-shrink:0;">源代码</div>
+                    <div id="edText" class="professional-editor-legacy-field" contenteditable="true" style="flex:1;min-height:0;max-height:none;height:auto;overflow:auto;font-size:13px;font-family:Consolas,monospace;"></div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+                    <div style="font-size:12px;font-weight:600;color:#888;margin-bottom:4px;flex-shrink:0;">预览</div>
+                    <div id="edPreview" style="flex:1;min-height:0;background:var(--bg-input);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:14px;overflow:auto;font-size:13px;line-height:1.8;word-wrap:break-word;"></div>
+                </div>
+            </div>
+            <div class="btn-row" style="justify-content:flex-end;margin-top:10px;flex-shrink:0;"><button class="btn btn-outline btn-sm" data-zhiyu-static-click="closeMemoryEditor()">取消</button><button class="btn btn-dark btn-sm" id="edSave">保存</button></div>
+        </div>
+    </div>
+
+    <!-- ===== 章节概要分析弹窗 ===== -->
+    <div class="modal-overlay" id="chapterSummaryModal">
+        <div class="modal-box chapter-summary-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="chapter-summary-modal-header">
+                <div>
+                    <h3>章节概要分析</h3>
+                    <p>AI会根据当前章节正文分析出简短的可供参考的章节简述剧情，用于正文参考</p>
+                </div>
+                <button class="outline-modal-close" id="btnCloseChapterSummary" type="button" title="关闭章节概要分析弹窗">&times;</button>
+            </div>
+            <textarea id="chapterSummaryText" placeholder="点击“分析”后，章节概要会显示在这里，生成后可手动编辑。"></textarea>
+            <div class="chapter-summary-actions">
+                <button class="btn btn-outline btn-sm" id="btnAnalyzeChapterSummary" title="调用普通模型分析当前章节正文">分析</button>
+                <span></span>
+                <button class="btn btn-dark btn-sm" id="btnSaveChapterSummary" title="保存当前章节概要到记忆库">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 快速取名弹窗 ===== -->
+    <div class="modal-overlay" id="quickTitleModal">
+        <div class="modal-box quick-title-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="chapter-summary-modal-header">
+                <div>
+                    <h3>快速取名</h3>
+                    <p>AI会根据当前章节正文给出章节标题候选，点击确定后才会重命名。</p>
+                </div>
+                <button class="outline-modal-close" id="btnCloseQuickTitle" type="button" title="关闭快速取名弹窗">&times;</button>
+            </div>
+            <div class="quick-title-grid" id="quickTitleCandidates"><div class="quick-title-empty">点击“生成”后获取章节标题候选。</div></div>
+            <div class="quick-title-pagination" id="quickTitlePagination" hidden>
+                <button class="btn btn-outline btn-sm" id="btnQuickTitlePrev" type="button" title="查看上一页章节标题">上一页</button>
+                <span id="quickTitlePageText">第 1 / 1 页</span>
+                <button class="btn btn-outline btn-sm" id="btnQuickTitleNext" type="button" title="查看下一页章节标题">下一页</button>
+            </div>
+            <div class="chapter-summary-actions">
+                <button class="btn btn-outline btn-sm" id="btnRegenerateQuickTitle" title="调用一次普通模型生成章节标题候选">生成</button>
+                <span></span>
+                <button class="btn btn-dark btn-sm" id="btnConfirmQuickTitle" title="确认当前高亮标题并重命名章节">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 官方公告弹窗 ===== -->
+    <div class="modal-overlay" id="noticeModal">
+        <div class="modal-box" style="width:720px;max-height:85vh;display:flex;flex-direction:column;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
+                <h3 style="margin:0;font-size:20px;">官方公告</h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('noticeModal')">&times;</span>
+            </div>
+            <div id="noticeList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+    </div>
+
+    <!-- ===== 公告详情弹窗 ===== -->
+    <div class="modal-overlay" id="noticeDetailModal">
+        <div class="modal-box" style="width:560px;max-height:80vh;overflow-y:auto;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h3 id="noticeDetailTitle" style="margin:0;"></h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('noticeDetailModal')">&times;</span>
+            </div>
+            <div id="noticeDetailTime" style="font-size:12px;color:#8b8d98;margin-bottom:12px;"></div>
+            <div id="noticeDetailContent" style="font-size:15px;color:#1e1e28;line-height:1.9;white-space:pre-wrap;"></div>
+        </div>
+    </div>
+
+
+
+    <!-- ===== 模板详情弹窗 ===== -->
+    <div class="modal-overlay" id="tplDetailModal">
+        <div class="modal-box" style="width:620px;max-height:88vh;overflow-y:auto;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                    <h3 id="tplDetailTitle" style="margin:0;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h3>
+                    <span id="tplFavBtn" data-zhiyu-static-click="toggleFavTemplate()" style="cursor:pointer;font-size:22px;flex-shrink:0;transition:transform 0.15s;" title="收藏">☆</span>
+                </div>
+                <span style="font-size:22px;cursor:pointer;line-height:1;flex-shrink:0;margin-left:12px;" data-zhiyu-static-click="Modal.close('tplDetailModal')">&times;</span>
+            </div>
+            <div style="margin-bottom:14px;">
+                <span id="tplDetailTags"></span>
+            </div>
+            <div style="display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:#6e6e7a;flex-wrap:wrap;">
+                <span class="template-detail-author"><span id="tplDetailAuthor">作者：未知</span></span>
+                <span id="tplDetailRating">评分：0.0</span>
+                <span id="tplDetailLikes">👍 0</span>
+                <span id="tplDetailUsage">使用 0 次</span>
+            </div>
+            <p id="tplDetailDesc" style="margin:0 0 16px;color:var(--text);font-size:14px;line-height:1.7;padding:14px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;"></p>
+            <div style="margin-bottom:14px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">评分</div>
+                <div class="rating-stars" id="tplRatingStars">
+                    <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+            </div>
+            <div style="margin-bottom:14px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">用户评论</div>
+                <div class="comment-list" id="tplCommentList"></div>
+                <div class="comment-form">
+                    <textarea placeholder="发表评论..." id="tplCommentInput"></textarea>
+                    <button class="btn btn-dark btn-sm" id="tplCommentSubmit">提交评论</button>
+                </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);text-align:right;border-top:1px solid var(--border);padding-top:10px;">
+                <span id="tplDetailCreated">创建：-</span>
+                <span style="margin:0 8px;">·</span>
+                <span id="tplDetailUpdated">更新：-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 管理我的模版弹窗（含创建功能）===== -->
+    <div class="modal-overlay" id="manageTemplatesModal">
+        <div class="modal-box" style="width:96vw;max-width:1300px;height:94vh;display:flex;flex-direction:column;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
+                <h3 style="margin:0;">管理我的模版</h3>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-outline btn-sm" id="btnToggleCreateForm">创建模版</button>
+                    <span style="font-size:28px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('manageTemplatesModal')">&times;</span>
+                </div>
+            </div>
+
+            <!-- 创建表单区域（默认隐藏） -->
+            <div id="createFormSection" class="template-create-panel" style="display:none;">
+                <div class="template-create-grid">
+                    <div class="template-create-column template-create-editor">
+                        <div class="template-create-field">
+                            <label for="newTemplateName">指令名称</label>
+                            <input type="text" id="newTemplateName" placeholder="例如：【大纲】五阶段分卷生成">
+                        </div>
+                        <div class="template-create-field">
+                            <label for="newTemplateTagsInput">标签（回车添加）</label>
+                            <div class="template-tag-entry">
+                                <input type="text" id="newTemplateTagsInput" placeholder="输入自定义标签后按回车">
+                                <button class="btn btn-outline btn-sm" id="btnOpenTemplateTags" type="button">添加标签</button>
+                            </div>
+                            <div class="tag-input-group" id="newTemplateTags"></div>
+                        </div>
+                        <div class="template-create-row">
+                            <div class="template-create-field">
+                                <label for="newTemplateLength">篇幅类型</label>
+                                <select id="newTemplateLength">
+                                    <option value="general">通用</option><option value="super-short">超短篇</option>
+                                    <option value="short">短篇</option><option value="medium">中篇</option>
+                                    <option value="long">长篇</option><option value="script">剧本</option>
+                                </select>
+                            </div>
+                            <div class="template-create-field">
+                                <label for="newTemplateCategory">模板分类</label>
+                                <select id="newTemplateCategory">
+                                    <option value="全部">全部</option><option value="通用">通用</option><option value="正文">正文</option>
+                                    <option value="续写">续写</option><option value="大纲">大纲</option>
+                                    <option value="拆书">拆书</option><option value="细纲">细纲</option>
+                                    <option value="AI消痕">AI消痕</option><option value="开篇">开篇</option>
+                                    <option value="角色">角色</option><option value="分镜">分镜</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="template-create-field">
+                            <label for="newTemplateDesc">提示词简介</label>
+                            <textarea id="newTemplateDesc" placeholder="简要描述这个模板的用途和特点"></textarea>
+                        </div>
+                        <div class="template-create-field template-prompt-field">
+                            <label for="newTemplatePrompt">提示词指令</label>
+                            <textarea id="newTemplatePrompt" placeholder="在这里粘贴提示词指令，或通过下方按钮导入 .txt / .md 文件"></textarea>
+                        </div>
+                    </div>
+                    <div class="template-create-column template-create-preview-column">
+                        <label class="template-preview-label" for="newTemplatePreview">预览</label>
+                        <div class="template-preview template-prompt-preview" id="newTemplatePreview" role="textbox" aria-readonly="true" aria-live="polite"></div>
+                    </div>
+                </div>
+                <input type="file" id="promptFilePicker" accept=".md,.txt,text/plain,text/markdown" style="display:none;">
+                <div class="template-tag-picker-overlay" id="templateTagPicker" hidden>
+                    <div class="template-tag-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="templateTagPickerTitle">
+                        <div class="template-tag-picker-head">
+                            <div>
+                                <h4 id="templateTagPickerTitle">添加标签</h4>
+                                <p>可多选预设标签，也可以继续手动输入自定义标签。</p>
+                            </div>
+                            <button class="template-tag-picker-close" id="btnCloseTemplateTags" type="button" aria-label="关闭标签选择">×</button>
+                        </div>
+                        <div class="template-tag-picker-groups" id="templateTagPickerGroups"></div>
+                        <div class="template-tag-picker-actions">
+                            <button class="btn btn-outline btn-sm" id="btnCancelTemplateTags" type="button">取消</button>
+                            <button class="btn btn-dark btn-sm" id="btnApplyTemplateTags" type="button">添加所选标签</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-create-footer">
+                    <div class="template-create-footer-left">
+                        <div class="template-source-actions">
+                            <div class="btn btn-outline template-action-with-help" role="group" aria-label="模板信息生成">
+                                <button class="template-ai-fill-btn" id="btnTemplateAiFill" type="button" title="根据当前提示词生成名称、分类、简介和标签">一键生成模板信息</button>
+                                <button class="flow-help-trigger template-ai-fill-help" id="btnTemplateAiFillHelp" type="button" data-flow-help="template-metadata-safety" title="查看模板信息生成说明" aria-label="查看模板信息生成说明" aria-expanded="false"><span class="template-ai-fill-help-icon" aria-hidden="true">?</span></button>
+                            </div>
+                            <button class="btn btn-outline" id="btnImportPromptFile" type="button">导入文件</button>
+                        </div>
+                    </div>
+                    <div class="template-create-submit-actions">
+                        <button class="btn btn-outline" id="btnCancelCreate">取消</button>
+                        <button class="btn btn-dark" id="btnSubmitTemplate">创建模板</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模板列表 -->
+            <div id="manageTplList" style="flex:1;overflow-y:auto;min-height:0;display:flex;flex-wrap:wrap;gap:12px;align-content:flex-start;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;padding-top:8px;border-top:1px solid #e2e5ea;flex-shrink:0;">
+                <span style="flex:1;align-self:center;font-size:12px;color:#888;" id="manageTplCount"></span>
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('manageTemplatesModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 优化选中弹窗 ===== -->
+    <div class="modal-overlay" id="polishModal">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>优化选中内容</h3><span style="font-size:22px;cursor:pointer;" data-zhiyu-static-click="document.getElementById('polishModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:13px; font-weight:600; color:#333;">已选择文本（共 <span id="polishWordCount">0</span> 字）</label>
+                <div style="background:#f9f9f9; border-radius:10px; padding:12px; margin-top:8px; font-size:13px; max-height:150px; overflow-y:auto; white-space:pre-wrap;" id="polishSelectedText"></div>
+            </div>
+            <div>
+                <label style="font-size:13px; font-weight:600; color:#333;">描述想法...</label>
+                <textarea id="polishInstruction" placeholder="请描述您希望如何修改这段文字，例如：使这段描写更加生动、调整语气更加正式、增加更多细节描写等..." style="margin-top:8px; min-height:100px;"></textarea>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+                <button class="btn btn-outline" data-zhiyu-static-click="document.getElementById('polishModal').style.display='none'">取消</button>
+                <button class="btn btn-dark" id="btnStartPolish">开始优化</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 大纲生成弹窗（左右分栏）===== -->
+    <div class="modal-overlay" id="outlineModal">
+        <div class="modal-box outline-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="outline-modal-header"><button class="outline-modal-close" type="button" data-zhiyu-static-click="Modal.close('outlineModal')">&times;</button></div>
+            <div class="outline-mode-tabs" id="outlineModeTabs">
+                <button class="outline-mode-tab active" type="button" data-mode="outline">生成大纲</button>
+                <button class="outline-mode-tab" type="button" data-mode="function"><span class="member-feature-title">功能性生成</span></button>
+            </div>
+            <div class="outline-modal-layout">
+                <!-- 左侧配置区 -->
+                <div class="outline-config-panel">
+                    <div class="outline-config-section outline-only-section">
+                        <div class="outline-submode-tabs" id="outlineSubModeTabs">
+                            <button class="outline-submode-tab active" type="button" data-submode="normal">生成大纲</button>
+                            <button class="outline-submode-tab" type="button" data-submode="advanced">高级大纲</button>
+                        </div>
+                    </div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-group-title" id="outlineAdvancedGroupMaster"><div class="flow-help-title-row"><span>一. 大纲生成</span><button class="flow-help-trigger" type="button" data-flow-help="advanced-outline-master" aria-label="查看大纲生成操作说明" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button></div><button class="outline-advanced-group-toggle is-collapsed" id="outlineAdvancedMasterToggle" type="button" aria-expanded="false" aria-controls="outlineGenreSection outlineWordCountSection"><span class="outline-advanced-group-toggle-icon"></span></button></div>
+                    <div class="outline-config-section outline-only-section outline-advanced-fold-hidden" id="outlineGenreSection">
+                        <label class="outline-section-label">1. 题材选择</label>
+                        <div class="outline-genre-input-row"><div class="outline-genre-input-combo" data-zhiyu-static-click="document.getElementById('outlineAdvancedCustomGenre')?.focus()"><div class="outline-selected-genres" id="outlineSelectedGenreChips"></div><input class="outline-field-input" id="outlineAdvancedCustomGenre" type="text" placeholder="输入自定义题材或平台风格..."></div><button class="outline-genre-fold-btn" id="outlineGenreToggleBtn" type="button">添加题材</button></div>
+                        <div class="outline-genre-popup" id="outlineGenrePopup" data-zhiyu-static-click="event.stopPropagation()">
+                            <div class="outline-genre-popup-title"><span>选择题材</span><span class="outline-genre-limit">男频和女频合计最多 3 个</span></div>
+                            <div class="outline-genre-columns">
+                                <div class="outline-genre-column"><div class="outline-genre-column-title"><span>男频题材</span><span id="outlineMaleGenreCount">已选 0</span></div><div class="outline-genre-column-body" id="genreTagsMale"></div></div>
+                                <div class="outline-genre-column"><div class="outline-genre-column-title"><span>女频题材</span><span id="outlineFemaleGenreCount">已选 0</span></div><div class="outline-genre-column-body" id="genreTagsFemale"></div></div>
+                            </div>
+                            <div class="outline-genre-popup-selected"><div class="outline-genre-popup-selected-label">已选题材</div><div class="outline-genre-input-combo outline-genre-popup-input-combo" data-zhiyu-static-click="document.getElementById('outlineGenrePopupCustomInput')?.focus()"><div class="outline-selected-genres" id="outlinePopupSelectedGenreChips"></div><input class="outline-field-input" id="outlineGenrePopupCustomInput" type="text" placeholder="输入自定义题材或平台风格..."></div></div>
+                            <div class="outline-genre-popup-actions"><button class="btn btn-dark btn-sm" id="btnConfirmOutlineGenrePopup" type="button">确认</button><button class="btn btn-outline btn-sm" id="btnCloseOutlineGenrePopup" type="button">关闭</button></div>
+                        </div>
+                    </div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-group-title" id="outlineAdvancedGroupStages"><div class="flow-help-title-row"><span>二. 阶段生成 <span class="outline-advanced-group-note">生成大纲时无需选择</span></span><button class="flow-help-trigger" type="button" data-flow-help="advanced-outline-stages" aria-label="查看阶段生成操作说明" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button></div><button class="outline-advanced-group-toggle is-collapsed" id="outlineAdvancedStagesToggle" type="button" aria-expanded="false"><span class="outline-advanced-group-toggle-icon"></span></button></div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-fold-hidden" id="outlineAdvancedSourceSection"><label class="outline-section-label">1. 选择大纲</label><div class="gen-option outline-template-option" id="outlineAdvancedSourceOption" data-zhiyu-static-click="openAdvancedOutlinePicker()"><span>选择大纲</span><span id="outlineAdvancedSourceCount">未选择</span></div></div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-fold-hidden" id="outlineAdvancedStageSection"><label class="outline-section-label">2. 选择阶段</label><select class="outline-field-input" id="outlineAdvancedStageSelect"><option value="">先生成或选择大纲</option></select></div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-fold-hidden" id="outlineAdvancedLinkSection"><label class="outline-section-label">3. 关联文件</label><div class="gen-option outline-template-option" id="outlineAdvancedLinkOption" data-zhiyu-static-click="openAdvancedOutlineLinkSelector()"><span>选择关联文件</span><span id="outlineAdvancedLinkedCount">未选择</span></div></div>
+                    <div class="outline-config-section outline-functional-section">
+                        <label class="outline-section-label">选择功能
+                            <span id="outlineFunctionTypeToggle" class="outline-gender-toggle">
+                                <span class="gender-opt active" data-fn="imitate">大纲设定</span>
+                                <span class="gender-opt" data-fn="script">剧本</span>
+                            </span>
+                        </label>
+                        <label class="outline-section-label">1. 题材（可选）</label>
+                        <div class="outline-genre-input-row"><div class="outline-genre-input-combo" data-zhiyu-static-click="document.getElementById('outlineFunctionSubject')?.focus()"><div class="outline-selected-genres" id="outlineFunctionSelectedGenreChips"></div><input class="outline-field-input" id="outlineFunctionSubject" type="text" placeholder="输入自定义题材或平台风格..."></div><button class="outline-genre-fold-btn" id="outlineFunctionGenreToggleBtn" type="button">添加题材</button></div>
+                    </div>
+                    <div class="outline-config-section outline-normal-section">
+                        <label class="outline-section-label">2. 选择提示词模版</label>
+                        <div class="template-modal-picker outline-template-picker"><button class="gen-option outline-template-option" id="outlineTemplateOption" type="button" data-zhiyu-static-click="openOutlineTemplateSelector()"><span id="outlineTemplateAvatar" class="outline-template-avatar-slot" aria-hidden="true"></span><span id="outlineTemplateLabel">选择提示词模版</span><span id="outlineSelectedTemplate"></span></button><button class="action-template-arrow" id="btnOutlineTemplateMenu" type="button" title="展开大纲常用提示词模版" aria-label="展开大纲常用提示词模版" aria-expanded="false">⌄</button></div>
+                    </div>
+                    <div class="outline-config-section outline-only-section outline-advanced-fold-hidden" id="outlineWordCountSection">
+                        <label class="outline-section-label"><span class="outline-normal-section">3. 全篇字数</span><span class="outline-advanced-section">2. 全篇字数</span></label>
+                        <div class="outline-wordcount-grid">
+                        <span class="wordcount-option selected" data-wc="short">短篇（10-20万字）<button class="flow-help-trigger outline-wordcount-help" type="button" data-flow-help="outline-wordcount-short" title="查看短篇普通模型调用次数" aria-label="查看短篇普通模型调用次数" aria-expanded="false">?</button></span>
+                        <span class="wordcount-option" data-wc="medium">中篇（50万字）<button class="flow-help-trigger outline-wordcount-help" type="button" data-flow-help="outline-wordcount-medium" title="查看中篇普通模型调用次数" aria-label="查看中篇普通模型调用次数" aria-expanded="false">?</button></span>
+                        <span class="wordcount-option" data-wc="long">长篇（100万字）<button class="flow-help-trigger outline-wordcount-help" type="button" data-flow-help="outline-wordcount-long" title="查看长篇普通模型调用次数" aria-label="查看长篇普通模型调用次数" aria-expanded="false">?</button></span>
+                        <span class="wordcount-option" data-wc="xlong">超长篇（200万字）<button class="flow-help-trigger outline-wordcount-help" type="button" data-flow-help="outline-wordcount-xlong" title="查看超长篇普通模型调用次数" aria-label="查看超长篇普通模型调用次数" aria-expanded="false">?</button></span>
+                        </div>
+                        <div class="outline-advanced-section" id="outlineAdvancedCostInfo"></div>
+                    </div>
+                    <div class="outline-config-section outline-only-section outline-normal-section">
+                        <label class="outline-section-label">4. 参考作品</label>
+                        <div class="outline-reference-row">
+                            <div class="outline-reference-actions">
+                                <button class="btn btn-outline btn-sm" id="btnImportRefBook">导入本地作品</button>
+                                <button class="btn btn-outline btn-sm" id="btnOutlineContinue">大纲续写</button>
+                            </div>
+                            <input type="file" id="refBookFilePicker" accept=".txt,.md" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="outline-config-section outline-functional-section">
+                        <label class="outline-section-label">4. 关联文件</label>
+                        <div class="gen-option outline-template-option" id="outlineFunctionLinkOption" data-zhiyu-static-click="openOutlineFunctionLinkSelector()"><span>选择关联文件</span><span id="outlineFunctionLinkedCount">未选择</span></div>
+                    </div>
+                    <div class="outline-config-section outline-summary-section outline-normal-section">
+                        <label class="outline-section-label outline-summary-heading">
+                            <span class="outline-section-title" id="outlineSummaryTitle">5. 剧情梗概（可选）</span>
+                            <span class="outline-reference-status" id="refBooksCount"></span>
+                        </label>
+                        <div class="genre-summary-input-wrap"><div class="genre-summary-scroll"><div class="genre-summary-selected-tags" id="outlineSummarySelectedTags"></div><textarea id="outlineCoreSummary" placeholder="输入剧情梗概和灵感..."></textarea></div><div class="genre-summary-actions"><button class="genre-preference-add-btn" type="button">添加标签 +</button></div></div>
+                    </div>
+                    <div class="outline-config-section outline-advanced-section outline-advanced-group-title" id="outlineAdvancedGroupSummary"><div class="flow-help-title-row"><span>三. 剧情梗概</span><button class="flow-help-trigger" type="button" data-flow-help="advanced-outline-summary" aria-label="查看剧情梗概操作说明" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button></div></div>
+                    <div class="outline-config-section outline-advanced-summary-panel outline-advanced-section" id="outlineAdvancedSummarySection"><div class="genre-summary-input-wrap"><div class="genre-summary-scroll"><div class="genre-summary-selected-tags" id="outlineAdvancedSummarySelectedTags"></div><textarea id="outlineAdvancedCoreSummary" placeholder="输入核心创意、主线方向、阶段要求或补充说明..."></textarea></div><div class="genre-summary-actions"><button class="genre-preference-add-btn" type="button">添加标签 +</button></div></div></div>
+                </div>
+                <!-- 右侧结果区 -->
+                <div class="outline-result-panel">
+                    <div class="outline-result-heading">
+                        <div class="outline-result-label">生成结果</div>
+                        <div class="ai-step-strip ai-step-strip-inline" id="outlineStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
+                    </div>
+                    <div class="outline-result" id="outlineResultBox" contenteditable="true" spellcheck="false">点击「开始生成大纲」后内容将在此区域显示...</div>
+                    <div class="outline-inquiry-interaction" id="outlineInquiryInteraction" hidden>
+                        <div class="workflow-segmented-toggle outline-inquiry-feedback-toggle" id="outlineInquiryFeedbackToggle" role="group" aria-label="询问处理方式">
+                            <button type="button" class="active" data-inquiry-feedback="suggest">建议</button>
+                            <button type="button" data-inquiry-feedback="revise">修改</button>
+                        </div>
+                        <input id="outlineInquiryFeedbackInput" type="text" placeholder="输入内容用于指导下一阶段，不改动当前已生成内容。">
+                        <button class="outline-inquiry-send" id="btnOutlineInquirySend" type="button" title="继续下一阶段" aria-label="继续下一阶段">➤</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 底部操作按钮（白色背景） -->
+            <div class="outline-actions" id="outlineActions">
+                <div class="workflow-segmented-toggle outline-generation-mode-toggle outline-normal-section" id="outlineGenerationModeToggle" role="group" aria-label="普通大纲生成模式">
+                    <button type="button" class="active" data-outline-generation-mode="direct">直出</button>
+                    <button type="button" data-outline-generation-mode="inquiry">询问</button>
+                </div>
+                <button class="btn btn-dark btn-sm" id="btnStartOutline">生成大纲</button>
+                <button class="btn btn-outline btn-sm outline-advanced-section" id="btnStartAdvancedStageOutlineBottom">生成阶段粗纲</button>
+                <button class="btn btn-outline btn-sm outline-advanced-section" id="btnRetryAdvancedSegment" style="display:none;">重试当前段</button>
+                <button class="btn btn-outline btn-sm outline-advanced-section" id="btnCompleteAdvancedSegment" style="display:none;">补全当前段</button>
+                <button class="btn btn-outline btn-sm" id="btnOutlineModelSelect" title="选择生成大纲使用的模型">大纲模型 ▼</button>
+                <button class="btn btn-outline btn-sm" id="btnOutlineCopy">复制内容</button>
+                <button class="btn btn-outline btn-sm" id="btnOutlineSave">保存到大纲</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="genrePreferenceTagModal">
+        <div class="modal-box genre-preference-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="genre-preference-modal-header"><h3>添加创作标签</h3><button class="outline-modal-close" id="btnCloseGenrePreferenceTags" type="button" aria-label="关闭">&times;</button></div>
+            <section class="genre-preference-selected-fixed"><div class="genre-preference-section-title">已选择的标签</div><div class="genre-preference-selected-list" id="genrePreferenceSelectedTags"></div></section>
+            <div class="genre-preference-modal-scroll">
+                <section class="genre-preference-section"><div class="genre-preference-section-title">已选题材</div><div class="genre-preference-selected-list" id="genrePreferenceSelectedGenres"></div></section>
+                <section class="genre-preference-section"><div class="genre-preference-section-title">题材相关标签</div><div class="genre-preference-profile-grid" id="genrePreferenceProfileTags"></div></section>
+                <section class="genre-preference-section"><div class="genre-preference-section-title">全部通用标签</div><div class="genre-preference-common-pool" id="genrePreferenceCommonTags"></div></section>
+            </div>
+            <div class="genre-preference-modal-actions"><button class="btn btn-outline btn-sm" id="btnCancelGenrePreferenceTags" type="button">取消</button><button class="btn btn-dark btn-sm" id="btnConfirmGenrePreferenceTags" type="button">确定</button></div>
+        </div>
+    </div>
+
+    <!-- ===== 选择大纲弹窗 ===== -->
+    <div class="modal-overlay" id="outlinePickerModal" style="z-index:10030;">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()" style="width:640px;max-width:94vw;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+                <div class="flow-help-title-row"><h3>📂 选择大纲</h3><button class="flow-help-trigger" type="button" data-flow-help="outline-picker" aria-label="查看选择大纲操作说明" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button></div>
+                <span style="cursor:pointer;font-size:22px;line-height:1;" data-zhiyu-static-click="Modal.close('outlinePickerModal')">&times;</span>
+            </div>
+            <!-- 第一排：从记忆库加载大纲 -->
+            <div class="gen-option" id="ogPickerMemRow" style="cursor:pointer;" data-zhiyu-static-click="openOGOutlineFileModal()">
+                <span id="ogPickerMemLabel">📂 从记忆库加载大纲</span>
+                <span id="ogPickerMemStatus" style="color:#8b8d98;">点击选择</span>
+            </div>
+            <!-- 第二排：拆分范围 -->
+            <div id="ogSplitRangeRow" style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;">
+                <span>拆分范围：第</span>
+                <input type="number" id="ogSplitStart" value="1" min="1" max="999" style="width:48px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;background:var(--bg-input);color:var(--text);">
+                <span>章 至 第</span>
+                <input type="number" id="ogSplitEnd" value="10" min="1" max="999" style="width:48px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;background:var(--bg-input);color:var(--text);">
+                <span>章</span>
+                <span style="font-size:11px;color:#8b8d98;">（最多10章）</span>
+            </div>
+            <!-- 第三排：拆分按钮 -->
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+                <button class="btn-og-split" id="btnOGRegexSplit" disabled title="请先选择大纲文件">📝 正则快拆</button>
+                <button class="btn-og-split" id="btnOGAiSplit" disabled title="请先选择大纲文件">🤖 智能拆分</button>
+                <span class="og-status" id="ogPickerStatus" style="margin-left:auto;"></span>
+            </div>
+            <!-- 第四排：拆分结果（仿拆书导入格式） -->
+            <div id="ogSplitResultArea" style="display:none;margin-top:10px;">
+                <div id="ogSplitResultTools" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                    <button class="btn btn-outline btn-sm" id="btnOGSplitSelectAll">全选</button>
+                    <button class="btn btn-outline btn-sm" id="btnOGSplitInvert">反选</button>
+                    <span style="flex:1;"></span>
+                    <span id="ogSplitCount" style="font-size:12px;color:#888;">已选: 0/20</span>
+                </div>
+                <div id="ogSplitFileName" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;"></div>
+                <div id="ogSplitChapterList" style="max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:4px;"></div>
+            </div>
+            <!-- 底部 -->
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;padding-top:8px;border-top:1px solid var(--border);">
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('outlinePickerModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnOGConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 大纲文件选择子弹窗（模仿关联文件弹窗） ===== -->
+    <div class="modal-overlay memory-link-modal" id="ogOutlineFileModal" style="z-index:10050;">
+        <div class="modal-box memory-link-modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="memory-link-modal-header">
+                <h3>选择大纲文件</h3>
+                <div class="memory-link-modal-actions">
+                    <button class="btn btn-outline btn-sm" id="btnOGFileSelectAll">全选</button>
+                    <button class="btn btn-outline btn-sm" id="btnOGFileInvert">反选</button>
+                    <button class="memory-link-modal-close" type="button" data-zhiyu-static-click="Modal.close('ogOutlineFileModal')" aria-label="关闭选择大纲文件弹窗">&times;</button>
+                </div>
+            </div>
+            <div class="memory-link-layout">
+                <div class="memory-link-folders" id="ogOutlineFileFolders"></div>
+                <div class="memory-link-tree" id="ogOutlineFileGrid"></div>
+            </div>
+            <div class="memory-link-modal-footer">
+                <button class="btn btn-outline btn-sm" id="btnOGFileLocal">+ 从本地上传</button>
+                <button class="btn btn-dark btn-sm" id="btnOGFileConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 文件内容浮动窗（点击文件堆弹出，类似执行日志）===== -->
+    <div class="og-file-float" id="ogFileFloat">
+        <div class="og-file-float-header">关联文件 <span class="og-file-float-close" id="btnCloseOGFile">×</span></div>
+        <div class="og-file-float-body">
+            <div class="og-file-list" id="ogFileList"></div>
+            <div class="og-file-editor-area" id="ogFileEditorArea" style="display:block;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+                        <span style="font-size:12px;font-weight:600;color:#555;" id="ogFileEditorLabel">编辑文件</span>
+                        <button id="btnOGBatchSelectAll" style="padding:4px 10px;font-size:11px;background:#fff;color:#333;border:1px solid #d4d8de;border-radius:6px;cursor:pointer;display:none;">全选</button>
+                        <button id="btnOGBatchInvert" style="padding:4px 10px;font-size:11px;background:#fff;color:#333;border:1px solid #d4d8de;border-radius:6px;cursor:pointer;display:none;">反选</button>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button id="btnOGCancelBatch" style="padding:4px 10px;font-size:11px;background:#fff;color:#888;border:1px solid #d4d8de;border-radius:6px;cursor:pointer;display:none;">取消</button>
+                        <button id="btnRemoveOGFile" style="padding:4px 10px;font-size:11px;background:#fff;color:#333;border:1px solid #d4d8de;border-radius:6px;cursor:pointer;" title="批量移除参考文件">移除参考</button>
+                        <button id="btnSaveOGFile" style="padding:4px 12px;font-size:11px;background:#fff;color:#333;border:1px solid #d4d8de;border-radius:6px;cursor:pointer;">保存</button>
+                    </div>
+                </div>
+                <div id="ogFileEditor" class="professional-editor-legacy-field" contenteditable="true" style="width:100%;min-height:280px;border:1px solid #d4d8de;border-radius:8px;font-size:13px;line-height:1.7;font-family:inherit;display:none;"></div>
+            </div>
+            <div class="og-file-empty" id="ogFileEmpty" style="text-align:center;color:#888;font-size:12px;padding:20px;">点击文件查看内容</div>
+        </div>
+    </div>
+
+    <!-- ===== 新建作品 ===== -->
+    <div class="modal-overlay" id="overviewTutorialModal">
+        <div class="modal-box overview-tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="overviewTutorialTitle" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
+                <h3 id="overviewTutorialTitle" style="margin:0;">操作教程</h3>
+                <button class="btn btn-outline btn-sm" type="button" data-zhiyu-static-click="closeOverviewTutorial()">关闭</button>
+            </div>
+            <p class="overview-tutorial-intro">选择教程后，社区版会先显示目标地址；确认后才会在新窗口打开 B 站。</p>
+            <div class="overview-tutorial-list" id="overviewTutorialList"></div>
+            <div class="overview-tutorial-video" id="overviewTutorialVideoBox">
+                <iframe id="overviewTutorialFrame" title="知屿写作操作教程" loading="lazy" referrerpolicy="no-referrer" allowfullscreen></iframe>
+            </div>
+            <div class="overview-tutorial-actions">
+                <span id="overviewTutorialHint">先选择上方教程卡片，再开始观看。</span>
+                <a id="overviewTutorialOpenLink" href="#" target="_blank" rel="noopener noreferrer" hidden>在 B 站打开</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="createBookModal" style="z-index:6200;">
+        <div class="modal-box create-book-dialog" role="dialog" aria-modal="true" aria-labelledby="createBookTitle" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="create-book-head">
+                <div>
+                    <h3 id="createBookTitle">新建作品</h3>
+                    <p id="createBookSubtitle">填写基础资料后创建，除作品名称外均可留空。</p>
+                </div>
+                <button class="create-book-close" id="btnCloseCreateBook" type="button" aria-label="关闭新建作品弹窗">&times;</button>
+            </div>
+            <div class="create-book-layout">
+                <section class="create-book-cover-panel" aria-label="作品封面">
+                    <div class="create-book-cover-preview" id="createBookCoverPicker" role="button" tabindex="0" aria-label="上传或更换作品封面" title="点击上传或更换作品封面">
+                        <img id="createBookCoverPreview" src="LOGO-256.png" alt="作品封面预览">
+                        <span id="createBookCoverEmpty">点击上传封面</span>
+                    </div>
+                    <input id="createBookCoverFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                    <div class="create-book-cover-actions">
+                        <button class="btn btn-outline create-book-cover-action" id="btnDownloadBookCover" type="button" hidden>下载封面</button>
+                    </div>
+                    <p>封面接口接入后，可根据作品名称、简介、频道和题材生成。</p>
+                </section>
+                <section class="create-book-form">
+                    <label class="create-book-field">
+                        <span>作品名称 <em>*</em></span>
+                        <input id="createBookName" type="text" maxlength="120" autocomplete="off" placeholder="请输入作品名称">
+                    </label>
+                    <div class="create-book-field create-book-genre-field">
+                        <div class="create-book-field-head"><span>作品频道与题材</span><small id="createBookGenreCount">最多选择 3 个</small></div>
+                        <div class="create-book-genre-combined" id="createBookChannel" role="group" aria-label="作品频道与题材">
+                            <section class="create-book-genre-column" aria-label="男频题材">
+                                <button class="create-book-channel-option" type="button" data-gender="male" aria-pressed="false">
+                                    <strong>男频</strong><small>设为作品频道</small>
+                                </button>
+                                <div class="create-book-genre-tags" id="createBookGenreMale"></div>
+                            </section>
+                            <section class="create-book-genre-column" aria-label="女频题材">
+                                <button class="create-book-channel-option" type="button" data-gender="female" aria-pressed="false">
+                                    <strong>女频</strong><small>设为作品频道</small>
+                                </button>
+                                <div class="create-book-genre-tags" id="createBookGenreFemale"></div>
+                            </section>
+                        </div>
+                    </div>
+                    <label class="create-book-field create-book-synopsis-field">
+                        <span>作品简介</span>
+                        <textarea id="createBookSynopsis" maxlength="600" placeholder="输入作品简介，或使用一键生成"></textarea>
+                        <button class="btn btn-outline btn-sm create-book-synopsis-action" id="btnOpenBookSynopsisGenerator" type="button">一键生成</button>
+                    </label>
+                </section>
+            </div>
+            <div class="create-book-actions">
+                <button class="btn btn-outline" id="btnCancelCreateBook" type="button">取消</button>
+                <button class="btn btn-dark" id="btnConfirmCreateBook" type="button">创建作品</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 生成作品简介 ===== -->
+    <div class="modal-overlay" id="createBookSynopsisModal" style="z-index:6300;">
+        <div class="modal-box create-book-synopsis-dialog" role="dialog" aria-modal="true" aria-labelledby="createBookSynopsisTitle" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="create-book-head">
+                <div>
+                    <h3 id="createBookSynopsisTitle">生成作品简介</h3>
+                    <p>会结合作品名称、频道和已选题材生成预览，确认后才填入作品信息。</p>
+                </div>
+                <button class="create-book-close" id="btnCloseBookSynopsisGenerator" type="button" aria-label="关闭生成作品简介弹窗">&times;</button>
+            </div>
+            <label class="create-book-field">
+                <span>主角信息与作品设定</span>
+                <textarea id="createBookSynopsisRequirement" maxlength="500" placeholder="填写主角姓名、身份、性别、初始处境、核心事件、能力或世界设定；未提供的内容不会擅自编造"></textarea>
+            </label>
+            <div class="create-book-synopsis-generate-row">
+                <span id="createBookSynopsisContext">填写作品名称后即可生成。</span>
+                <button class="btn btn-dark btn-sm" id="btnGenerateBookSynopsis" type="button">生成简介</button>
+            </div>
+            <label class="create-book-field">
+                <span>简介预览</span>
+                <textarea id="createBookSynopsisPreviewText" maxlength="600" placeholder="生成结果会显示在这里"></textarea>
+            </label>
+            <div class="create-book-actions">
+                <button class="btn btn-outline" id="btnCancelBookSynopsisGenerator" type="button">取消</button>
+                <button class="btn btn-dark" id="btnApplyBookSynopsis" type="button">确认填入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 导入作品 - 第1步：选择类型 ===== -->
+    <div class="modal-overlay" id="importBookModal" style="z-index:400;">
+        <div class="modal-box" style="width:420px;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+                <h3>导入书籍</h3>
+                <span style="font-size:22px;cursor:pointer;" data-zhiyu-static-click="Modal.close('importBookModal')">&times;</span>
+            </div>
+            <div style="color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.6;">
+                支持的文件类型：txt、md、docx<br>
+                上传的文件最大不超过 20MB<br>
+                请确保文件中的章节用"第N章"格式命名
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">作品类型</label>
+                <label style="margin-right:20px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><input type="radio" name="importType" value="novel" checked style="width:auto;margin:0;"> 小说</label>
+                <label style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><input type="radio" name="importType" value="script" style="width:auto;margin:0;"> 剧本</label>
+            </div>
+            <button class="btn btn-dark" id="btnConfirmImport" style="width:100%;justify-content:center;">确定导入</button>
+        </div>
+    </div>
+
+    <!-- ===== 导入作品 - 第2步：章节解析确认 ===== -->
+    <div class="modal-overlay" id="importParseModal" style="z-index:400;">
+        <div class="modal-box import-parse-dialog" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="import-parse-head">
+                <h3 id="importParseTitle">解析结果</h3>
+                <span style="font-size:22px;cursor:pointer;" data-zhiyu-static-click="Modal.close('importParseModal')">&times;</span>
+            </div>
+            <div id="importParseInfo" style="font-size:13px;color:var(--text-muted);margin-bottom:10px;"></div>
+            <div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-outline btn-sm" id="btnImportSelectAll">全选章节</button>
+                <button class="btn btn-outline btn-sm" id="btnImportSmartSort">智能排序</button>
+                <button class="btn btn-outline btn-sm" id="btnImportKeepOrder">保持原始顺序</button>
+            </div>
+            <div id="importChapterList" class="import-chapter-scroll"></div>
+            <div class="import-parse-book-row">
+                <label style="font-size:13px;font-weight:600;color:var(--text);">作品名</label>
+                <input type="text" id="importBookName" placeholder="输入作品名称">
+            </div>
+            <div id="importAnalysisEstimate" role="status" aria-live="polite">选择章节后显示预计消耗。</div>
+            <div class="import-parse-actions">
+                <button class="btn btn-outline import-action" id="btnImportDone">确认导入</button>
+                <button class="btn btn-dark import-action" id="btnImportAnalyze">全文分析</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 导入作品 - 第3步：全文分析 ===== -->
+    <div class="modal-overlay" id="fullTextAnalysisModal" style="z-index:5200;">
+        <div class="modal-box full-analysis-dialog" role="dialog" aria-modal="true" aria-labelledby="fullAnalysisTitle" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="full-analysis-head">
+                <h3 id="fullAnalysisTitle">导入作品全文分析</h3>
+                <div class="full-analysis-head-controls">
+                    <label for="fullAnalysisNormalModel">模型选择</label>
+                    <div class="full-analysis-model-picker" id="fullAnalysisNormalModelPicker">
+                        <select class="full-analysis-model-native" id="fullAnalysisNormalModel" title="只列出普通模型" tabindex="-1" aria-hidden="true"></select>
+                        <button type="button" class="full-analysis-model-trigger" id="btnFullAnalysisNormalModel" aria-haspopup="listbox" aria-controls="fullAnalysisNormalModelMenu" aria-expanded="false" aria-label="普通模型：选择模型">
+                            <span class="full-analysis-model-logo" id="fullAnalysisNormalModelIcon" aria-hidden="true"></span>
+                            <span class="full-analysis-model-trigger-label" id="fullAnalysisNormalModelLabel">选择模型</span>
+                            <span class="full-analysis-model-arrow" aria-hidden="true"></span>
+                        </button>
+                        <div class="full-analysis-model-menu" id="fullAnalysisNormalModelMenu" role="listbox" aria-label="普通模型" hidden></div>
+                    </div>
+                    <button type="button" class="full-analysis-close" id="btnFullAnalysisClose" aria-label="关闭">&times;</button>
+                </div>
+            </div>
+            <div class="full-analysis-notice">本次分析只读取正文，不会修改原文。分析完成并由你确认保存到新作品后，才会写入作品。</div>
+            <div class="full-analysis-setup-grid">
+            <fieldset class="full-analysis-mode" id="fullAnalysisModeSection">
+                <legend>执行方式</legend>
+                <select class="full-analysis-menu-select" id="fullAnalysisModeSelect" aria-describedby="fullAnalysisModeDescription">
+                    <option value="automatic">自动分析</option>
+                    <option value="staged">分阶段确认</option>
+                </select>
+                <p id="fullAnalysisModeDescription">自动分析会连续完成章节分析和八文件汇总；需要时仍可暂停、跳过当前章节段或立即停止后直接总结。</p>
+            </fieldset>
+            <fieldset class="full-analysis-scope" id="fullAnalysisScopeSection">
+                <legend>分析范围</legend>
+                <select class="full-analysis-menu-select" id="fullAnalysisScopeSelect" aria-controls="fullAnalysisChapterRange fullAnalysisVolumeRange" aria-describedby="fullAnalysisScopeSummary">
+                    <option value="all">全部章节</option>
+                    <option value="chapter">按章节范围</option>
+                    <option value="volume">按分卷范围</option>
+                </select>
+                <div class="full-analysis-scope-range" id="fullAnalysisChapterRange" hidden>
+                    <label>从第 <input type="number" id="fullAnalysisChapterStart" min="1" step="1" value="1"> 章</label>
+                    <span>到</span>
+                    <label>第 <input type="number" id="fullAnalysisChapterEnd" min="1" step="1" value="1"> 章</label>
+                </div>
+                <div class="full-analysis-scope-range" id="fullAnalysisVolumeRange" hidden>
+                    <label>从 <select id="fullAnalysisVolumeStart"></select></label>
+                    <span>到</span>
+                    <label><select id="fullAnalysisVolumeEnd"></select></label>
+                </div>
+                <p id="fullAnalysisScopeSummary">将分析全部章节。任务开始后范围会锁定；需要换范围时请返回本步重新选择。</p>
+            </fieldset>
+            </div>
+            <div class="full-analysis-storage-notice" id="fullAnalysisStorageNotice" role="status"></div>
+            <section class="full-analysis-progress-card" aria-live="polite">
+                <div class="full-analysis-progress-title" id="fullAnalysisProgressText">正在整理作品章节</div>
+                <div class="full-analysis-usage" id="fullAnalysisUsage"></div>
+                <div class="full-analysis-progress-track" aria-hidden="true"><div class="full-analysis-progress-bar" id="fullAnalysisProgressBar"></div></div>
+            </section>
+            <section class="full-analysis-log-section">
+                <h4 class="full-analysis-section-label">分析详情</h4>
+                <div class="full-analysis-log" id="fullAnalysisLog" tabindex="0"></div>
+            </section>
+            <section class="full-analysis-review-card" id="fullAnalysisReviewSection" aria-live="polite">
+                <h4 class="full-analysis-section-label">阶段确认</h4>
+                <div id="fullAnalysisReviewSummary"></div>
+                <div id="fullAnalysisReviewItems"></div>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisUseLatestSource" style="display:none;">按最新正文新建分析任务</button>
+            </section>
+            <section class="full-analysis-save-card" id="fullAnalysisSaveSection">
+                <h4 class="full-analysis-section-label">保存到新作品</h4>
+                <div id="fullAnalysisNewBookSummary">请输入新的作品名称；不会覆盖原作品。</div>
+                <div id="fullAnalysisNewBookNameRow">
+                    <label for="fullAnalysisNewBookName">新作品名称</label>
+                    <input type="text" id="fullAnalysisNewBookName" maxlength="120" placeholder="请输入新作品名称" autocomplete="off">
+                </div>
+            </section>
+            <div class="full-analysis-actions">
+                <button type="button" class="btn btn-outline full-analysis-back" id="btnFullAnalysisBack">上一步</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisSkipSegment" style="display:none;">跳过当前阶段</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisMinimize">最小化</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisCancel">暂停</button>
+                <button type="button" class="btn btn-outline full-analysis-stop" id="btnFullAnalysisStopNow">立即停止</button>
+                <button type="button" class="btn btn-dark" id="btnFullAnalysisStart" style="display:none;">开始分析</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisContinue" style="display:none;">继续分析</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisRestart" style="display:none;">清除本次任务</button>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisDoneClose" style="display:none;">关闭</button>
+                <button type="button" class="btn btn-dark" id="btnFullAnalysisSave" style="display:none;">保存到新作品</button>
+            </div>
+            <div class="full-analysis-danger-zone" id="fullAnalysisDangerZone">
+                <span>只删除这一个任务的临时本机检查点，不删除已保存作品和知识快照。</span>
+                <button type="button" class="btn btn-outline" id="btnFullAnalysisDelete">删除此任务</button>
+            </div>
+        </div>
+    </div>
+    <aside class="full-analysis-taskbar" id="fullAnalysisTaskbar" aria-live="polite">
+        <button type="button" class="full-analysis-taskbar-main" id="btnFullAnalysisExpand" title="点击展开，按住可拖动">
+            <strong id="fullAnalysisTaskbarTitle">全文分析</strong>
+            <span id="fullAnalysisTaskbarProgress">等待开始</span>
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" id="btnFullAnalysisTaskbarPause">暂停</button>
+    </aside>
+
+    
+    <!-- ===== 拆书 - 导入章节弹窗 ===== -->
+    <div class="modal-overlay" id="decomposeImportModal" style="z-index:500;">
+        <div class="modal-box" style="width:640px;max-height:85vh;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h3 style="margin:0;">📥 导入章节</h3>
+                <span style="font-size:22px;cursor:pointer;" data-zhiyu-static-click="Modal.close('decomposeImportModal')">&times;</span>
+            </div>
+            <!-- Tab 切换 -->
+            <div style="display:flex;gap:16px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0;">
+                <span class="tab-item active" id="decompTabWorks" data-tab="works" style="cursor:pointer;">从当前作品</span>
+                <span class="tab-item" id="decompTabFile" data-tab="file" style="cursor:pointer;">导入本地文件</span>
+            </div>
+            <!-- Tab: 从当前作品 -->
+            <div id="decompPanelWorks">
+            <div style="color:var(--text-muted);font-size:13px;margin-bottom:10px;">从当前书籍中选择章节作为拆书参考，最多可选10章</div>
+            <div style="margin-bottom:8px;display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" id="btnDecomposeSelectAll">全选</button>
+                <button class="btn btn-outline btn-sm" id="btnDecomposeInvert">反选</button>
+                <span style="flex:1;"></span>
+                <span id="decomposeChapterCount" style="font-size:12px;color:#888;">已选: 0/10</span>
+            </div>
+            <div id="decomposeBookName" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;"></div>
+            <div id="decomposeChapterList" style="max-height:40vh;overflow-y:auto;margin-bottom:12px;"></div>
+            </div>
+            <!-- Tab: 导入本地文件 -->
+            <div id="decompPanelFile" style="display:none;">
+                <div id="decompFileDropZone" style="border:2px dashed #d4d0c8;border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:12px;transition:all 0.2s;"
+                     data-zhiyu-static-click="document.getElementById('decompFileInput').click()">
+                    <div style="font-size:28px;margin-bottom:6px;">📂</div>
+                    <div style="font-size:14px;color:var(--text);font-weight:600;">点击选择文件或拖拽到此处</div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">支持 .txt / .md，文件不超过 20MB</div>
+                </div>
+                <input type="file" id="decompFileInput" accept=".txt,.md" style="display:none;">
+                <div id="decompFileInfo" style="display:none;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#f7f8fa;border-radius:8px;font-size:13px;">
+                    <span id="decompFileInfoName" style="font-weight:600;"></span>
+                    <button id="btnDecompFileRemove" style="background:none;border:none;cursor:pointer;color:#999;font-size:16px;line-height:1;" title="移除文件">×</button>
+                    <span style="flex:1;"></span>
+                    <span id="decompFileInfoStats" style="color:var(--text-muted);"></span>
+                </div>
+                <div id="decompFileActions" style="display:none;margin-bottom:8px;gap:6px;">
+                    <button class="btn btn-outline btn-sm" id="btnDecompFileSelectAll">全选章节</button>
+                    <button class="btn btn-outline btn-sm" id="btnDecompFileSmartSort">智能排序</button>
+                    <button class="btn btn-outline btn-sm" id="btnDecompFileKeepOrder">保持原始顺序</button>
+                </div>
+                <div id="decompFileCount" style="font-size:12px;color:#888;margin-bottom:4px;display:none;">已选: 0/10</div>
+                <div id="decompFileList" style="max-height:40vh;overflow-y:auto;margin-bottom:12px;"></div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('decomposeImportModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnDecomposeConfirm">确认导入</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ===== 大纲模版选择弹窗 ===== -->
+    <div class="modal-overlay" id="outlineTemplateModal">
+        <div class="modal-box" style="width:800px;" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between;"><h3>选择大纲模版</h3><span style="cursor:pointer;" data-zhiyu-static-click="document.getElementById('outlineTemplateModal').style.display='none'">&times;</span></div>
+            <div style="display:flex; gap:10px; margin:10px 0;"><button class="btn btn-outline btn-sm" id="outlineTplTabFav">已收藏</button><button class="btn btn-outline btn-sm" id="outlineTplTabUsed">曾经使用</button></div>
+            <input type="text" id="outlineTplSearch" placeholder="搜索模版...">
+            <div id="outlineTplGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:16px; max-height:350px; overflow-y:auto;"></div>
+            <button class="btn btn-outline btn-sm" style="margin-top:8px;" id="btnOutlineShowMoreTpl">展示更多</button>
+        </div>
+    </div>
+
+    <!-- ===== 发布弹窗 ===== -->
+    <div class="modal-overlay" id="publishModal">
+        <div class="modal-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between;"><h3>一键发布</h3><span style="cursor:pointer;" data-zhiyu-static-click="document.getElementById('publishModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><input id="pubCookie" placeholder="Cookie" style="margin-bottom:12px;"><input id="pubUrl" placeholder="作者后台 URL"></div>
+            <button class="btn btn-dark" id="btnPublishSave">保存设置</button>
+        </div>
+    </div>
+
+    <!-- 历史版本弹窗：只处理当前设备上的单章快照 -->
+    <div class="modal-overlay history-versions-modal" id="historyVersionsModal">
+        <div class="modal-box history-versions-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="history-versions-header">
+                <div>
+                    <h3>历史版本</h3>
+                    <p id="historyChapterLabel">当前章节</p>
+                </div>
+                <button class="history-versions-close" id="btnCloseHistoryVersionsTop" type="button" aria-label="关闭历史版本弹窗">&times;</button>
+            </div>
+            <div class="history-versions-note">这里只保存和恢复当前章节，全部历史版本都留在当前设备。</div>
+            <div class="history-versions-layout">
+                <section class="history-versions-list-pane" aria-label="章节版本列表">
+                    <div class="history-versions-pane-title"><span>版本列表</span><span id="historyVersionCount">0 个历史版本</span></div>
+                    <div id="historyVersionsLoading" class="history-versions-loading">正在读取本机版本...</div>
+                    <div id="historyVersionsList" class="history-versions-list"></div>
+                </section>
+                <section class="history-versions-preview-pane" aria-label="版本内容预览">
+                    <div class="history-versions-preview-head">
+                        <strong id="historyVersionPreviewTitle">内容预览</strong>
+                        <span id="historyVersionPreviewMeta">选择左侧版本后查看</span>
+                    </div>
+                    <div id="historyVersionPreview" class="history-version-preview"><div class="history-versions-empty">选择一个历史版本即可预览；恢复前会先备份当前内容。</div></div>
+                </section>
+            </div>
+            <div class="history-versions-footer">
+                <div class="history-versions-footer-primary">
+                    <button class="btn btn-outline btn-sm" id="btnSyncHistoryCurrent" type="button">保存当前版本</button>
+                    <span id="historyVersionsStatus">历史版本按章节单独保存</span>
+                </div>
+                <div>
+                    <button class="btn btn-outline btn-sm" id="btnCloseHistoryVersions" type="button">关闭</button>
+                    <button class="btn btn-dark btn-sm" id="btnRestoreSnapshot" type="button" disabled>恢复此版本</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="legacyCacheImportModal" data-zhiyu-static-click="Modal.close('legacyCacheImportModal')">
+        <div class="modal-box legacy-cache-import-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="legacy-cache-import-header"><h3>导入本机旧缓存</h3><button type="button" aria-label="关闭" data-zhiyu-static-click="Modal.close('legacyCacheImportModal')">×</button></div>
+            <p>只复制你勾选的作品到当前本机身份；原缓存不会删除，旧在线作品编号也不会带入。</p>
+            <div id="legacyCacheImportList" class="legacy-cache-import-list"></div>
+            <div class="legacy-cache-import-actions"><button class="btn btn-outline btn-sm" type="button" data-zhiyu-static-click="Modal.close('legacyCacheImportModal')">取消</button><button class="btn btn-dark btn-sm" id="btnConfirmLegacyCacheImport" type="button">确认导入</button></div>
+        </div>
+    </div>
+
+    <div class="context-menu" id="ctxMenu"></div>
+
+    <input type="file" id="folderPicker" webkitdirectory style="display:none" multiple>
+    <input type="file" id="coverFilePicker" accept=".jpg,.png" style="display:none">
+    <input type="file" id="memoryFilePicker" accept=".md,.txt,.docx" style="display:none" multiple>
+    <input type="file" id="memoryFolderPicker" webkitdirectory style="display:none" multiple>
+    <input type="file" id="chapterFilePicker" accept=".md,.txt,.docx" style="display:none" multiple>
+    <input type="file" id="linkFilePicker" multiple style="display:none;">
+    <input type="file" id="templateFolderPicker" webkitdirectory style="display:none;" multiple>
+    <input type="file" id="chapterImportFilePicker" accept=".md,.txt,.docx" style="display:none;">
+
+
+<script src="./scripts/dist/community-runtime.js?v=8be4cd7aded1"></script>
+<script type="module" src="./scripts/vendor/tiptap/runtime.js?v=202607280442"></script>
+<script type="module" src="./scripts/core/app-professional-editor-adapter.js?v=202607280442"></script>
+<template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-create-form.js?v=202607301940"></template>
+<template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-metadata-assistant.js?v=202607292020"></template>
+<template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-management.js?v=8e7e6682050f"></template>
+<template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-filters.js?v=202607280442"></template>
+</body>
+</html>

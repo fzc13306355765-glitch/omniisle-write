@@ -1,0 +1,131 @@
+.import-full-analysis-overlay {
+    z-index: 1200;
+}
+
+.import-full-analysis-modal {
+    width: min(760px, calc(100vw - 32px));
+    max-height: min(86vh, 760px);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 22px 60px rgba(15, 23, 42, .22);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.import-full-analysis-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.import-full-analysis-head h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #111827;
+}
+
+.import-full-analysis-head p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.import-full-analysis-close {
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    color: #111827;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.import-full-analysis-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    font-size: 13px;
+    color: #334155;
+}
+
+.import-full-analysis-detail {
+    min-height: 220px;
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    background: #f8fbff;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #334155;
+}
+
+.import-full-analysis-line {
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(148, 163, 184, .45);
+}
+
+.import-full-analysis-line:last-child {
+    border-bottom: 0;
+}
+
+.import-full-analysis-line.success {
+    color: #15803d;
+}
+
+.import-full-analysis-line.warn {
+    color: #b45309;
+}
+
+.import-full-analysis-line.progress {
+    color: #1d4ed8;
+}
+
+.import-full-analysis-line.info {
+    color: #475569;
+}
+
+.import-full-analysis-files {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.import-full-analysis-files span {
+    padding: 4px 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.import-full-analysis-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+@media (max-width: 720px) {
+    .import-full-analysis-modal {
+        width: calc(100vw - 20px);
+        max-height: 90vh;
+        padding: 16px;
+    }
+
+    .import-full-analysis-stats {
+        grid-template-columns: 1fr;
+    }
+}

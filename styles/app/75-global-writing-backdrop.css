@@ -1,0 +1,810 @@
+/* 全站写作背景：只负责页面底层氛围，不改变各业务模块的阅读层。 */
+:root {
+    --writing-backdrop-color: #ffffff;
+    --writing-backdrop-image: url('../../assets/wallpapers/shanshui-sunrise-optimized.jpg');
+    --wallpaper-overlay-opacity: .5;
+    --wallpaper-overlay-color: #ffffff;
+    --writing-backdrop-panel: rgba(255, 255, 255, 0.48);
+    --writing-backdrop-card: rgba(255, 255, 255, 0.7);
+    --client-accent: #4a91aa;
+}
+
+html {
+    min-height: 100%;
+    background: #fff;
+    background: var(--wallpaper-overlay-color);
+}
+
+html[data-theme="dark"] {
+    background: #14161e;
+}
+
+body {
+    isolation: isolate;
+    background: transparent;
+}
+
+.app-wallpaper-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--writing-backdrop-color);
+    background-image: var(--writing-backdrop-image);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.app-wallpaper-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--wallpaper-overlay-color);
+    opacity: var(--wallpaper-overlay-opacity);
+}
+
+/* 总览页原有的纯白页面底色也需要回到统一背景，卡片本身不受影响。 */
+body:has(#page-overview.active) {
+    background: transparent;
+}
+
+/* 正文、卡片和弹窗保持独立阅读面，背景仅透出为轻微氛围。 */
+.main-content {
+    background-color: transparent;
+    background-image: none;
+    backdrop-filter: none;
+}
+
+/* 右侧栏已移除：外层不再保留原栏位的右侧空白；各页面内容仍保留自身内边距。 */
+.main-container {
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+}
+
+.content-wrapper {
+    position: relative;
+    border-bottom-left-radius: 22px;
+    overflow: hidden;
+}
+
+/* 顶部空白来自导航栏自身外边距；移除后客户端主体完整占用视口高度。 */
+.sidebar {
+    margin: 0;
+    height: 100vh;
+}
+
+/* 旧版/新版切换已退役；保留等高空位，避免同步、云端和夜间模式被挤到更低处。 */
+.sidebar-retired-version-space {
+    flex: 0 0 64px;
+    height: 64px;
+    pointer-events: none;
+}
+
+/* 总览原先给外层铺了纯白色；改为透明后，卡片本身仍保持原有白色。 */
+body:has(#page-overview.active) .main-container,
+body:has(#page-overview.active) .content-wrapper,
+body:has(#page-overview.active) .main-content {
+    background-color: transparent;
+}
+
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview.workbench-page {
+    --overview-bg: transparent;
+    --overview-surface: rgba(255, 255, 255, 0.26);
+    --overview-surface-strong: rgba(255, 255, 255, 0.34);
+    --overview-control-surface: rgba(255, 255, 255, 0.46);
+}
+
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-stat-item,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-list-panel,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-bottom-card,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-edit-card,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-help-card,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-help-item,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .book-card,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-book-placeholder,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .workbench-metric,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-empty {
+    background: var(--overview-surface) !important;
+    backdrop-filter: none;
+}
+
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-announcement-bar,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-recharge-entry,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .workbench-tabs,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .workbench-search,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .workbench-toolbar {
+    background: var(--overview-control-surface) !important;
+    backdrop-filter: none;
+}
+
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-action-icon,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-stat-icon,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-group-qr-box {
+    background: var(--overview-surface-strong) !important;
+}
+
+/* 设置页原本沿用不透明卡片；改为可读的半透明纸面，让底图仍能透出。 */
+body:has(#page-setting.active) .main-container,
+body:has(#page-setting.active) .content-wrapper,
+body:has(#page-setting.active) .main-content,
+body:has(#page-setting.active) #page-setting,
+body:has(#page-setting.active) #page-setting .workbench-shell {
+    background-color: transparent;
+}
+
+body:has(#page-setting.active) #page-setting .settings-panel {
+    background: var(--writing-backdrop-panel);
+    backdrop-filter: blur(1px);
+}
+
+body:has(#page-setting.active) #page-setting .settings-status-item,
+body:has(#page-setting.active) #page-setting .settings-stat {
+    background: var(--writing-backdrop-card);
+    backdrop-filter: blur(1px);
+}
+
+/* A single body-level image runs through the full three-column writing canvas. */
+body:has(#page-write.active) .main-container,
+body:has(#page-write.active) .content-wrapper,
+body:has(#page-write.active) .main-content,
+body:has(#page-write.active) #page-write,
+body:has(#page-write.active) .write-layout,
+body:has(#page-write.active) .write-catalog,
+body:has(#page-write.active) .write-right,
+body:has(#page-write.active) .write-main-row,
+body:has(#page-write.active) .write-main-left,
+body:has(#page-write.active) .write-action-panel {
+    background-color: transparent;
+}
+
+/* 写作页专用：把原本右侧的两层结构空白交给细纲面板使用。 */
+body:has(#page-write.active) .main-container {
+    padding-right: 0;
+}
+
+body:has(#page-write.active) .main-content {
+    padding-right: 0;
+}
+
+body:has(#page-write.active) .write-action-panel {
+    width: 420px;
+}
+
+/* 正文与剧情描述直接使用连续工作区底图，避免额外白色纸面把背景冲淡。 */
+body:has(#page-write.active) .write-body,
+body:has(#page-write.active) .write-plot {
+    background-color: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+
+body:has(#page-write.active) .write-action-panel .action-content-box {
+    background-color: transparent;
+    backdrop-filter: none;
+}
+
+body:has(#page-write.active) .write-action-panel .og-input-area textarea {
+    background-color: transparent;
+}
+
+/* 总览的卡片维持其本身不透明的阅读层，背景图只从模块间隙透出。 */
+body:has(#page-overview.active) #page-overview .overview-stat-item,
+body:has(#page-overview.active) #page-overview .overview-list-panel,
+body:has(#page-overview.active) #page-overview .overview-bottom-card {
+    backdrop-filter: none;
+}
+
+body:has(#page-overview.active) #page-overview .book-card,
+body:has(#page-overview.active) #page-overview .workbench-tabs,
+body:has(#page-overview.active) #page-overview .workbench-search {
+    backdrop-filter: none;
+}
+
+/* 登录页保留已有的专属引导图；其余业务页面使用统一写作背景。 */
+.single-auth-screen {
+    background-color: rgba(246, 247, 248, 0.9);
+}
+
+/* 十套客户端主题只调整配色变量；壁纸和透明度由独立底层负责。 */
+html[data-client-theme="forest-mint"] { --client-accent: #1a1d2b; --accent: #1a1d2b; --bg: #f7f7f8; --bg-card: #f7f7f8; --bg-input: #fff; --text: #1a1d2b; --text-muted: #6b7280; --border: #e5e7eb; --sidebar-bg: #11131d; --btn-dark-bg: #1a1d2b; }
+html[data-client-theme="moon-celadon"] { --client-accent: #6d9f96; --accent: #6d9f96; --bg: #eef6f4; --bg-card: #fbfdfc; --bg-input: #f4f9f8; --text: #263836; --text-muted: #6b7d79; --border: #d9e7e3; --sidebar-bg: #416d67; --btn-dark-bg: #608e86; }
+html[data-client-theme="pine-ink"] { --client-accent: #3f6f5e; --accent: #3f6f5e; --bg: #eef4f1; --bg-card: #fbfdfc; --bg-input: #f4f8f6; --text: #21332c; --text-muted: #66756f; --border: #d6e2dc; --sidebar-bg: #294b40; --btn-dark-bg: #3f6f5e; }
+html[data-client-theme="mist-blue"] { --client-accent: #5f80a8; --accent: #5f80a8; --bg: #eff4fa; --bg-card: #fbfcfe; --bg-input: #f5f8fc; --text: #253247; --text-muted: #6a7484; --border: #d9e2ee; --sidebar-bg: #3f5878; --btn-dark-bg: #5f80a8; }
+html[data-client-theme="warm-orange"] { --client-accent: #e98c55; --accent: #e98c55; --bg: #fff5ed; --bg-card: #fffdfb; --bg-input: #fff8f3; --text: #4b3024; --text-muted: #8b7064; --border: #f0ded1; --sidebar-bg: #8a563b; --btn-dark-bg: #df8350; }
+html[data-client-theme="tea-beige"] { --client-accent: #9a7c63; --accent: #9a7c63; --bg: #f7f2ec; --bg-card: #fdfbf8; --bg-input: #faf6f1; --text: #40352e; --text-muted: #80736a; --border: #e8ddd1; --sidebar-bg: #695343; --btn-dark-bg: #8c6f59; }
+html[data-client-theme="rose-mist"] { --client-accent: #bd7183; --accent: #bd7183; --bg: #fbf0f3; --bg-card: #fffafb; --bg-input: #fdf5f7; --text: #493039; --text-muted: #8a6b75; --border: #eed9df; --sidebar-bg: #7b4957; --btn-dark-bg: #b66c7d; }
+html[data-client-theme="purple-pearl"] { --client-accent: #7a63c8; --accent: #7a63c8; --bg: #f4f0fd; --bg-card: #fcfbff; --bg-input: #f7f4fe; --text: #352d50; --text-muted: #756d8a; --border: #e3dcf4; --sidebar-bg: #524483; --btn-dark-bg: #725dbc; }
+html[data-client-theme="snow-purple"] { --client-accent: #7b6cb5; --accent: #7b6cb5; --bg: #f3f1fa; --bg-card: #fcfbfe; --bg-input: #f7f5fb; --text: #363248; --text-muted: #777184; --border: #e2deec; --sidebar-bg: #57506f; --btn-dark-bg: #7265a5; }
+html[data-client-theme="lake-graphite"] { --client-accent: #4a91aa; --accent: #4a91aa; --bg: #edf7fa; --bg-card: #fbfeff; --bg-input: #f4fafc; --text: #25373d; --text-muted: #687a80; --border: #d5e8ee; --sidebar-bg: #315d6d; --btn-dark-bg: #43869e; }
+
+html[data-theme="dark"][data-client-theme] {
+    --writing-backdrop-color: #14161e;
+    --wallpaper-overlay-color: #14161e;
+    --bg: #14161e;
+    --bg-card: #1e202a;
+    --bg-input: #262834;
+    --text: #d8dae2;
+    --text-muted: #9ba1ad;
+    --border: #343848;
+    --sidebar-bg: #0e0f16;
+    --sidebar-text: #d8dae2;
+    --accent: var(--client-accent);
+    --btn-dark-bg: var(--client-accent);
+    --btn-dark-text: #fff;
+    --btn-outline-bg: #1e202a;
+    --btn-outline-text: #d8dae2;
+}
+
+html[data-theme="dark"][data-client-theme="forest-mint"] {
+    --client-accent: #b8bec9;
+    --accent: #b8bec9;
+    --btn-dark-bg: #b8bec9;
+    --btn-dark-text: #14161e;
+}
+
+/* 日光模式的当前导航项复用同一张固定壁纸，和右侧工作区保持连续。 */
+html:not([data-theme="dark"]) .sidebar .nav-item.active {
+    --nav-wallpaper-overlay: color-mix(
+        in srgb,
+        var(--wallpaper-overlay-color) calc(var(--wallpaper-overlay-opacity) * 100%),
+        transparent
+    );
+    background-color: var(--writing-backdrop-color);
+    background-image:
+        linear-gradient(var(--nav-wallpaper-overlay), var(--nav-wallpaper-overlay)),
+        var(--writing-backdrop-image);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: var(--text);
+}
+
+/* 上下圆弧也复用同一张固定壁纸，避免旧阴影产生白色小方块。 */
+html:not([data-theme="dark"]) .sidebar .nav-item.active::before,
+html:not([data-theme="dark"]) .sidebar .nav-item.active::after {
+    display: block;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    background-color: var(--writing-backdrop-color);
+    background-image:
+        linear-gradient(var(--nav-wallpaper-overlay), var(--nav-wallpaper-overlay)),
+        var(--writing-backdrop-image);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    box-shadow: none;
+    border-radius: 0;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+html:not([data-theme="dark"]) .sidebar .nav-item.active::before {
+    top: -18px;
+    -webkit-mask-image: radial-gradient(circle at left top, transparent 0 17px, #000 18px);
+    mask-image: radial-gradient(circle at left top, transparent 0 17px, #000 18px);
+}
+
+html:not([data-theme="dark"]) .sidebar .nav-item.active::after {
+    bottom: -18px;
+    -webkit-mask-image: radial-gradient(circle at left bottom, transparent 0 17px, #000 18px);
+    mask-image: radial-gradient(circle at left bottom, transparent 0 17px, #000 18px);
+}
+
+html:not([data-theme="dark"]) .sidebar.collapsed .nav-item.active::before,
+html:not([data-theme="dark"]) .sidebar.collapsed .nav-item.active::after {
+    display: none;
+}
+
+html:not([data-theme="dark"]) .sidebar .nav-item.active svg {
+    stroke: currentColor;
+}
+
+/* 夜间模式保留深色阅读面，用轻微透明度和描边区分当前项。 */
+html[data-theme="dark"] .sidebar .nav-item.active {
+    background-color: color-mix(in srgb, var(--bg-card) 88%, transparent);
+    background-image: none;
+    color: #f5f7fb;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06), 0 8px 22px rgba(0, 0, 0, .12);
+    backdrop-filter: blur(8px);
+}
+
+html[data-font-size="small"] { --font-size-offset: -1px; --fs-xs: 9px; --fs-sm: 11px; --fs-md: 12px; --fs-base: 13px; --fs-lg: 15px; --fs-xl: 17px; --fs-2xl: 19px; --fs-3xl: 22px; }
+html[data-font-size="medium"] { --font-size-offset: 0px; --fs-xs: 10px; --fs-sm: 12px; --fs-md: 13px; --fs-base: 14px; --fs-lg: 16px; --fs-xl: 18px; --fs-2xl: 20px; --fs-3xl: 24px; }
+html[data-font-size="large"] { --font-size-offset: 1px; --fs-xs: 11px; --fs-sm: 13px; --fs-md: 14px; --fs-base: 15px; --fs-lg: 17px; --fs-xl: 19px; --fs-2xl: 22px; --fs-3xl: 26px; }
+html[data-font-size="xlarge"] { --font-size-offset: 3px; --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-base: 17px; --fs-lg: 19px; --fs-xl: 22px; --fs-2xl: 25px; --fs-3xl: 29px; }
+html[data-font-size] body { width: 100%; height: 100vh; zoom: 1; font-size: var(--fs-base); }
+html[data-font-size] button,
+html[data-font-size] input,
+html[data-font-size] select,
+html[data-font-size] textarea,
+html[data-font-size] .nav-item,
+html[data-font-size] .settings-menu-item,
+html[data-font-size] .settings-preference-row,
+html[data-font-size] .chapter-item,
+html[data-font-size] .action-tab-btn { font-size: var(--fs-md); }
+html[data-font-size] .workbench-title,
+html[data-font-size] .settings-panel h3,
+html[data-font-size] .overview-sixday-title { font-size: var(--fs-2xl); }
+html[data-font-size] .action-template-arrow { font-size: 0; }
+
+/* 深色模式优先保证文字与编辑器对比度，不叠加浅色山景。 */
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+    --writing-backdrop-color: #14161e;
+    --wallpaper-overlay-color: #14161e;
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-theme="dark"] .app-wallpaper-layer {
+    background-color: #14161e;
+    background-blend-mode: multiply;
+}
+
+html[data-theme="dark"] .app-wallpaper-layer::after {
+    background: #14161e;
+    opacity: max(var(--wallpaper-overlay-opacity), .72);
+}
+
+
+[data-theme="dark"] body:has(#page-overview.active),
+body[data-theme="dark"]:has(#page-overview.active) {
+    background-color: transparent;
+    background-image: none;
+}
+
+[data-theme="dark"] .main-content {
+    background-color: rgba(20, 22, 30, .91);
+    background-image: none;
+    backdrop-filter: none;
+}
+
+/* 全局背景规则加载在末尾：夜间模式必须在这里明确取消白天的半透明纸面。 */
+[data-theme="dark"] body:has(#page-write.active) .write-body,
+[data-theme="dark"] body:has(#page-write.active) .write-plot {
+    background-color: #20232e;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+
+/* 总览页自己的白色变量需要整体改写，不能只覆盖少数卡片。 */
+html[data-theme="dark"] #page-overview.workbench-page {
+    --overview-bg: rgba(20, 22, 30, .9);
+    --overview-surface: #20232e;
+    --overview-surface-strong: #20232e;
+    --overview-border-soft: #343848;
+    --overview-shadow-control: none;
+    --overview-shadow-panel: none;
+    --overview-shadow-accent: none;
+    --overview-placeholder-text: #8e909a;
+}
+
+html[data-theme="dark"] body:has(#page-overview.active) .main-container,
+html[data-theme="dark"] body:has(#page-overview.active) .content-wrapper,
+html[data-theme="dark"] body:has(#page-overview.active) .main-content {
+    background: rgba(20, 22, 30, .91);
+}
+
+html[data-theme="dark"] #page-overview .overview-announcement-bar,
+html[data-theme="dark"] #page-overview .overview-recharge-entry,
+html[data-theme="dark"] #page-overview .workbench-tabs,
+html[data-theme="dark"] #page-overview .overview-stat-item,
+html[data-theme="dark"] #page-overview .overview-list-panel,
+html[data-theme="dark"] #page-overview .overview-bottom-card,
+html[data-theme="dark"] #page-overview .book-card,
+html[data-theme="dark"] #page-overview .workbench-search,
+html[data-theme="dark"] #page-overview .overview-book-placeholder {
+    background: #20232e !important;
+    border-color: #343848 !important;
+    backdrop-filter: none;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #page-overview .workbench-tabs .tab-item {
+    color: #d8dae2;
+}
+
+html[data-theme="dark"] #page-overview .workbench-tabs .tab-item.active,
+html[data-theme="dark"] #page-overview .overview-action-tile {
+    background: #343848;
+    background: var(--client-accent);
+    color: #f5f7fb;
+    border-color: #4a5164;
+}
+
+html[data-theme="dark"] #page-overview .overview-stat-head,
+html[data-theme="dark"] #page-overview .overview-section-head,
+html[data-theme="dark"] #page-overview .overview-table-title,
+html[data-theme="dark"] #page-overview .overview-sixday-title {
+    color: #d8dae2;
+}
+
+html[data-theme="dark"] #page-overview .overview-stat-item strong {
+    color: #f5f7fb;
+}
+
+html[data-theme="dark"] #page-overview .overview-section-head,
+html[data-theme="dark"] #page-overview .overview-sixday-lines span {
+    border-color: #343848;
+}
+
+html[data-theme="dark"] #page-overview .book-card .btn-row .btn {
+    background: #262a36 !important;
+    border-color: #3a4052 !important;
+    color: #d8dae2 !important;
+}
+
+[data-theme="dark"] body:has(#page-setting.active) #page-setting .settings-panel {
+    background: #20232e;
+    border-color: #343848;
+    backdrop-filter: none;
+}
+
+[data-theme="dark"] body:has(#page-setting.active) #page-setting .settings-status-item,
+[data-theme="dark"] body:has(#page-setting.active) #page-setting .settings-stat {
+    background: #262a36;
+    border-color: #3a4052;
+    backdrop-filter: none;
+}
+
+html[data-theme="dark"] #page-setting .settings-menu-item {
+    background: rgba(32, 35, 46, .94);
+    border-color: #3a4052;
+    color: #d8dae2;
+}
+
+html[data-theme="dark"] #page-setting .settings-menu-item:hover {
+    background: #262a36;
+    border-color: var(--client-accent);
+}
+
+html[data-theme="dark"] #page-setting .settings-menu-item.active {
+    background: #262a36;
+    border-color: var(--client-accent);
+    color: #f5f7fb;
+    box-shadow: inset 3px 0 0 var(--client-accent);
+}
+
+@media (max-width: 760px) {
+    .app-wallpaper-layer { background-size: auto 100%; }
+}
+
+/* 视觉细调集中放在拆分样式末端，保留上游拆分基线的逐行兼容性。 */
+.chapter-compose-bottom { margin-bottom: -13px; }
+
+/* 夜间模式弹窗补全：外壳已变暗时，内部列表、选择行、卡片和说明区不能继续使用日间硬编码色。 */
+.feedback-dialog {
+    background: #fff;
+    color: #333;
+}
+
+.feedback-dialog-message {
+    color: #333;
+}
+
+.feedback-dialog-input {
+    background: #fff;
+    color: #1e1e28;
+    border: 1px solid #d4d8de;
+}
+
+html[data-theme="dark"] .feedback-dialog {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .feedback-dialog-message {
+    color: var(--text);
+}
+
+html[data-theme="dark"] .feedback-dialog-input {
+    background: var(--bg-input);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .feedback-dialog-input::placeholder {
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] #templateSelectModal .modal-box > div:nth-child(2),
+html[data-theme="dark"] #templateSelectModal .modal-box > div:last-child {
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal .modal-box > div:nth-child(3) > div:first-child {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border);
+}
+
+.tpl-sidebar-item {
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #555;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.tpl-sidebar-item.active {
+    background: #1a1d2b;
+    color: #fff;
+}
+
+html[data-theme="dark"] .tpl-sidebar-item {
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .tpl-sidebar-item:hover {
+    background: #2d3140;
+    color: var(--text);
+}
+
+html[data-theme="dark"] .tpl-sidebar-item.active {
+    background: var(--client-accent, #4a91aa);
+    color: #fff;
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card {
+    background: #262a36 !important;
+    border-color: #3a4052 !important;
+    color: var(--text);
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card:hover {
+    border-color: var(--client-accent, #5f9cc7) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card.tpl-card-selected {
+    background: #293544 !important;
+    border-color: var(--client-accent, #5cbfe0) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card [style*="color:#1a1d2b"],
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card [style*="color:#6e6e7a"] {
+    color: var(--text) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card [style*="color:#9a9ca6"] {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal .tpl-selector-card [style*="border-top:1px solid #e2e5ea"] {
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] #templateSelectModal input,
+html[data-theme="dark"] #templateSelectModal select {
+    background: var(--bg-input);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .gen-option {
+    background: var(--bg-input);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .gen-option:hover {
+    background: #2d3140;
+}
+
+html[data-theme="dark"] #rwDirectionGroup .gen-option.is-selected {
+    background: #4f46e5;
+    color: #fff;
+    border-color: #6b63f1;
+}
+
+html[data-theme="dark"] .tree-container,
+html[data-theme="dark"] .tree-folder,
+html[data-theme="dark"] .tree-file {
+    background: var(--bg-input);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .tree-folder:hover,
+html[data-theme="dark"] .tree-file:hover {
+    background: #2d3140;
+    border-color: var(--client-accent, #5f9cc7);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .tree-folder .folder-name,
+html[data-theme="dark"] .tree-file .file-name {
+    color: var(--text);
+}
+
+html[data-theme="dark"] .tree-children {
+    border-left-color: var(--border);
+}
+
+html[data-theme="dark"] .outline-genre-popup,
+html[data-theme="dark"] .outline-genre-column,
+html[data-theme="dark"] .outline-genre-popup-input-combo {
+    background: var(--bg-card);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .outline-genre-column {
+    background: var(--bg-input);
+}
+
+html[data-theme="dark"] .outline-genre-popup-selected {
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] #polishModal label {
+    color: var(--text) !important;
+}
+
+html[data-theme="dark"] #polishSelectedText {
+    background: var(--bg-input) !important;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] #rewriteModal textarea,
+html[data-theme="dark"] #rewriteModal input,
+html[data-theme="dark"] #polishModal textarea {
+    background: var(--bg-input);
+    color: var(--text);
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .model-picker-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .model-picker-sidebar {
+    background: #181a23;
+    border-right: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .model-picker-cat {
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .model-picker-cat.active,
+html[data-theme="dark"] .model-picker-cat.advanced.active {
+    background: #2d3140;
+    color: var(--text);
+}
+
+html[data-theme="dark"] .model-picker-card,
+html[data-theme="dark"] .model-picker-card.disabled:hover {
+    background: #262a36;
+    border-color: #343848;
+}
+
+html[data-theme="dark"] .model-picker-card:hover {
+    background: #2d3140;
+    border-color: var(--client-accent, #5f9cc7);
+}
+
+html[data-theme="dark"] .model-picker-card.selected {
+    background: #21332f;
+    border-color: #4f9779;
+}
+
+html[data-theme="dark"] .model-picker-card-name {
+    color: var(--text);
+}
+
+html[data-theme="dark"] .model-picker-card-capacity-notice {
+    background: #3a3020;
+    border-color: #665126;
+    color: #f5cc7a;
+}
+
+html[data-theme="dark"] .model-picker-card-bar-wrap {
+    background: #181a23;
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .model-picker-footer {
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .model-picker-footer button {
+    background: var(--btn-outline-bg);
+    color: var(--btn-outline-text);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .model-picker-footer button:hover {
+    background: #2d3140;
+    color: var(--text);
+    border-color: var(--client-accent, #5f9cc7);
+}
+
+html[data-theme="dark"] #cloudRestoreModal #cloudRestoreBody {
+    background: #181a23 !important;
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] #cloudRestoreModal #cloudRestoreActions {
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] #cloudRestoreModal .cloud-restore-book,
+html[data-theme="dark"] #cloudRestoreModal .cloud-restore-version,
+html[data-theme="dark"] #cloudRestoreModal .cloud-file-card {
+    background: #262a36 !important;
+    border-color: #3a4052 !important;
+    color: var(--text) !important;
+}
+
+html[data-theme="dark"] #cloudRestoreModal .cloud-restore-book:hover,
+html[data-theme="dark"] #cloudRestoreModal .cloud-restore-version:hover,
+html[data-theme="dark"] #cloudRestoreModal .cloud-file-card:hover {
+    background: #2d3140 !important;
+    border-color: var(--client-accent, #5f9cc7) !important;
+}
+
+html[data-theme="dark"] #cloudRestoreModal [style*="color:#1d2433"] {
+    color: var(--text) !important;
+}
+
+html[data-theme="dark"] #cloudRestoreModal [style*="color:#667085"],
+html[data-theme="dark"] #cloudRestoreModal [style*="color:#8a8f98"] {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] #cloudFilePreviewMeta {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] #cloudFilePreviewContent {
+    background: var(--bg-input) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] #importAnalysisEstimate {
+    background: var(--bg-input);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .full-analysis-notice {
+    background: #202d3c;
+    color: #c4d8ef;
+    border-color: #38516c;
+}
+
+html[data-theme="dark"] .full-analysis-progress-card,
+html[data-theme="dark"] .full-analysis-save-card {
+    background: var(--bg-input);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .full-analysis-progress-track {
+    background: #181a23;
+}
+
+html[data-theme="dark"] .full-analysis-log {
+    background: #181a23;
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .full-analysis-log-item {
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .full-analysis-log-item.is-current {
+    background: #20324a;
+    color: #b9d5fa;
+}
+
+html[data-theme="dark"] .full-analysis-log-item.is-error {
+    background: #3a2923;
+    color: #f2b896;
+}

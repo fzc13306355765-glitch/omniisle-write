@@ -1,0 +1,80 @@
+/* 基础变量、夜间模式和全局主题修正 */
+:root {
+            --bg: #ebeef2;
+            --bg-card: #fff;
+            --bg-input: #fff;
+            --text: #1e1e28;
+            --text-muted: #6e6e7a;
+            --border: #e2e5ea;
+            --sidebar-bg: #1a1d2b;
+            --sidebar-text: #e8e8ee;
+            --accent: #1a1d2b;
+            --btn-dark-bg: #1a1d2b;
+            --btn-dark-text: #fff;
+            --btn-outline-bg: #fff;
+            --btn-outline-text: #3a3a44;
+            --fs-xs: 10px;
+            --fs-sm: 12px;
+            --fs-md: 13px;
+            --fs-base: 14px;
+            --fs-lg: 16px;
+            --fs-xl: 18px;
+            --fs-2xl: 20px;
+            --fs-3xl: 24px;
+        }
+        [data-theme="dark"] {
+            --bg: #14161e;
+            --bg-card: #1e202a;
+            --bg-input: #262834;
+            --text: #d8dae2;
+            --text-muted: #8e909a;
+            --border: #2e3040;
+            --sidebar-bg: #0e0f16;
+            --sidebar-text: #d8dae2;
+            --accent: #2e3040;
+            --btn-dark-bg: #d8dae2;
+            --btn-dark-text: #14161e;
+            --btn-outline-bg: #1e202a;
+            --btn-outline-text: #d8dae2;
+        }
+        [data-theme="dark"] .write-body { color: var(--text); }
+        [data-theme="dark"] .write-body::before { color: #6e707a; }
+        [data-theme="dark"] .write-body:empty:before { color: #6e707a; }
+        [data-theme="dark"] .write-plot { }
+        [data-theme="dark"] .word-stats { color: var(--text); }
+        [data-theme="dark"] .main-content { background-color: var(--bg-card); }
+        [data-theme="dark"] .overview-card { background-color: #1e2430; }
+        [data-theme="dark"] .book-card { background-color: #1e2430; }
+        [data-theme="dark"] .chapter-item { color: var(--text); }
+        [data-theme="dark"] .chapter-item:hover { background-color: #2e3040; }
+        [data-theme="dark"] .chapter-item.selected { background-color: #3e4050; }
+        [data-theme="dark"] .vol-item.selected { background-color: #3e4050; }
+        [data-theme="dark"] .vol-item { color: var(--text); }
+        [data-theme="dark"] .vol-item:hover { background-color: #2e3040; }
+        [data-theme="dark"] .tab-item { color: var(--text-muted); }
+        [data-theme="dark"] .tab-item.active { color: var(--text); border-bottom-color: var(--text); }
+        [data-theme="dark"] .card { background-color: #1e2430; }
+        [data-theme="dark"] .modal-box { background: var(--bg-card); color: var(--text); }
+        [data-theme="dark"] .context-menu { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .outline-result { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .genre-tag { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .genre-tag.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
+        [data-theme="dark"] .wordcount-option { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .wordcount-option.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
+        [data-theme="dark"] .write-catalog { }
+        [data-theme="dark"] .ref-top-bar { background: var(--bg-card); color: var(--text-muted); border-bottom-color: var(--border); }
+        [data-theme="dark"] .btn-outline { background-color: var(--btn-outline-bg); color: var(--btn-outline-text); border-color: var(--border); }
+        [data-theme="dark"] .btn-card-act { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .btn-card-act:hover { background: #2e3040; border-color: #4e5060; }
+        [data-theme="dark"] .btn-card-act.danger { color: #e05555; border-color: #5e3030; }
+        [data-theme="dark"] .btn-card-act.danger:hover { background: #3e2020; }
+        [data-theme="dark"] .modal-overlay { background: rgba(0,0,0,0.6); }
+        [data-theme="dark"] .comment-form textarea { background: var(--bg-input); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .write-plot textarea { color: var(--text); }
+        [data-theme="dark"] #edPreview th { background: #2e3040; }
+        [data-theme="dark"] #edPreview th, [data-theme="dark"] #edPreview td { border-color: var(--border); }
+        [data-theme="dark"] .ref-chapter-row:hover { background: #2e3040; }
+        [data-theme="dark"] .write-catalog .catalog-refs { border-top-color: var(--border); }
+        [data-theme="dark"] .tree-folder { color: var(--text); }
+        [data-theme="dark"] .tree-file { color: var(--text-muted); }
+        [data-theme="dark"] .tree-file:hover { background: #2e3040; }

@@ -1,0 +1,6 @@
+.memory-role-list{display:grid;gap:10px}
+.memory-role-list table{width:100%;border-collapse:collapse}
+.memory-role-list th,.memory-role-list td{padding:8px;border:1px solid #e5e7eb;text-align:left}
+.role-relation-card{position:relative;min-height:240px;border:1px solid #e5e7eb;border-radius:10px;background:#fafbfc}
+.info-card-graph-hint{position:absolute;left:10px;top:10px;z-index:4;max-width:calc(100% - 260px);padding:5px 9px;border:1px solid rgba(203,213,225,.9);border-radius:999px;background:rgba(255,255,255,.9);color:#64748b;font-size:12px;line-height:16px;pointer-events:none;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+@media (max-width:640px){.info-card-graph-hint{top:44px;max-width:calc(100% - 20px);font-size:11px}}

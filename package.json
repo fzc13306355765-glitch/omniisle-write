@@ -1,0 +1,31 @@
+{
+  "name": "zhiyu-writing-community",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "description": "知屿写作 Omniisle Write 本地社区版公开候选仓库",
+  "author": "Zeyu",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node scripts/tools/build-community-runtime.mjs",
+    "build:check": "node scripts/tools/build-community-runtime.mjs --check",
+    "build:editor": "node scripts/tools/build-editor-runtime.mjs",
+    "serve": "node scripts/tools/serve-community.mjs",
+    "test": "npm run build:check && node scripts/tools/smoke-community-local-core.mjs && node scripts/tools/smoke-community-analysis.mjs",
+    "audit:public": "node scripts/tools/audit-public-boundary.mjs",
+    "verify:public": "npm test && npm run audit:public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.28.0",
+    "@tiptap/pm": "3.28.0",
+    "@tiptap/starter-kit": "3.28.0",
+    "jsonrepair": "3.15.0",
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
+  }
+}

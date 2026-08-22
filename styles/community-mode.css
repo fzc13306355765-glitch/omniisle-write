@@ -1,0 +1,15 @@
+.zhiyu-community-mode #userPanelModal,
+.zhiyu-community-mode #authModal,
+.zhiyu-community-mode #singleAuthShell,
+.zhiyu-community-mode #loginBtn,
+.zhiyu-community-mode #btnAnalyzeSelected,
+.zhiyu-community-mode .action-tab-btn[data-tab="aiPolish"],
+.zhiyu-community-mode #apContentWrap,
+.zhiyu-community-mode #apFileStacksRow,
+.zhiyu-community-mode #apStatusStrip {
+    display: none !important;
+}
+
+.zhiyu-community-mode #overviewAnnouncementBar {
+    cursor: default;
+}

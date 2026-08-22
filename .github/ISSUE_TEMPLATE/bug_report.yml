@@ -1,0 +1,48 @@
+name: Bug report / 问题反馈
+description: Report a reproducible community edition problem / 反馈可复现的社区版问题
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include API keys, unpublished manuscripts, account data, or security details. Read SECURITY.md before reporting a possible data leak or network-boundary bypass.
+
+        不要提交 API Key、未发布稿件、账号数据或安全漏洞细节。疑似数据泄露或网络边界绕过请先阅读 SECURITY.md。
+  - type: input
+    id: environment
+    attributes:
+      label: Environment / 使用环境
+      description: Operating system, browser version, Node.js version, and project version.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps / 复现步骤
+      description: List the smallest set of steps that reproduces the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Safe evidence / 脱敏证据
+      description: Add redacted logs or screenshots made with fictional writing content.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation / 隐私确认
+      options:
+        - label: I removed API keys, private manuscripts, account data, and other sensitive information. / 我已删除密钥、私人稿件、账号数据和其他敏感信息。
+          required: true

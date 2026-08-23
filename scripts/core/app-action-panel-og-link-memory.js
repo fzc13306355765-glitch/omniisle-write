@@ -93,7 +93,10 @@
         var og = ACTION_PANEL_APP_STATE.outlineGen;
         activateOGLinkedMemoryBook(bookName);
         getOGLinkedFiles();
-        var memBooks = typeof window.getMemBooks === 'function' ? window.getMemBooks() : {};
+        var preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        var memBooks = preview?.active && preview.books
+            ? preview.books
+            : (typeof window.getMemBooks === 'function' ? window.getMemBooks() : {});
         var bookMem = memBooks[bookName] || {};
         var defaultGroups = [
             ['设定集'],

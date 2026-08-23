@@ -5,7 +5,7 @@
         writing: { storageKey: 'zhiyu_model_id', buttonId: 'btnModelSelect', label: '正文模型', prefix: '' },
         outline: { storageKey: 'zhiyu_outline_model_id', buttonId: 'btnOutlineModelSelect', label: '大纲模型', prefix: '大纲：' },
         action: { storageKey: 'zhiyu_action_model_id', buttonId: 'btnActionModelSelect', label: '工具模型', prefix: '模型：' },
-        chat: { storageKey: 'zhiyu_chat_model_id', buttonId: '', label: '对话模型', prefix: '' }
+        chat: { storageKey: 'zhiyu_chat_model_id', buttonId: 'btnChatModelSelect', label: '对话模型', prefix: '' }
     });
 
     function getModelDefinitionTier() { return 'user-provided'; }

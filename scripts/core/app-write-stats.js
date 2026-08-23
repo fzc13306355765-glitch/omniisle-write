@@ -65,6 +65,10 @@
         let todayWritingTimeLastTick = Date.now();
         let todayWritingTimeLastActivity = 0;
 
+        function isOperationTutorialActive(){
+            return document.body?.classList.contains('zhiyu-outline-tutorial-active') === true;
+        }
+
         function getLocalDateKey(date){
             const d = date || new Date();
             const y = d.getFullYear();
@@ -89,6 +93,7 @@
         }
 
         function getTodayWritingDurationMs(){
+            if (isOperationTutorialActive()) return 0;
             try {
                 const value = Number(localStorage.getItem(getTodayWritingTimeKey()) || 0);
                 return Number.isFinite(value) && value > 0 ? value : 0;
@@ -98,6 +103,7 @@
         }
 
         function setTodayWritingDurationMs(durationMs){
+            if (isOperationTutorialActive()) return;
             try {
                 localStorage.setItem(getTodayWritingTimeKey(), String(Math.max(0, Math.floor(Number(durationMs) || 0))));
             } catch(e) {}
@@ -117,7 +123,7 @@
         }
 
         function markWritingActivity(){
-            if (!isWritePageActive()) return;
+            if (isOperationTutorialActive() || !isWritePageActive()) return;
             todayWritingTimeLastActivity = Date.now();
             if (!todayWritingTimeLastTick) todayWritingTimeLastTick = todayWritingTimeLastActivity;
         }
@@ -131,6 +137,11 @@
 
         function flushTodayWritingTime(){
             const now = Date.now();
+            if (isOperationTutorialActive()) {
+                todayWritingTimeLastTick = now;
+                todayWritingTimeLastActivity = 0;
+                return;
+            }
             if (!todayWritingTimeLastTick) {
                 todayWritingTimeLastTick = now;
                 return;
@@ -149,7 +160,7 @@
         }
 
         function markFromEvent(event){
-            if (!isWritePageActive()) return;
+            if (isOperationTutorialActive() || !isWritePageActive()) return;
             const writePage = document.getElementById('page-write');
             if (writePage && event && event.target && !writePage.contains(event.target)) return;
             markWritingActivity();

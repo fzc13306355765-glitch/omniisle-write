@@ -4,6 +4,15 @@
     const DEFAULT_AI_CHAT_TIMEOUT_MS = 180000;
     const DEFAULT_AI_STREAM_TIMEOUT_MS = 900000;
 
+    function assertOperationTutorialTransportDisabled() {
+        const tutorialActive = window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || (typeof document !== 'undefined' && document.body?.classList.contains('zhiyu-outline-tutorial-active'));
+        if (!tutorialActive) return;
+        const error = new Error('操作引导教程使用预置内容，已阻止真实 AI 请求。');
+        error.code = 'TUTORIAL_AI_DISABLED';
+        throw error;
+    }
+
     function normalizeTimeoutMs(value, fallback) {
         const parsed = Number(value);
         if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
@@ -76,6 +85,7 @@
     }
 
     async function runModelRequestWithTimeout(externalSignal, executor, timeoutMs) {
+        assertOperationTutorialTransportDisabled();
         if (typeof executor !== 'function') throw new TypeError('模型请求执行器无效');
         const requestControl = beginRequestControl(externalSignal, timeoutMs, DEFAULT_AI_STREAM_TIMEOUT_MS);
         try {
@@ -206,6 +216,7 @@
     }
 
     async function streamGenerate(config, systemPrompt, userMessage, onChunk, onDone, onError, signal, requestOptions) {
+        assertOperationTutorialTransportDisabled();
         if (!signal && onError && typeof onError === 'object' && 'aborted' in onError) {
             signal = onError;
             onError = null;
@@ -306,6 +317,7 @@
     }
 
     async function streamCustomTemplateGenerate(config, _templateId, userMessage, onChunk, onDone, onError, signal, requestOptions) {
+        assertOperationTutorialTransportDisabled();
         const options = requestOptions && typeof requestOptions === 'object' ? requestOptions : {};
         const systemPrompt = String(options.systemPrompt || '').trim();
         if (!systemPrompt) {
@@ -318,6 +330,7 @@
     }
 
     async function callLLMAPI(config, systemPrompt, userMessage, modelOverride, requestOptions) {
+        assertOperationTutorialTransportDisabled();
         const model = selectedModel(modelOverride || config);
         const options = requestOptions && typeof requestOptions === 'object' ? requestOptions : {};
         let directError = null;

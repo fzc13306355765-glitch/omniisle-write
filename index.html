@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="LOGO-256.png" type="image/png">
     <script src="./scripts/boot/community-mode.js?v=2026082201"></script>
     <script src="./scripts/boot/theme-bootstrap.js?v=202607280442"></script>
-        <link rel="stylesheet" href="./styles/community-runtime.css?v=8be4cd7aded1">
+        <link rel="stylesheet" href="./styles/community-runtime.css?v=da1ca10484d7">
     <link rel="stylesheet" href="./styles/community-mode.css?v=2026082201">
 </head>
 <body>
@@ -47,12 +47,6 @@
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span>设置</span>
             </div>
-            <div class="sidebar-help-entry" aria-label="帮助入口">
-                <button class="sidebar-help-btn" id="btnOverviewTutorial" type="button" data-zhiyu-static-click="openOverviewTutorial()" title="B站教程">
-                    <svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4z"/><rect x="3" y="5" width="18" height="14" rx="3"/></svg>
-                    <span>教程</span>
-                </button>
-            </div>
         </div>
         <!-- 同步状态 -->
         <div id="syncBar" style="display:none;padding:8px 12px;border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;">
@@ -68,6 +62,10 @@
             </div>
         </div>
 
+        <button class="sidebar-operation-tutorial-entry" id="btnOperationTutorialSidebar" type="button" title="打开操作引导教程">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3z"/><path d="M8 9h8M8 13h5"/></svg>
+            <span>操作引导</span>
+        </button>
         <div class="sidebar-retired-version-space" aria-hidden="true"></div>
         <div class="version" id="sidebarVersion">V3.2</div>
     </div>
@@ -78,7 +76,7 @@
                     <div class="workbench-shell">
                         <div class="workbench-head">
                             <div class="overview-announcement-bar" id="overviewAnnouncementBar" role="status">
-                                <span class="overview-announcement-viewport"><span class="overview-announcement-text">社区版：作品保存在当前浏览器，请定期导出备份</span></span>
+                                <span class="overview-announcement-viewport"><span class="overview-announcement-text"></span></span>
                                 <span class="overview-announcement-progress" aria-hidden="true"></span>
                             </div>
                             <div class="overview-head-actions">
@@ -245,8 +243,9 @@
                                 <div class="action-tab-bar">
                                     <button class="action-tab-btn active" data-tab="fineOutline"><span class="action-tab-label">细纲</span><span class="action-tab-clear" data-clear-tab="fineOutline" title="清除细纲内容">清除</span></button>
                                     <button class="action-tab-btn" data-tab="decompose" ><span class="action-tab-label">拆书</span><span class="action-tab-clear" data-clear-tab="decompose" title="清除拆书内容">清除</span></button>
+                                    <button class="action-tab-btn" data-tab="aiPolish"><span class="action-tab-label">优化</span><span class="action-tab-clear" data-clear-tab="aiPolish" title="清除优化内容">清除</span></button>
                                 </div>
-                                <!-- 两个独立 AI 生成结果框（每个标签一个，各含停止按钮） -->
+                                <!-- 三个独立 AI 生成结果框（每个标签一个，各含停止按钮） -->
                                 <div class="og-content-wrap" id="ogContentWrap">
                                     <div class="action-content-box" id="ogContentBox" contenteditable="true"></div>
                                     <button class="gen-stop-btn" id="ogStopBtn" title="停止生成" data-zhiyu-static-click="stopOGGeneration()">✕</button>
@@ -254,6 +253,16 @@
                                 <div class="og-content-wrap" id="dcContentWrap" style="display:none;">
                                     <div class="action-content-box" id="dcContentBox" contenteditable="true"></div>
                                     <button class="gen-stop-btn" id="dcStopBtn" title="停止生成" data-zhiyu-static-click="stopDCGeneration()">✕</button>
+                                </div>
+                                <div class="og-content-wrap" id="apContentWrap" style="display:none;">
+                                    <div class="naturalize-result-header" id="naturalizeResultHeader">
+                                        <span>当前优化：<strong id="naturalizeChapterLabel">未选择章节</strong></span>
+                                        <span>优化后字数：<strong id="naturalizeWordCount">0</strong> 纯字</span>
+                                        <strong class="naturalize-replace-status is-unapplied" id="naturalizeReplaceStatus">未替换</strong>
+                                        <span class="naturalize-task-status" id="naturalizeTaskStatus" hidden></span>
+                                    </div>
+                                    <div class="action-content-box" id="apContentBox" contenteditable="true" aria-label="AI消痕结果，可编辑"></div>
+                                    <button class="gen-stop-btn" id="apStopBtn" title="取消AI消痕" type="button">✕</button>
                                 </div>
 
                                 <!-- 细纲工具区 -->
@@ -304,13 +313,46 @@
                                     </div>
                                 </div>
 
+                                <!-- AI消痕工具区 -->
+                                <div class="og-tool-panel no-file-stack" id="apFileStacksRow" style="display:none;">
+                                    <div class="og-tool-actions">
+                                        <div class="ai-polish-mode-switch" role="tablist" aria-label="选择消痕方式">
+                                            <button class="ai-polish-mode-btn active" id="btnAIPolishMode1" type="button" role="tab" data-ai-polish-mode="v1" aria-selected="true">消痕 I</button>
+                                            <button class="ai-polish-mode-btn" id="btnAIPolishMode2" type="button" role="tab" data-ai-polish-mode="v2" aria-selected="false">消痕 II</button>
+                                            <button class="flow-help-trigger ai-polish-mode-help" type="button" data-flow-help="naturalize-usage" aria-label="查看优化功能使用说明" aria-expanded="false">?</button>
+                                        </div>
+                                        <div class="naturalize-status-row">
+                                            <span class="naturalize-server-status is-checking" id="naturalizeServerStatus">⏳模型：等待检查…</span>
+                                        </div>
+                                        <div class="ai-polish-mode-action-row">
+                                            <div class="og-tool-main-row ai-polish-v1-tools" id="aiPolishV1Tools">
+                                                <button class="btn-og-action" id="btnAIDetect" title="检测正文中的AI味、套话和高风险表达">AI检测</button>
+                                                <button class="btn-og-action" id="btnAPLock" title="提取剧情关键点，供优化复核使用">剧情锁定</button>
+                                                <button class="btn-og-action" id="btnAIPolish" title="配置并开始AI优化">AI优化</button>
+                                            </div>
+                                            <div class="naturalize-split-action ai-polish-v2-tools" id="naturalizeSplitAction" hidden>
+                                                <button class="flow-help-trigger naturalize-usage-help" type="button" data-flow-help="naturalize-usage" aria-label="查看AI消痕使用说明" aria-expanded="false">?</button>
+                                                <button class="btn-og-action naturalize-start-btn" id="btnNaturalize" type="button" disabled>AI消痕 低级</button>
+                                                <button class="naturalize-level-arrow" id="btnNaturalizeLevel" type="button" title="选择AI消痕档位" aria-label="选择AI消痕档位" aria-expanded="false"><svg class="naturalize-level-arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5l8 14L20 5" /></svg></button>
+                                                <div class="naturalize-level-menu" id="naturalizeLevelMenu" role="menu">
+                                                    <button type="button" data-strength="extreme_low" data-label="低级">低级</button>
+                                                    <button type="button" data-strength="very_low" data-label="中级">中级</button>
+                                                    <button type="button" data-strength="low" data-label="高级">高级</button>
+                                                </div>
+                                            </div>
+                                            <button class="btn-og-action ai-polish-apply-btn" id="btnAPSave" title="将当前优化结果覆盖到原章节正文" disabled>应用到正文</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ap-status-strip" id="apStatusStrip" style="display:none;"><span id="apStatusText"></span></div>
+
                                 <!-- 可上下拖动分割线（仅细纲Tab显示） -->
                                 <div class="divider-h og-drag-divider" id="ogDragDivider" data-drag="og-content-input" style="display:none;"><div class="drag-handle"></div><button class="og-input-toggle" id="ogInputToggleBtn" type="button" aria-controls="ogInputArea" aria-expanded="true" title="收起剧情描述输入区">▼</button></div>
                                 <!-- 细纲描述输入区（仅细纲Tab显示） -->
                                 <div class="og-input-area" id="ogInputArea" style="display:none;">
                                     <textarea id="ogDescInput" placeholder="在此输入大纲描述或剧情走向..."></textarea>
                                 </div>
-                                <button class="action-model-btn" id="btnActionModelSelect" type="button" title="选择细纲和拆书使用的模型" style="display:none;">模型 ▼</button>
+                                <button class="action-model-btn" id="btnActionModelSelect" type="button" title="选择细纲、拆书和优化功能使用的模型" style="display:none;">模型 ▼</button>
 <button class="og-send-btn" id="btnOGSend" title="开始生成细纲" style="display:none;">↑</button>
 <div class="ai-step-strip" id="fineOutlineStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
 <div class="ai-step-strip" id="decomposeStepStrip"><span class="ai-step-strip-text" data-ai-step-text>正在处理...</span></div>
@@ -335,6 +377,7 @@
                         <input type="file" id="plotRefFileInput" accept=".txt,.md,.markdown,.csv,.json" style="display:none;">
                         <input type="file" id="plotRefFolderInput" webkitdirectory multiple style="display:none;">
                         <button class="ai-feedback-tool-btn ai-feedback-upload-btn" id="btnPlotUpload" title="添加仅供知屿助手使用的参考文件" type="button">+</button>
+                        <button class="ai-feedback-model-btn ai-feedback-input-model-btn" id="btnChatModelSelect" title="选择知屿助手单独使用的模型" type="button">对话模型 ▼</button>
                         <div class="plot-upload-menu ai-feedback-upload-menu" id="plotUploadMenu">
                             <button type="button" id="btnPlotChooseMemory">选择记忆库文件</button>
                             <button type="button" id="btnPlotUploadFile">上传本地文件</button>
@@ -507,7 +550,18 @@
                                 </section>
                                 <section class="settings-panel" id="settingPanelSecurity">
                                     <h3>安全设置</h3>
-                                    <div class="settings-panel-desc">API 密钥保存在本地浏览器环境中。共享电脑使用时，建议退出账号并清理本地数据。</div>
+                                    <div class="settings-panel-desc">API Key 默认只在当前页面会话中使用，不会自动长期保存。</div>
+                                    <div class="settings-preference-row">
+                                        <div>
+                                            <strong>记住 API Key</strong>
+                                            <span id="apiKeyStorageStatus">当前仅在本页面会话中使用；刷新或关闭页面后需重新输入。</span>
+                                        </div>
+                                        <label class="settings-switch">
+                                            <input type="checkbox" id="rememberApiKeys" aria-describedby="apiKeyStorageStatus">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="settings-panel-desc" style="margin:10px 0 0;">开启后，密钥以加密形式保存在此浏览器，但仍可能被能控制本机或页面环境的人读取。共享电脑不要开启。</div>
                                 </section>
                                 </div>
                                 <div class="settings-section" id="settingSectionAppearance" hidden>
@@ -631,6 +685,49 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="aiPolishConfigModal" style="z-index:520;" data-zhiyu-static-click="Modal.close('aiPolishConfigModal')">
+        <div class="modal-box ai-polish-config-box" data-zhiyu-static-click="event.stopPropagation()">
+            <div class="ai-polish-config-head">
+                <h3>消痕 I · AI优化配置</h3>
+                <span style="font-size:22px;cursor:pointer;line-height:1;" data-zhiyu-static-click="Modal.close('aiPolishConfigModal')">&times;</span>
+            </div>
+            <div class="ai-polish-config-body">
+                <div class="ap-config-section">
+                    <div class="ap-config-label">1. 选择提示词模版</div>
+                    <div class="ap-template-picker" role="group" aria-label="AI优化提示词模版">
+                        <button type="button" class="ap-template-select ap-template-btn is-placeholder" id="apConfigTemplateBtn">请选择提示词模版</button>
+                        <button type="button" class="action-template-arrow" id="btnAPTemplateMenu" title="展开AI优化常用提示词模版" aria-label="展开AI优化常用提示词模版" aria-expanded="false">⌄</button>
+                    </div>
+                </div>
+                <div class="ap-config-section">
+                    <div class="ap-config-label">2. 优化力度</div>
+                    <div class="ap-config-grid" id="apIntensityOptions">
+                        <button type="button" class="ap-option-card" data-intensity="light">
+                            <strong>轻度</strong>
+                            <span>只处理明显 AI 词、模板句和章尾升华，尽量保留原句。</span>
+                        </button>
+                        <button type="button" class="ap-option-card selected" data-intensity="medium">
+                            <strong>中度</strong>
+                            <span>处理词句、段落节奏、心理告知、解释腔和机械对话。</span>
+                        </button>
+                        <button type="button" class="ap-option-card" data-intensity="heavy">
+                            <strong>重度</strong>
+                            <span>允许段落级重写表达，但必须保留所有剧情信息点。</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="ap-config-section">
+                    <div class="ap-config-label">3. 侧重点（可选）</div>
+                    <div class="ap-focus-select-list" id="apFocusOptions"></div>
+                </div>
+            </div>
+            <div class="ai-polish-config-footer">
+                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('aiPolishConfigModal')">取消</button>
+                <button class="btn btn-dark btn-sm" id="btnStartAIPolish">开始优化</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== 添加自定义模型弹窗 ===== -->
     <div class="modal-overlay" id="addModelModal">
         <div class="modal-box" style="width:480px;" data-zhiyu-static-click="event.stopPropagation()">
@@ -662,7 +759,11 @@
                     <input id="customModelKey" type="password" placeholder="sk-..." style="width:100%;padding:8px 36px 8px 8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
                     <span id="toggleKeyVisibility" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;user-select:none;">👁️</span>
                 </div>
-                <div style="font-size:11px;color:#888;margin-top:4px;">此密钥存储在本地，仅用于从此扩展程序发出 API 请求</div>
+                <div style="font-size:11px;color:#888;margin-top:4px;">默认仅在当前页面会话中使用；刷新或关闭页面后需重新输入。</div>
+                <label style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:12px;color:#555;line-height:1.5;cursor:pointer;">
+                    <input type="checkbox" id="rememberCustomModelKey" style="margin-top:2px;">
+                    <span>记住 API Key（加密保存在此浏览器；共享电脑不要开启）</span>
+                </label>
             </div>
             <div style="margin-bottom:16px;">
                 <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">模型 ID</label>
@@ -1127,6 +1228,14 @@
                 <label style="font-size:13px; font-weight:600; color:#333;">描述想法...</label>
                 <textarea id="polishInstruction" placeholder="请描述您希望如何修改这段文字，例如：使这段描写更加生动、调整语气更加正式、增加更多细节描写等..." style="margin-top:8px; min-height:100px;"></textarea>
             </div>
+            <div class="polish-detached-result-box" id="polishDetachedResultBox" hidden>
+                <div class="polish-detached-result-title">优化结果（未自动写入正文）</div>
+                <div class="polish-detached-result-hint">原文位置已发生变化。为保护当前正文，系统没有自动覆盖；本次优化结果已完整保留。</div>
+                <div class="polish-detached-result" id="polishDetachedResult"></div>
+                <div class="polish-detached-result-actions">
+                    <button class="btn btn-outline btn-sm" id="btnCopyDetachedPolish" type="button">复制优化结果</button>
+                </div>
+            </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
                 <button class="btn btn-outline" data-zhiyu-static-click="document.getElementById('polishModal').style.display='none'">取消</button>
                 <button class="btn btn-dark" id="btnStartPolish">开始优化</button>
@@ -1197,6 +1306,7 @@
                         <label class="outline-section-label">4. 参考作品</label>
                         <div class="outline-reference-row">
                             <div class="outline-reference-actions">
+                                <button class="btn btn-outline btn-sm" id="btnOpenHotList" title="社区版不提供联网榜单，可导入本地作品作为参考">作品榜单</button>
                                 <button class="btn btn-outline btn-sm" id="btnImportRefBook">导入本地作品</button>
                                 <button class="btn btn-outline btn-sm" id="btnOutlineContinue">大纲续写</button>
                             </div>
@@ -1357,24 +1467,6 @@
     </div>
 
     <!-- ===== 新建作品 ===== -->
-    <div class="modal-overlay" id="overviewTutorialModal">
-        <div class="modal-box overview-tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="overviewTutorialTitle" data-zhiyu-static-click="event.stopPropagation()">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
-                <h3 id="overviewTutorialTitle" style="margin:0;">操作教程</h3>
-                <button class="btn btn-outline btn-sm" type="button" data-zhiyu-static-click="closeOverviewTutorial()">关闭</button>
-            </div>
-            <p class="overview-tutorial-intro">选择教程后，社区版会先显示目标地址；确认后才会在新窗口打开 B 站。</p>
-            <div class="overview-tutorial-list" id="overviewTutorialList"></div>
-            <div class="overview-tutorial-video" id="overviewTutorialVideoBox">
-                <iframe id="overviewTutorialFrame" title="知屿写作操作教程" loading="lazy" referrerpolicy="no-referrer" allowfullscreen></iframe>
-            </div>
-            <div class="overview-tutorial-actions">
-                <span id="overviewTutorialHint">先选择上方教程卡片，再开始观看。</span>
-                <a id="overviewTutorialOpenLink" href="#" target="_blank" rel="noopener noreferrer" hidden>在 B 站打开</a>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="createBookModal" style="z-index:6200;">
         <div class="modal-box create-book-dialog" role="dialog" aria-modal="true" aria-labelledby="createBookTitle" data-zhiyu-static-click="event.stopPropagation()">
             <div class="create-book-head">
@@ -1392,6 +1484,7 @@
                     </div>
                     <input id="createBookCoverFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
                     <div class="create-book-cover-actions">
+                        <button class="btn btn-dark create-book-cover-action" id="btnGenerateBookCover" type="button" title="接入封面生成接口后可用">一键生成封面</button>
                         <button class="btn btn-outline create-book-cover-action" id="btnDownloadBookCover" type="button" hidden>下载封面</button>
                     </div>
                     <p>封面接口接入后，可根据作品名称、简介、频道和题材生成。</p>
@@ -1743,7 +1836,7 @@
     <input type="file" id="chapterImportFilePicker" accept=".md,.txt,.docx" style="display:none;">
 
 
-<script src="./scripts/dist/community-runtime.js?v=8be4cd7aded1"></script>
+<script src="./scripts/dist/community-runtime.js?v=da1ca10484d7"></script>
 <script type="module" src="./scripts/vendor/tiptap/runtime.js?v=202607280442"></script>
 <script type="module" src="./scripts/core/app-professional-editor-adapter.js?v=202607280442"></script>
 <template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-create-form.js?v=202607301940"></template>

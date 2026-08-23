@@ -103,6 +103,12 @@
         return Array.isArray(bookMem?.[folder]) ? bookMem[folder] : [];
     }
 
+    function getOGOutlineMemoryBooks() {
+        var preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active && preview.books) return preview.books;
+        return typeof getMemBooks === 'function' ? getMemBooks() : {};
+    }
+
     function getOGOutlineFolderNames(bookMem) {
         return Object.keys(bookMem || {}).filter(function(folder) {
             return Array.isArray(bookMem[folder]);
@@ -112,7 +118,7 @@
     function openOGOutlineFileModal() {
         var bookName = ACTION_PANEL_APP_STATE.chapter.book;
         if (!bookName) { ACTION_PANEL_TOAST.warn('请先选择书籍'); return; }
-        var memBooks = getMemBooks();
+        var memBooks = getOGOutlineMemoryBooks();
         var bookMem = memBooks[bookName];
         if (!bookMem) { ACTION_PANEL_TOAST.warn('当前作品暂无记忆文件'); return; }
         var pickerMode = getActiveOGOutlinePickerMode();
@@ -167,7 +173,7 @@
     function createOGOutlineSelection(bookName, folder, index, checked) {
         var selected = window.createMemoryReferenceSelection?.(bookName, folder, index);
         if (!selected) {
-            var file = getOGOutlineFolderFiles(getMemBooks()?.[bookName], folder)[index];
+            var file = getOGOutlineFolderFiles(getOGOutlineMemoryBooks()?.[bookName], folder)[index];
             selected = file ? { name: file.name, memBook: bookName, memFolder: folder, memIdx: index } : null;
         }
         return selected ? Object.assign({}, selected, { folder: folder, checked: checked !== false }) : null;

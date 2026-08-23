@@ -14,11 +14,18 @@
     };
     var ACTION_DRAFT_PREFIX = 'zhiyu_action_panel_draft_v1';
 
+    function isOperationTutorialActive() {
+        return document.body?.classList.contains('zhiyu-outline-tutorial-active') === true
+            || Date.now() < Number(window.ZHIYU_OPERATION_TUTORIAL_STORAGE_BLOCK_UNTIL || 0);
+    }
+
     function readLargeDraft(key) {
+        if (isOperationTutorialActive()) return '';
         return window.ZHIYU_LARGE_LOCAL_STORE?.get?.(key) ?? localStorage.getItem(key) ?? '';
     }
 
     function writeLargeDraft(key, value, kind) {
+        if (isOperationTutorialActive()) return;
         if (window.ZHIYU_LARGE_LOCAL_STORE?.set) {
             window.ZHIYU_LARGE_LOCAL_STORE.set(key, value || '', kind || 'action_draft').catch(function(error) {
                 console.error('功能区草稿保存失败：', error);
@@ -30,6 +37,7 @@
     }
 
     function removeLargeDraft(key) {
+        if (isOperationTutorialActive()) return;
         if (window.ZHIYU_LARGE_LOCAL_STORE?.remove) {
             window.ZHIYU_LARGE_LOCAL_STORE.remove(key).catch(function(error) {
                 console.error('功能区草稿删除失败：', error);
@@ -108,7 +116,7 @@
     }
 
     function isActionContentCleared(tabName, context) {
-        if (isNaturalizeTab(tabName)) return false;
+        if (isNaturalizeTab(tabName) || isOperationTutorialActive()) return false;
         try {
             return localStorage.getItem(getActionContentClearKey(tabName, context)) === '1';
         } catch (_error) {
@@ -117,14 +125,14 @@
     }
 
     function markActionContentCleared(tabName, context) {
-        if (isNaturalizeTab(tabName)) return;
+        if (isNaturalizeTab(tabName) || isOperationTutorialActive()) return;
         try {
             localStorage.setItem(getActionContentClearKey(tabName, context), '1');
         } catch (_error) {}
     }
 
     function removeActionContentClearMarks(tabName, context) {
-        if (isNaturalizeTab(tabName)) return;
+        if (isNaturalizeTab(tabName) || isOperationTutorialActive()) return;
         try {
             localStorage.removeItem(getActionContentClearKey(tabName, context));
         } catch (_error) {}
@@ -326,6 +334,11 @@
             box.dataset.actionDraftWatch = '1';
             var timer = null;
             var scheduleSave = function() {
+                if (isOperationTutorialActive()) {
+                    clearTimeout(timer);
+                    timer = null;
+                    return;
+                }
                 var draft = captureActionContentDraft(tabName);
                 if (!draft) return;
                 if (!String(draft.text || '').replace(/\u200B/g, '').trim() && draft.hadRuntimeContent) {
@@ -557,4 +570,4 @@
             }
 
             // --- AI消痕 ---
-            // 旧AI检测/剧情锁定/AI优化入口已退役；当前优化页由专用AI消痕任务模块接管。
+            // 消痕 I 恢复 AI检测/剧情锁定/AI优化；消痕 II 保留直接优化流程。

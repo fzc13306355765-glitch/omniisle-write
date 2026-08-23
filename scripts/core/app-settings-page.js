@@ -601,6 +601,7 @@
         if (apiStatus && !api.key && window.ZHIYU_SECURE_STORE?.hasLegacyUnscopedConfig?.()) {
             apiStatus.textContent = '检测到旧版未分账号的 API 配置，已为安全起见停用；请在当前账号重新保存。';
         }
+        window.refreshApiKeyPersistenceControls?.();
 
         if (typeof window.refreshWriteStats === 'function') window.refreshWriteStats();
 
@@ -738,18 +739,19 @@
         const supported = ['small', 'medium', 'large', 'xlarge'];
         const saved = localStorage.getItem(FONT_SIZE_KEY);
         const current = supported.includes(saved) ? saved : 'medium';
+        const optionButtons = document.querySelectorAll('#fontSizeOptions [data-font-size]');
         ensureFontSizeOverrideRules();
         function apply(size) {
             document.documentElement.dataset.fontSize = size;
             localStorage.setItem(FONT_SIZE_KEY, size);
-            document.querySelectorAll('[data-font-size]').forEach(function(button) {
+            optionButtons.forEach(function(button) {
                 const active = button.dataset.fontSize === size;
                 button.classList.toggle('active', active);
                 button.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
         }
         apply(current);
-        document.querySelectorAll('[data-font-size]').forEach(function(button) {
+        optionButtons.forEach(function(button) {
             button.addEventListener('click', function() { apply(this.dataset.fontSize); });
         });
     }
@@ -820,6 +822,26 @@
                 this.textContent = '显示';
                 this.setAttribute('aria-label', '显示 API 密钥');
             }
+        });
+    }
+
+    function initApiKeyPersistenceControl() {
+        const input = document.getElementById('rememberApiKeys');
+        if (!input) return;
+        input.addEventListener('change', async function() {
+            const desired = this.checked === true;
+            this.disabled = true;
+            const saved = await window.ZHIYU_SECURE_STORE?.setPersistenceEnabled?.(desired);
+            this.disabled = false;
+            window.refreshApiKeyPersistenceControls?.();
+            const Toast = window.ZHIYU_TOAST || window.Toast;
+            if (saved !== true) {
+                Toast?.error?.('API Key 保存方式修改失败，请重试');
+                return;
+            }
+            Toast?.success?.(desired
+                ? '已记住当前 API Key'
+                : '已删除长期保存的 Key；当前页面仍可继续使用');
         });
     }
 
@@ -944,6 +966,7 @@
     initFontSize();
     initAccountAction();
     initApiSettings();
+    initApiKeyPersistenceControl();
     initBackupActions();
     initTxtExport();
     initDarkMode();

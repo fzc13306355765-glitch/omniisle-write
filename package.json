@@ -10,10 +10,13 @@
     "build": "node scripts/tools/build-community-runtime.mjs",
     "build:check": "node scripts/tools/build-community-runtime.mjs --check",
     "build:editor": "node scripts/tools/build-editor-runtime.mjs",
+    "licenses:generate": "node scripts/tools/generate-third-party-notices.mjs",
+    "licenses:check": "node scripts/tools/generate-third-party-notices.mjs --check",
+    "secrets:check": "node scripts/tools/scan-secrets.mjs",
     "serve": "node scripts/tools/serve-community.mjs",
-    "test": "npm run build:check && node scripts/tools/smoke-community-local-core.mjs && node scripts/tools/smoke-community-analysis.mjs",
+    "test": "npm run build:check && node scripts/tools/smoke-community-local-core.mjs && node scripts/tools/smoke-community-analysis.mjs && node scripts/tools/smoke-community-key-storage.mjs && node scripts/tools/smoke-community-model-key-upgrade.mjs",
     "audit:public": "node scripts/tools/audit-public-boundary.mjs",
-    "verify:public": "npm test && npm run audit:public"
+    "verify:public": "npm test && npm run licenses:check && npm run secrets:check && npm run audit:public"
   },
   "engines": {
     "node": ">=20"

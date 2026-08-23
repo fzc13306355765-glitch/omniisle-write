@@ -179,6 +179,11 @@
         @media (max-width: 980px) {
             .overview-head-actions { justify-content: flex-start; width: 100%; }
             .overview-recharge-entry { width: 100%; }
+            .payment-body { grid-template-columns: 1fr; }
+            .payment-plan-grid { grid-template-columns: 1fr; }
+            .payment-plan-grid.points-mode { grid-template-columns: 1fr; }
+            .payment-order-panel { position: static; }
+            .payment-account-strip { grid-template-columns: 1fr; }
             .overview-board, .settings-layout, .settings-content-grid, .overview-top-grid, .overview-bottom-grid { grid-template-columns: 1fr; }
             .overview-snapshot-row, .overview-stat-grid { grid-template-columns: 1fr; }
             .overview-stat-item { border-right: none; border-bottom: 1px solid var(--border); }

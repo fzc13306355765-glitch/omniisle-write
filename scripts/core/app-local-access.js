@@ -20,7 +20,7 @@
         function gS(){ return StorageService.getSettings(); }
         function sS(s){ StorageService.saveSettings(s); }
 
-        function getBooksByStatus(st){ let all=StorageService.getBooks(), res={}; for(let n in all) if(all[n].status===st) res[n]=all[n]; return res; }
+        function getBooksByStatus(st){ let all=window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active&&typeof window.gB==='function'?window.gB():StorageService.getBooks(), res={}; for(let n in all) if(all[n].status===st) res[n]=all[n]; return res; }
 
     window.gA = gA;
     window.sA = sA;

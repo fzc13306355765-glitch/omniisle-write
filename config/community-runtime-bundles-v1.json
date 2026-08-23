@@ -36,7 +36,6 @@
     "./scripts/core/app-context-menu.js?v=202607280442",
     "./scripts/core/app-outline-storage.js?v=202607281339",
     "./scripts/core/app-feedback.js?v=202607280442",
-    "./scripts/core/app-overview-help.js?v=202607280442",
     "./scripts/core/app-overview-summary.js?v=202607281300",
     "./scripts/core/app-overview.js?v=202607280442",
     "./scripts/core/app-overview-management.js?v=202607280442",
@@ -125,6 +124,9 @@
     "./scripts/core/app-plot-feedback-refs.js?v=202607280442",
     "./scripts/core/app-plot-feedback.js?v=202607280442",
     "./scripts/core/app-action-panel-base.js?v=202607280442",
+    "./scripts/core/app-ai-detect-engine-community.js?v=2026082302",
+    "./scripts/core/app-ai-polish-v1-community.js?v=2026082302",
+    "./scripts/core/app-ai-detect-community.js?v=2026082302",
     "./scripts/core/app-action-panel-generators.js?v=202607280442",
     "./scripts/core/app-action-panel-outline-picker.js?v=202607280442",
     "./scripts/core/app-action-panel-outline-file-float.js?v=202607280442",
@@ -140,6 +142,7 @@
     "./scripts/core/app-action-panel-save-replace.js?v=202607280442",
     "./scripts/core/app-action-panel-outline-split-result.js?v=202607280442",
     "./scripts/core/app-action-panel-modal-wiring.js?v=202607280442",
+    "./scripts/core/app-ai-polish-community.js?v=2026082302",
     "./scripts/core/app-overview-interactions.js?v=202607280442",
     "./scripts/core/app-page-module-loader.js?v=202607280442",
     "./scripts/core/app-page-navigation.js?v=202607280442",
@@ -177,7 +180,13 @@
     "./scripts/core/app-init.js?v=202607280442",
     "./scripts/core/app-bootstrap.js?v=202607280442",
     "./scripts/core/app-script-generation.js?v=202607280442",
-    "./scripts/core/app-static-event-bindings.js?v=202607280442"
+    "./scripts/core/app-static-event-bindings.js?v=202607280442",
+    "./scripts/core/app-operation-tutorial-mainline-stages.js?v=202608222342",
+    "./scripts/core/app-operation-tutorial-extra-stages.js?v=202608222342",
+    "./scripts/core/app-operation-tutorial-state.js?v=202608222342",
+    "./scripts/core/app-operation-tutorial-menu.js?v=202608222342",
+    "./scripts/core/app-outline-tutorial-positioning.js?v=202608222342",
+    "./scripts/core/app-outline-tutorial.js?v=202608222342"
   ],
   "styles": [
     "./styles/app/00-foundation.css?v=202607280442",
@@ -196,6 +205,7 @@
     "./styles/app/57-full-text-analysis.css?v=2026082203",
     "./styles/app/70-action-panel-ai-polish.css?v=202607280442",
     "./styles/app/75-global-writing-backdrop.css?v=202607280442",
-    "./styles/app/80-responsive-devices.css?v=202607301930"
+    "./styles/app/80-responsive-devices.css?v=202607301930",
+    "./styles/app/85-outline-tutorial.css?v=202608222342"
   ]
 }

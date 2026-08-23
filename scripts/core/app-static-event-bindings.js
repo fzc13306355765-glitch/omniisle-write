@@ -3,7 +3,6 @@
 
     const ZERO_ARGUMENT_CALLS = new Set([
         'goToHome',
-        'openOverviewTutorial',
         'openUserPanel',
         'stopOGGeneration',
         'stopDCGeneration',
@@ -13,7 +12,6 @@
         'openRefChapterSelector',
         'openLinkMemoryForRewrite',
         'closeMemoryEditor',
-        'closeOverviewTutorial',
         'toggleFavTemplate',
         'openAdvancedOutlinePicker',
         'openAdvancedOutlineLinkSelector',

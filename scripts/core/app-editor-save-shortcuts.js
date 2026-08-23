@@ -10,6 +10,12 @@
     async function saveCurrentEditorContent(showToast) {
         const AppState = getAppState();
         const saveToken = window.ZHIYU_SAVE_STATUS?.begin?.('manual');
+        if (window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+            || document.body?.classList.contains('zhiyu-outline-tutorial-active')) {
+            window.ZHIYU_SAVE_STATUS?.finish?.(saveToken, false, '教程演示不会保存到正式作品');
+            return false;
+        }
         if (!AppState?.chapter?.book) {
             window.ZHIYU_SAVE_STATUS?.finish?.(
                 saveToken,

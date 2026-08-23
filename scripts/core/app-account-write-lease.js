@@ -26,6 +26,12 @@
     let recoveryNonce = '';
     const staleAccountSnapshots = new Set();
 
+    function isOperationTutorialMode() {
+        return /(?:[?&])tutorial(?:=|&|$)/.test(String(window.location?.search || ''))
+            || window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || document.body?.classList.contains('zhiyu-outline-tutorial-active');
+    }
+
     function normalizeUid(uid) {
         return window.AccountDataScope?.normalizeUid?.(uid) || String(uid || 'guest');
     }
@@ -163,6 +169,7 @@
     }
 
     function assertCanWrite(uid, options) {
+        if (isOperationTutorialMode()) return false;
         if (canWrite(uid)) return true;
         return options?.silent ? false : notifyBlocked(options?.message);
     }
@@ -385,6 +392,7 @@
     }
 
     function acquire(uid, options) {
+        if (isOperationTutorialMode()) return Promise.resolve(true);
         const expectedUid = normalizeUid(uid);
         if (acquirePromise) {
             if (acquireUid === expectedUid) return acquirePromise;
@@ -405,6 +413,7 @@
     }
 
     async function ensure(uid, options) {
+        if (isOperationTutorialMode()) return true;
         const expectedUid = normalizeUid(uid);
         if (currentUid && currentUid !== expectedUid) release(currentUid, { reason: 'account-switch' });
         currentUid = expectedUid;
@@ -413,6 +422,7 @@
     }
 
     function heartbeat() {
+        if (isOperationTutorialMode()) return false;
         if (!currentUid) return false;
         if (acquirePromise && !currentLeaseId) return false;
         const record = readLease(currentUid);
@@ -444,6 +454,7 @@
     }
 
     function release(uid, options) {
+        if (isOperationTutorialMode()) return true;
         acquisitionGeneration += 1;
         const expectedUid = normalizeUid(uid || currentUid || 'guest');
         const leaseId = currentLeaseId;

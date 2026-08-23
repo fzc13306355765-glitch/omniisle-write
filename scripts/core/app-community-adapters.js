@@ -33,8 +33,11 @@
         if (!button) return;
         button.disabled = state.saving;
         button.dataset.saveState = state.saveState;
+        button.dataset.syncState = state.saveState;
+        button.setAttribute('aria-busy', String(state.saving));
         button.title = state.saveMessage || '立即保存当前章节';
-        button.textContent = state.saving ? '保存中…' : '立即保存当前章节';
+        const label = button.querySelector('#communitySaveLabel');
+        if (label) label.textContent = state.saving ? '保存中…' : '保存';
     }
 
     async function saveCurrentChapterNow() {
@@ -66,16 +69,40 @@
         const syncBar = document.getElementById('syncBar');
         if (!syncBar || syncBar.dataset.communityReady === 'true') return syncBar;
         const themeToggle = document.getElementById('sidebarDarkModeToggle');
+        if (themeToggle) {
+            themeToggle.className = 'sidebar-theme-quick';
+            themeToggle.innerHTML = ''
+                + '<span class="sidebar-theme-quick-track" aria-hidden="true">'
+                + '<svg class="sidebar-theme-icon sidebar-theme-icon-sun" viewBox="0 0 24 24">'
+                + '<circle cx="12" cy="12" r="3.5"></circle>'
+                + '<path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"></path>'
+                + '</svg>'
+                + '<svg class="sidebar-theme-icon sidebar-theme-icon-moon" viewBox="0 0 24 24">'
+                + '<path d="M19.5 15.4A8 8 0 0 1 8.6 4.5 8.1 8.1 0 1 0 19.5 15.4z"></path>'
+                + '<path d="M17.7 4.1v2.4M16.5 5.3h2.4M20.3 8.2v1.6M19.5 9h1.6"></path>'
+                + '</svg></span>'
+                + '<span class="sr-only" id="sidebarDarkModeState">当前为日间模式</span>';
+        }
+        const actions = document.createElement('div');
+        actions.className = 'cloud-sidebar-actions';
         const saveButton = document.createElement('button');
         saveButton.id = 'btnCommunitySave';
         saveButton.type = 'button';
-        saveButton.textContent = '立即保存当前章节';
+        saveButton.className = 'cloud-sidebar-btn';
         saveButton.title = '立即保存当前章节';
-        saveButton.style.cssText = 'padding:5px 8px;font-size:12px;background:none;color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.22);border-radius:7px;cursor:pointer;';
+        saveButton.setAttribute('aria-label', '立即保存当前章节');
+        saveButton.setAttribute('aria-busy', 'false');
+        saveButton.innerHTML = ''
+            + '<svg class="cloud-sidebar-icon cloud-sync-icon" viewBox="0 0 24 24" aria-hidden="true">'
+            + '<path d="M20 7h-5V2"></path><path d="M20 7l-3.6-3.2A8 8 0 0 0 4.7 7"></path>'
+            + '<path d="M4 17h5v5"></path><path d="M4 17l3.6 3.2A8 8 0 0 0 19.3 17"></path>'
+            + '</svg><span id="communitySaveLabel">保存</span>';
         saveButton.addEventListener('click', saveCurrentChapterNow);
-        syncBar.replaceChildren(saveButton);
+        actions.appendChild(saveButton);
+        syncBar.replaceChildren(actions);
         if (themeToggle) syncBar.appendChild(themeToggle);
         syncBar.dataset.communityReady = 'true';
+        syncBar.dataset.cloudCenterReady = 'true';
         syncBar.style.display = 'block';
         return syncBar;
     }
@@ -83,7 +110,7 @@
     function updateCommunityNotice() {
         const target = document.querySelector('#overviewAnnouncementBar .overview-announcement-text, #overviewAnnouncementBar .legacy-version-announcement-track');
         if (!target) return;
-        const message = '社区版：作品保存在当前浏览器，请定期导出备份';
+        const message = '';
         target.textContent = message;
         target.title = message;
         target.style.animation = 'none';
@@ -100,6 +127,9 @@
         ensureSidebarActions();
         updateCommunityNotice();
         renderCommunityIdentity();
+        document.getElementById('btnOpenHotList')?.addEventListener('click', function() {
+            window.ZHIYU_TOAST?.show?.('社区版不提供联网榜单，请使用“导入本地作品”');
+        });
         return true;
     }
 

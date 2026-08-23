@@ -474,6 +474,9 @@
 
     function saveDraft(book, vi, ci, content, options) {
         if (!book || vi < 0 || ci < 0) return;
+        if (window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+            || document.body?.classList.contains('zhiyu-outline-tutorial-active')) return false;
         const meta = options && typeof options === 'object' ? options : {};
         const uid = String(window.AccountDataScope?.getActiveUid?.() || 'guest');
         const leaseApi = window.ZHIYU_ACCOUNT_WRITE_LEASE;

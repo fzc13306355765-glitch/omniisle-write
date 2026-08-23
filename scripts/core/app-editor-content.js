@@ -154,6 +154,12 @@
 
     async function persistPreparedChapter(prepared, options) {
         if (!prepared?.books || !prepared.chapter) return { ok: false, draftCleared: false };
+        if (window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+            || window.document?.body?.classList.contains('zhiyu-outline-tutorial-active')) {
+            rollbackPreparedChapter(prepared);
+            return { ok: false, draftCleared: false, tutorialBlocked: true };
+        }
         if (chapterPersistTokens.get(prepared.persistKey) !== prepared.persistToken) {
             return { ok: true, draftCleared: false, superseded: true };
         }

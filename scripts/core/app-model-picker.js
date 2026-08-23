@@ -23,8 +23,33 @@ let activeModelCategory = 'basic';
 let customModels = [];
 let selectedModelIds = {};
 let modelStateEpoch = 0;
+let customModelMutationRevision = 0;
+let customModelSecretMigrationPending = false;
+let customModelSecretMigrationToken = null;
 const LEGACY_MODEL_ID_MIGRATIONS = Object.freeze({});
 const ORDINARY_MODEL_ROUTES = Object.freeze([]);
+
+function getTutorialModelPreview() {
+    const preview = window.ZHIYU_MODEL_PREVIEW_CONTEXT;
+    return preview?.active === true ? preview : null;
+}
+
+function getModelPickerModels() {
+    const models = COMMUNITY_MODE ? customModels.slice() : [...BUILTIN_MODELS, ...customModels];
+    const preview = getTutorialModelPreview();
+    const previewName = String(preview?.modelId || '').trim();
+    if (previewName && !models.some(function(model) { return model.name === previewName; })) {
+        models.push({
+            name: previewName,
+            modelId: previewName,
+            provider: '教程演示',
+            desc: '仅用于操作引导，不会调用模型',
+            official: true,
+            tutorialPreview: true
+        });
+    }
+    return models;
+}
 
 function sanitizeStorageId(raw) {
     return String(raw || 'guest').replace(/[^\w.-]/g, '_');
@@ -62,9 +87,9 @@ function getCustomModelSecretId(model) {
     ].join('|');
 }
 
-function saveCustomModelsForCurrentUser() {
+function buildCustomModelStoragePayload(models) {
     const secrets = {};
-    const metadata = customModels.map(function(model) {
+    const metadata = (Array.isArray(models) ? models : []).map(function(model) {
         const clean = { ...(model || {}) };
         const secretId = getCustomModelSecretId(clean);
         if (clean.key) secrets[secretId] = String(clean.key);
@@ -72,8 +97,38 @@ function saveCustomModelsForCurrentUser() {
         clean.secretId = secretId;
         return clean;
     });
-    localStorage.setItem(getCustomModelsStorageKey(), JSON.stringify(metadata));
-    return window.ZHIYU_SECURE_STORE?.setCustomModelSecrets?.(secrets) || Promise.resolve(false);
+    return { metadata, secrets };
+}
+
+function saveCustomModelsForCurrentUser() {
+    const storageKey = getCustomModelsStorageKey();
+    const saveEpoch = modelStateEpoch;
+    const saveUid = window.AccountDataScope?.getActiveUid?.() || 'guest';
+    const saveRevision = ++customModelMutationRevision;
+    const payload = buildCustomModelStoragePayload(customModels);
+    const secureSave = window.ZHIYU_SECURE_STORE?.setCustomModelSecrets?.(payload.secrets) || Promise.resolve(false);
+    return Promise.resolve(secureSave).then(function(saved) {
+        if (saved !== true) return false;
+        if (!isCurrentModelState(saveEpoch, saveUid)) return false;
+        if (saveRevision !== customModelMutationRevision) return true;
+        localStorage.setItem(storageKey, JSON.stringify(payload.metadata));
+        return true;
+    });
+}
+
+function refreshApiKeyPersistenceControls() {
+    const enabled = window.ZHIYU_SECURE_STORE?.isPersistenceEnabled?.() === true;
+    ['rememberCustomModelKey', 'rememberApiKeys'].forEach(function(id) {
+        const input = document.getElementById(id);
+        if (input) input.checked = enabled;
+    });
+    const status = document.getElementById('apiKeyStorageStatus');
+    if (status) {
+        status.textContent = enabled
+            ? '已选择记住：密钥以加密形式保存在此浏览器。'
+            : '当前仅在本页面会话中使用；刷新或关闭页面后需重新输入。';
+    }
+    return enabled;
 }
 
 function getCustomModelProtocol(provider) {
@@ -174,7 +229,7 @@ function syncApiConfigToCustomModel(api) {
 function normalizeModelId(modelId) {
     const rawModelId = String(modelId || '').trim();
     const migratedModelId = LEGACY_MODEL_ID_MIGRATIONS[rawModelId.toLowerCase()] || rawModelId;
-    const allModels = COMMUNITY_MODE ? customModels : [...BUILTIN_MODELS, ...customModels];
+    const allModels = getModelPickerModels();
     if (allModels.some(function(m) { return m.name === migratedModelId; })) return migratedModelId;
     return COMMUNITY_MODE ? String(customModels[0]?.name || '') : DEFAULT_MODEL_ID;
 }
@@ -195,6 +250,12 @@ function migrateModelStorageToCurrentUser() {
 
 function loadCustomModelsForCurrentUser() {
     const storageKey = getCustomModelsStorageKey();
+    const currentUid = window.AccountDataScope?.getActiveUid?.() || 'guest';
+    if (customModelSecretMigrationToken
+        && customModelSecretMigrationToken.storageKey === storageKey
+        && isCurrentModelState(customModelSecretMigrationToken.epoch, currentUid)) {
+        return customModels.slice();
+    }
     const list = parseCustomModelList(localStorage.getItem(storageKey));
     const secrets = window.ZHIYU_SECURE_STORE?.getCustomModelSecrets?.() || {};
     let foundPlaintextKey = false;
@@ -211,7 +272,34 @@ function loadCustomModelsForCurrentUser() {
     });
     if (foundPlaintextKey && window.ZHIYU_SECURE_STORE?.isReadyForCurrentScope?.()) {
         customModels = merged;
-        saveCustomModelsForCurrentUser();
+        const migrationPayload = buildCustomModelStoragePayload(merged);
+        const migrationToken = {
+            storageKey,
+            uid: currentUid,
+            epoch: modelStateEpoch,
+            revision: customModelMutationRevision
+        };
+        customModelSecretMigrationToken = migrationToken;
+        customModelSecretMigrationPending = true;
+        window.ZHIYU_SECURE_STORE.setPersistenceEnabled(true).then(function(enabled) {
+            if (!enabled) return false;
+            if (customModelSecretMigrationToken !== migrationToken
+                || !isCurrentModelState(migrationToken.epoch, migrationToken.uid)
+                || migrationToken.revision !== customModelMutationRevision) return false;
+            return window.ZHIYU_SECURE_STORE.setCustomModelSecrets(migrationPayload.secrets);
+        }).then(function(saved) {
+            if (saved !== true) return;
+            if (customModelSecretMigrationToken !== migrationToken
+                || !isCurrentModelState(migrationToken.epoch, migrationToken.uid)
+                || migrationToken.revision !== customModelMutationRevision) return;
+            localStorage.setItem(storageKey, JSON.stringify(migrationPayload.metadata));
+        }).finally(function() {
+            if (customModelSecretMigrationToken === migrationToken) {
+                customModelSecretMigrationToken = null;
+                customModelSecretMigrationPending = false;
+                if (isCurrentModelState(migrationToken.epoch, migrationToken.uid)) refreshApiKeyPersistenceControls();
+            }
+        });
     }
     return merged;
 }
@@ -235,7 +323,7 @@ function normalizeCustomModelProtocols() {
             needSave = true;
         }
     });
-    if (needSave) saveCustomModelsForCurrentUser();
+    if (needSave && !customModelSecretMigrationPending) saveCustomModelsForCurrentUser();
 }
 
 function reloadModelStateForCurrentUser() {
@@ -251,6 +339,7 @@ function reloadModelStateForCurrentUser() {
     });
     selectedModelId = normalizeModelId(selectedModelIds.writing || DEFAULT_MODEL_ID);
     if (typeof updateModelBtn === 'function') updateModelBtn();
+    refreshApiKeyPersistenceControls();
     return true;
 }
 
@@ -354,6 +443,9 @@ let _modelHealthPromise = null;
 
 function prepareModelAccountScopeChange() {
     modelStateEpoch += 1;
+    customModelMutationRevision += 1;
+    customModelSecretMigrationPending = false;
+    customModelSecretMigrationToken = null;
     selectedModelId = DEFAULT_MODEL_ID;
     selectedModelIds = {};
     customModels = [];
@@ -460,13 +552,18 @@ function syncModelPickerCategoryAvailability() {
     if (restricted) activeModelCategory = 'basic';
 }
 
-function openModelPicker(scope) {
+function openModelPicker(scope, options) {
     activeModelScope = normalizeModelScope(scope);
-    pendingModelId = getModelIdForScope(activeModelScope);
+    const tutorialPreview = options?.tutorialPreview === true
+        ? { active: true, modelId: options.modelId || '' }
+        : getTutorialModelPreview();
+    pendingModelId = tutorialPreview?.modelId
+        ? normalizeModelId(tutorialPreview.modelId)
+        : getModelIdForScope(activeModelScope);
     const frontmost = activeModelScope === 'chat';
     document.getElementById('modelSelectModal')?.classList.toggle('model-picker-frontmost', frontmost);
     document.getElementById('addModelModal')?.classList.toggle('model-picker-frontmost', frontmost);
-    const allModels = COMMUNITY_MODE ? customModels : [...BUILTIN_MODELS, ...customModels];
+    const allModels = getModelPickerModels();
     let currentModel = allModels.find(function(m) { return m.name === pendingModelId; });
     if (isAdvancedOutlineRestrictedContext() && !isAdvancedOutlineAllowedModel(currentModel)) {
         pendingModelId = getDefaultAdvancedOutlineModelId();
@@ -479,8 +576,9 @@ function openModelPicker(scope) {
     document.querySelectorAll('.model-picker-cat').forEach(function(cat) {
         cat.classList.toggle('active', cat.dataset.cat === activeModelCategory);
     });
-    renderModelPicker();
+    const renderTask = renderModelPicker();
     Modal.open('modelSelectModal');
+    return renderTask;
 }
 
 Object.keys(MODEL_SCOPE_CONFIG).forEach(function(scope) {
@@ -529,7 +627,7 @@ async function renderModelPicker() {
     const list = document.getElementById('modelPickerList');
     const headerTitle = document.getElementById('modelPickerTitle') || document.querySelector('#modelSelectModal .model-picker-header span:first-child');
     if (headerTitle) headerTitle.textContent = getModelCategoryLabel(activeModelCategory);
-    const allModels = COMMUNITY_MODE ? customModels : [...BUILTIN_MODELS, ...customModels];
+    const allModels = getModelPickerModels();
     const health = await fetchModelHealth();
     if (!isCurrentModelState(renderEpoch, renderUid)) return;
     const currentModelId = getModelIdForScope(activeModelScope);
@@ -565,7 +663,9 @@ async function renderModelPicker() {
         const barColor = isFrozen ? '#9ca3af' : (hStatus === 'down' ? '#e74c3c' : hStatus === 'slow' ? '#f39c12' : '#28a745');
         const tag = isFrozen
             ? '<span class="model-picker-card-tag frozen">暂不可用</span>'
-            : (COMMUNITY_MODE ? '<span class="model-picker-card-tag free">自备 API</span>' : '');
+            : (m.tutorialPreview
+                ? '<span class="model-picker-card-tag free">教程演示</span>'
+                : (COMMUNITY_MODE ? '<span class="model-picker-card-tag free">自备 API</span>' : ''));
         const safeName = escapeHtml(m.name);
         const safeDataName = escapeHtml(m.name);
         const safeDesc = escapeHtml(m.desc || m.provider + ' 模型');
@@ -671,7 +771,7 @@ document.getElementById('toggleKeyVisibility')?.addEventListener('click', functi
     }
 });
 
-document.getElementById('btnSaveCustomModel')?.addEventListener('click', function() {
+document.getElementById('btnSaveCustomModel')?.addEventListener('click', async function() {
     const p = document.getElementById('customModelProvider').value.trim();
     const k = document.getElementById('customModelKey').value.trim();
     const b = normalizeCustomModelBaseUrl(document.getElementById('customModelBase').value.trim());
@@ -685,14 +785,31 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', functio
             Toast.warn(error?.message || '模型地址不符合社区版安全规则');
             return;
         }
-        if (k && !confirm('API Key 将加密保存在当前浏览器中。请勿在公共或共享设备上保存。是否继续？')) return;
+        const rememberKey = document.getElementById('rememberCustomModelKey')?.checked === true;
+        if (k && rememberKey && !confirm('你选择了“记住 API Key”。密钥将以加密形式保存在当前浏览器中，请勿在公共或共享设备上使用。是否继续？')) return;
     } else if (k) {
         // 安全提醒：Key 将保存在浏览器本地存储中，请勿在公共设备上使用
         if (!confirm('您的 API Key 将保存在浏览器本地存储中（localStorage）。\n\n⚠️ 安全提示：\n- 请勿在公共或共享设备上保存 Key\n- 浏览器插件可能读取本地存储\n- 清除浏览器数据会导致 Key 丢失\n\n是否继续保存？')) return;
     }
     const protocol = getCustomModelProtocol(p);
+    const rememberKey = window.ZHIYU_COMMUNITY_MODE === true
+        ? document.getElementById('rememberCustomModelKey')?.checked === true
+        : true;
+    const persistenceChanged = await window.ZHIYU_SECURE_STORE?.setPersistenceEnabled?.(rememberKey);
+    if (window.ZHIYU_COMMUNITY_MODE === true && persistenceChanged !== true) {
+        Toast.error('API Key 保存方式修改失败，请重试');
+        refreshApiKeyPersistenceControls();
+        return;
+    }
+    const previousModels = customModels.slice();
     customModels.push({ name:n, modelId:n, provider:p, key:k, base:b, official:false, protocol });
-    saveCustomModelsForCurrentUser();
+    const saved = await saveCustomModelsForCurrentUser();
+    if (saved === false) {
+        customModels = previousModels;
+        await saveCustomModelsForCurrentUser();
+        Toast.error('模型设置保存失败，请重试');
+        return;
+    }
     Modal.close('addModelModal');
     document.getElementById('customModelProvider').value = '';
     document.getElementById('customModelKey').value = '';
@@ -701,7 +818,8 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', functio
     activeModelScope = normalizeModelScope(activeModelScope || 'writing');
     pendingModelId = n;
     renderModelPicker();
-    Toast.success('模型已添加，请点击确定后应用');
+    refreshApiKeyPersistenceControls();
+    Toast.success(rememberKey ? '模型已添加，API Key 已记住' : '模型已添加，API Key 仅本次页面会话使用');
 });
 
 window.normalizeModelId = normalizeModelId;
@@ -712,6 +830,7 @@ window.getCustomModelsStorageKey = getCustomModelsStorageKey;
 window.getModelScopeStorageKey = getModelScopeStorageKey;
 window.loadCustomModelsForCurrentUser = loadCustomModelsForCurrentUser;
 window.saveCustomModelsForCurrentUser = saveCustomModelsForCurrentUser;
+window.refreshApiKeyPersistenceControls = refreshApiKeyPersistenceControls;
 window.getCustomModelProtocol = getCustomModelProtocol;
 window.getCustomProviderBaseUrlMap = getCustomProviderBaseUrlMap;
 window.getDefaultCustomModelBaseUrl = getDefaultCustomModelBaseUrl;

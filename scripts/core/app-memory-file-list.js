@@ -13,6 +13,10 @@
     const getMemoryVolumeLabel = window.getMemoryVolumeLabel || function(folderName) { return folderName; };
 
     function getMemBooks() {
+        const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active === true && preview.books && typeof preview.books === 'object') {
+            return preview.books;
+        }
         return typeof window.getMemBooks === 'function' ? window.getMemBooks() : {};
     }
 

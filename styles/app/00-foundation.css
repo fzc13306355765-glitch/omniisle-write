@@ -57,6 +57,7 @@
         [data-theme="dark"] .modal-box { background: var(--bg-card); color: var(--text); }
         [data-theme="dark"] .context-menu { background: var(--bg-card); color: var(--text); border-color: var(--border); }
         [data-theme="dark"] .outline-result { background: var(--bg-card); color: var(--text); border-color: var(--border); }
+        [data-theme="dark"] .hotlist-box { background: var(--bg-card); border-color: var(--border); }
         [data-theme="dark"] .genre-tag { background: var(--bg-card); color: var(--text); border-color: var(--border); }
         [data-theme="dark"] .genre-tag.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
         [data-theme="dark"] .wordcount-option { background: var(--bg-card); color: var(--text); border-color: var(--border); }

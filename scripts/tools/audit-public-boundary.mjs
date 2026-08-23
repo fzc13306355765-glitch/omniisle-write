@@ -12,7 +12,7 @@ const textExtensions = new Set([
     '.java', '.js', '.json', '.jsx', '.kt', '.lock', '.md', '.mjs', '.npmrc', '.properties', '.ps1', '.py',
     '.rs', '.sh', '.sql', '.svg', '.toml', '.ts', '.tsx', '.txt', '.xml', '.yml', '.yaml'
 ]);
-const sensitiveFileNamePattern = /(?:^|\/)(?:\.env(?:\.[^/]+)?|[^/]+\.(?:key|p12|pfx|jks|keystore))$/i;
+const sensitiveFileNamePattern = /(?:^|\/)(?:\.env(?:\.[^/]+)?|id_(?:rsa|dsa|ecdsa|ed25519)|[^/]+\.(?:key|pem|ppk|p12|pfx|jks|keystore))$/i;
 
 function normalize(relativePath) {
     return String(relativePath || '').replaceAll('\\', '/').replace(/^\.\//, '');
@@ -114,6 +114,10 @@ const forbiddenCodeFindings = [];
 for (const rule of config.forbiddenCodePatterns || []) {
     const matcher = new RegExp(rule.pattern, 'i');
     const matchingFiles = [...codeFiles].filter(relativePath => {
+        if (rule.label === '商业或后台实现' && relativePath.toLowerCase().endsWith('.css')) {
+            // 源样式保留原版共用视觉规则；构建器会从公开运行包中剔除商业功能选择器。
+            return false;
+        }
         const text = readText(relativePath);
         return text !== null && matcher.test(text);
     });

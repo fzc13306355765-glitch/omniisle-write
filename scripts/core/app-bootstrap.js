@@ -1,5 +1,5 @@
 // =================== AI detect module entry ===================
-        // 旧AI检测入口已退役；新版优化页只加载AI消痕任务模块。
+        // 优化页同时提供消痕 I（三步优化）和消痕 II（直接优化）。
         const clearAIDetectHighlights = window.clearAIDetectHighlights || function() {};
         const triggerAIDetect = window.triggerAIDetect || function() {
             if (window.Toast?.warn) window.Toast.warn('AI检测模块未加载，请刷新页面重试');

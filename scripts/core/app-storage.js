@@ -6,6 +6,13 @@
     const CONFIG = window.ZHIYU_CONFIG || {};
     const StorageV2 = window.ZHIYU_STORAGE_V2 || null;
 
+    function isOperationTutorialStorageBlocked() {
+        return window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+            || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+            || window.ZHIYU_MEMORY_PREVIEW_CONTEXT?.active === true
+            || window.document?.body?.classList.contains('zhiyu-outline-tutorial-active');
+    }
+
 // =================== [3] IndexedDB 存储层 ===================
         const IDB = (function() {
             const DB_NAME = 'zhiyu-store';
@@ -298,6 +305,8 @@
             let _activeUid = 'guest';
             let _scopeEpoch = 0;
             let _writeChain = Promise.resolve();
+            let _persistentEnabled = false;
+            let _persistenceRevision = 0;
             let _legacyUnscopedDetected = false;
             let _legacyUnscopedChecked = false;
 
@@ -367,9 +376,17 @@
                 }
             }
 
-            function _queuePersist(uid, payload) {
+            function _isPersistenceIntentCurrent(uid, revision, enabled) {
+                return revision === _persistenceRevision
+                    && _persistentEnabled === enabled
+                    && _activeUid === uid
+                    && AccountDataScope.getActiveUid() === uid;
+            }
+
+            function _queuePersist(uid, payload, revision) {
                 const snapshot = _normalizePayload(payload);
                 const operation = _writeChain.then(function() {
+                    if (revision !== undefined && !_isPersistenceIntentCurrent(uid, revision, true)) return false;
                     const lease = window.ZHIYU_ACCOUNT_WRITE_LEASE;
                     const writeToken = lease?.beginWrite?.(uid, {
                         message: '此账号已在另一个标签页编辑，账号设置未保存。'
@@ -388,11 +405,38 @@
                 return operation;
             }
 
+            function _queueRemove(uid, revision) {
+                const storageKey = _storageKey(uid);
+                const operation = _writeChain.then(function() {
+                    if (revision !== undefined && !_isPersistenceIntentCurrent(uid, revision, false)) return false;
+                    const lease = window.ZHIYU_ACCOUNT_WRITE_LEASE;
+                    const writeToken = lease?.beginWrite?.(uid, {
+                        message: '此账号已在另一个标签页编辑，API Key 保存方式未修改。'
+                    }) || (!lease ? { legacy: true, uid } : null);
+                    if (!writeToken) throw new Error('当前标签页没有账号设置写入权');
+                    const removal = writeToken?.fenceKey && writeToken?.leaseId
+                        ? IDB.removeFenced(storageKey, writeToken.fenceKey, writeToken.leaseId)
+                        : IDB.remove(storageKey);
+                    return Promise.resolve(removal).then(function(result) {
+                        if (lease && lease.isWriteTokenCurrent?.(writeToken) !== true) {
+                            throw new Error('API Key 保存方式修改期间编辑权已变化');
+                        }
+                        return result;
+                    }).finally(function() {
+                        lease?.endWrite?.(writeToken);
+                    });
+                });
+                _writeChain = operation.catch(function() {});
+                return operation;
+            }
+
             async function switchScope(uid) {
                 const nextUid = _normalizeUid(uid);
                 const epoch = ++_scopeEpoch;
+                _persistenceRevision += 1;
                 _activeUid = nextUid;
                 _cache = _emptyCache();
+                _persistentEnabled = false;
                 try {
                     if (!_cryptoKey) _cryptoKey = await _deriveKey();
                     if (!_legacyUnscopedChecked) {
@@ -416,10 +460,14 @@
                         );
                         if (epoch === _scopeEpoch && _activeUid === nextUid && AccountDataScope.getActiveUid() === nextUid) {
                             _cache = _normalizePayload(JSON.parse(new TextDecoder().decode(plainBuf)));
+                            _persistentEnabled = true;
                         }
                     }
                 } catch (e) {
-                    if (epoch === _scopeEpoch && _activeUid === nextUid) _cache = _emptyCache();
+                    if (epoch === _scopeEpoch && _activeUid === nextUid) {
+                        _cache = _emptyCache();
+                        _persistentEnabled = false;
+                    }
                 }
                 return epoch === _scopeEpoch && _activeUid === nextUid && AccountDataScope.getActiveUid() === nextUid;
             }
@@ -449,11 +497,17 @@
                     customModelSecrets: { ...(_cache.customModelSecrets || {}) }
                 };
                 if (_activeUid === uid) _cache = next;
+                if (!_persistentEnabled) {
+                    return epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
+                }
+                const persistenceRevision = _persistenceRevision;
                 try {
-                    await _queuePersist(uid, next);
+                    await _queuePersist(uid, next, persistenceRevision);
                     return epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
                 } catch (e) {
-                    if (epoch === _scopeEpoch && _activeUid === uid && _cache === next) _cache = previous;
+                    const scopeCurrent = epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
+                    if (scopeCurrent && (persistenceRevision !== _persistenceRevision || !_persistentEnabled)) return true;
+                    if (scopeCurrent && _cache === next) _cache = previous;
                     console.error('API Key 加密存储失败:', e);
                 }
                 return false;
@@ -468,20 +522,66 @@
                     customModelSecrets: secrets && typeof secrets === 'object' ? { ...secrets } : {}
                 };
                 if (_activeUid === uid) _cache = next;
+                if (!_persistentEnabled) {
+                    return epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
+                }
+                const persistenceRevision = _persistenceRevision;
                 try {
-                    await _queuePersist(uid, next);
+                    await _queuePersist(uid, next, persistenceRevision);
                     return epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
                 } catch (e) {
-                    if (epoch === _scopeEpoch && _activeUid === uid && _cache === next) _cache = previous;
+                    const scopeCurrent = epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid;
+                    if (scopeCurrent && (persistenceRevision !== _persistenceRevision || !_persistentEnabled)) return true;
+                    if (scopeCurrent && _cache === next) _cache = previous;
                     console.error('自定义模型 Key 加密存储失败:', e);
+                    return false;
+                }
+            }
+
+            function isPersistenceEnabled() {
+                return _isCurrentScope() && _persistentEnabled;
+            }
+
+            async function setPersistenceEnabled(enabled) {
+                const uid = AccountDataScope.getActiveUid();
+                const epoch = _scopeEpoch;
+                const nextEnabled = enabled === true;
+                if (!_isCurrentScope()) return false;
+                if (_persistentEnabled === nextEnabled) return true;
+                const previousEnabled = _persistentEnabled;
+                const revision = ++_persistenceRevision;
+                _persistentEnabled = nextEnabled;
+                try {
+                    const completed = nextEnabled
+                        ? await _queuePersist(uid, _cache, revision)
+                        : await _queueRemove(uid, revision);
+                    if (revision !== _persistenceRevision) return true;
+                    if (epoch !== _scopeEpoch || _activeUid !== uid || AccountDataScope.getActiveUid() !== uid) return false;
+                    if (completed === false) throw new Error('API Key 保存意图在执行前已变化');
+                    return true;
+                } catch (e) {
+                    if (revision !== _persistenceRevision) return true;
+                    if (epoch === _scopeEpoch && _activeUid === uid && AccountDataScope.getActiveUid() === uid) {
+                        _persistentEnabled = previousEnabled;
+                        const rollbackRevision = ++_persistenceRevision;
+                        try {
+                            if (previousEnabled) await _queuePersist(uid, _cache, rollbackRevision);
+                            else await _queueRemove(uid, rollbackRevision);
+                        } catch (rollbackError) {
+                            console.error('API Key 保存方式回滚失败:', rollbackError);
+                        }
+                    }
+                    console.error('API Key 保存方式修改失败:', e);
                     return false;
                 }
             }
 
             function clearRuntime() {
                 _scopeEpoch += 1;
+                _persistenceRevision += 1;
                 _activeUid = AccountDataScope.getActiveUid();
                 _cache = _emptyCache();
+                _persistentEnabled = false;
             }
 
             function isReadyForCurrentScope() {
@@ -501,7 +601,9 @@
                 get,
                 set,
                 getCustomModelSecrets,
-                setCustomModelSecrets
+                setCustomModelSecrets,
+                isPersistenceEnabled,
+                setPersistenceEnabled
             };
         })();
 
@@ -671,31 +773,6 @@
             function _cloneStorageValue(value) {
                 if (typeof structuredClone === 'function') return structuredClone(value);
                 return JSON.parse(JSON.stringify(value || {}));
-            }
-
-            function _fingerprintStorageValue(value) {
-                const text = String(value ?? '');
-                let hash = 2166136261;
-                for (let index = 0; index < text.length; index += 1) {
-                    hash ^= text.charCodeAt(index);
-                    hash = Math.imul(hash, 16777619);
-                }
-                return (hash >>> 0).toString(16).padStart(8, '0') + ':' + text.length;
-            }
-
-            function _fullAnalysisMemoryHash(bookName, memBook, fileNames) {
-                const expectedNames = Array.isArray(fileNames) ? fileNames.map(String) : [];
-                const files = memBook?.['关联文件夹'];
-                if (!expectedNames.length || !Array.isArray(files)) return '';
-                const pairs = [];
-                for (const name of expectedNames) {
-                    const matches = files.filter(function(file) {
-                        return String(file?.name || '') === String(bookName || '') + '_' + name;
-                    });
-                    if (matches.length !== 1) return '';
-                    pairs.push([name, String(matches[0]?.content || '')]);
-                }
-                return _fingerprintStorageValue(JSON.stringify(pairs));
             }
 
             function _enqueueBooksWrite(uid, operation) {
@@ -1624,6 +1701,7 @@
                 waitForBooksWriteIdle: _waitForBooksWriteIdle,
                 getBooks() { return _cache[KEYS.BOOKS] || {}; },
                 saveBooks(b, options) {
+                    if (isOperationTutorialStorageBlocked()) return Promise.resolve(false);
                     const uid = AccountDataScope.getActiveUid();
                     const settings = options && typeof options === 'object' ? options : {};
                     const stagedBooks = _cloneStorageValue(b || {});
@@ -1647,7 +1725,7 @@
                     const previousBooks = _persistedLocalSnapshot.uid === uid
                         ? _parsePersistedSnapshot(_persistedLocalSnapshot.books)
                         : null;
-                    const atomicRecords = window.ZHIYU_COMMUNITY_MODE === true || settings.cloudWrite === 'suppress'
+                    const atomicRecords = settings.cloudWrite === 'suppress'
                         ? []
                         : (window.prepareCloudBookOutboxRecords?.(preparedBooks, previousBooks, uid, settings) || []);
                     return _save(KEYS.BOOKS, preparedBooks, { atomicRecords, writeToken: suppliedWriteToken }).then(async function(ok) {
@@ -1655,9 +1733,7 @@
                             _cache[KEYS.BOOKS] = preparedBooks;
                             if (settings.lifecycleMutation) _recordBookLifecycleMutation(uid, settings.lifecycleMutation);
                             window.markChapterLocalIdsPersisted?.(preparedBooks);
-                            if (window.ZHIYU_COMMUNITY_MODE !== true && atomicRecords.length) {
-                                window.scheduleCloudWriteOutboxDrain?.(uid);
-                            }
+                            if (atomicRecords.length) window.scheduleCloudWriteOutboxDrain?.(uid);
                         } else {
                             await _restoreBooksCacheFromDurable(uid);
                         }
@@ -1666,6 +1742,7 @@
                     });
                 },
                 commitBooksAndMemory(books, memoryKey, memBooks, expectedUid, atomicRecords, options) {
+                    if (isOperationTutorialStorageBlocked()) return false;
                     const queueUid = String(expectedUid || '');
                     const settings = options && typeof options === 'object' ? options : {};
                     const stagedBooks = _cloneStorageValue(books || {});
@@ -1725,144 +1802,6 @@
                         return { booksCacheCurrent: true, memBooks: preparedMemBooks };
                     } catch(e) {
                         return false;
-                    } finally {
-                        _endAccountWrite(writeToken);
-                    }
-                    });
-                },
-                commitCreatedBookAndMemory(options) {
-                    const settings = options && typeof options === 'object' ? options : {};
-                    const expectedUid = String(settings.expectedUid || '');
-                    const bookName = String(settings.bookName || '').trim();
-                    const memoryKey = String(settings.memoryKey || AccountDataScope.key('mem_books', expectedUid));
-                    const receiptKey = String(settings.receiptKey || '');
-                    const stagedBook = _cloneStorageValue(settings.book || {});
-                    const stagedMemBook = _cloneStorageValue(settings.memBook || {});
-                    const stagedReceipt = _cloneStorageValue(settings.receipt || {});
-                    const stagedResultHash = _fullAnalysisMemoryHash(
-                        bookName,
-                        stagedMemBook,
-                        stagedReceipt.resultFileNames
-                    );
-                    _v2ReadEpoch += 1;
-                    _clearPreferredV2Memory(expectedUid);
-                    if (!expectedUid || AccountDataScope.getActiveUid() !== expectedUid || !bookName || !receiptKey) return false;
-                    if (_booksReadState.status === 'error' || typeof IDB.mutateKvFenced !== 'function') return false;
-                    if (AccountDataScope.hasForeignBooks({ [bookName]: stagedBook }, expectedUid)) return false;
-                    if (!stagedResultHash || stagedResultHash !== String(stagedReceipt.resultHash || '')) {
-                        const error = new Error('全文分析文件内容与保存回执不一致，已停止写入');
-                        error.code = 'FULL_ANALYSIS_SAVE_HASH_MISMATCH';
-                        throw error;
-                    }
-                    const booksKey = _idbKey(KEYS.BOOKS, expectedUid);
-                    const booksMetaKey = _metaKey(KEYS.BOOKS, expectedUid);
-                    const memoryMetaKey = memoryKey + '_updated_at';
-                    return _enqueueBooksWrite(expectedUid, async function() {
-                    const writeToken = _beginAccountWrite(expectedUid, '新作品与资料原子保存');
-                    if (!writeToken) return false;
-                    try {
-                    if (!_accountWriteTokenCurrent(writeToken)) return false;
-                    const committed = await IDB.mutateKvFenced(
-                        [booksKey, booksMetaKey, memoryKey, memoryMetaKey, receiptKey],
-                        writeToken.fenceKey,
-                        writeToken.leaseId,
-                        function(values) {
-                            const latestBooks = values[booksKey] && typeof values[booksKey] === 'object'
-                                && !Array.isArray(values[booksKey])
-                                ? _cloneStorageValue(values[booksKey])
-                                : {};
-                            const latestMemBooks = values[memoryKey] && typeof values[memoryKey] === 'object'
-                                && !Array.isArray(values[memoryKey])
-                                ? _cloneStorageValue(values[memoryKey])
-                                : {};
-                            const existingReceipt = values[receiptKey] && typeof values[receiptKey] === 'object'
-                                ? values[receiptKey]
-                                : null;
-                            if (existingReceipt) {
-                                const sameReceipt = String(existingReceipt.taskId || '') === String(stagedReceipt.taskId || '')
-                                    && String(existingReceipt.resultHash || '') === String(stagedReceipt.resultHash || '')
-                                    && String(existingReceipt.bookName || '') === bookName;
-                                const existingBook = latestBooks[bookName];
-                                const existingMemory = latestMemBooks[bookName];
-                                const sameBook = !!existingBook
-                                    && String(existingBook._bid || '') === String(existingReceipt.bookId || '');
-                                if (!sameReceipt || !sameBook || !existingMemory) {
-                                    const error = new Error('检测到不一致的全文分析保存回执，已停止覆盖本机作品');
-                                    error.code = 'FULL_ANALYSIS_SAVE_RECEIPT_CONFLICT';
-                                    throw error;
-                                }
-                                return {
-                                    entries: [],
-                                    result: {
-                                        persisted: true,
-                                        idempotent: true,
-                                        bookName,
-                                        bookId: String(existingBook._bid || ''),
-                                        receipt: _cloneStorageValue(existingReceipt),
-                                        books: latestBooks,
-                                        memBooks: latestMemBooks
-                                    }
-                                };
-                            }
-                            if (Object.prototype.hasOwnProperty.call(latestBooks, bookName)
-                                || Object.prototype.hasOwnProperty.call(latestMemBooks, bookName)) {
-                                const error = new Error('该作品名已存在，请换一个新的作品名称');
-                                error.code = 'FULL_ANALYSIS_BOOK_NAME_EXISTS';
-                                throw error;
-                            }
-                            latestBooks[bookName] = _cloneStorageValue(stagedBook);
-                            latestMemBooks[bookName] = _cloneStorageValue(stagedMemBook);
-                            window.ensureAllBookStableIds?.(latestBooks);
-                            window.ensureAllChapterLocalIds?.(latestBooks);
-                            AccountDataScope.stampBooks(latestBooks, expectedUid);
-                            const storedBook = latestBooks[bookName];
-                            const receipt = Object.assign({}, stagedReceipt, {
-                                bookName,
-                                bookId: String(storedBook?._bid || ''),
-                                committedAt: new Date().toISOString()
-                            });
-                            const now = _nextWriteTimestamp();
-                            return {
-                                entries: [
-                                    [booksKey, latestBooks],
-                                    [booksMetaKey, now],
-                                    [memoryKey, latestMemBooks],
-                                    [memoryMetaKey, now],
-                                    [receiptKey, receipt]
-                                ],
-                                result: {
-                                    persisted: true,
-                                    idempotent: false,
-                                    bookName,
-                                    bookId: String(storedBook?._bid || ''),
-                                    receipt,
-                                    books: latestBooks,
-                                    memBooks: latestMemBooks
-                                }
-                            };
-                        }
-                    );
-                    if (!committed?.persisted || !_accountWriteTokenCurrent(writeToken)) return false;
-                    _invalidatePersistedValuesAfterRestore(expectedUid);
-                    StorageV2?.markNeedsReconcile?.(
-                        expectedUid,
-                        '已新增本机全文分析作品，V2 将从完整 V1 重新对账'
-                    )?.catch?.(function() {});
-                    StorageV2?.broadcastV1Updated?.(
-                        expectedUid,
-                        Number(await IDB.get(booksMetaKey).catch(function() { return Date.now(); }) || Date.now())
-                    );
-                    const cacheCurrent = AccountDataScope.getActiveUid() === expectedUid;
-                    if (cacheCurrent) {
-                        _cache[KEYS.BOOKS] = committed.books;
-                        window.markChapterLocalIdsPersisted?.(committed.books);
-                        try {
-                            localStorage.removeItem(booksKey);
-                            localStorage.removeItem(booksMetaKey);
-                        } catch(e) {}
-                        _scheduleV2Migration(expectedUid);
-                    }
-                    return Object.assign({}, committed, { booksCacheCurrent: cacheCurrent });
                     } finally {
                         _endAccountWrite(writeToken);
                     }
@@ -2169,6 +2108,7 @@
                     });
                 },
                 saveMemoryBooks(memBooks, expectedUid, options) {
+                    if (isOperationTutorialStorageBlocked()) return false;
                     const queueUid = String(expectedUid || '');
                     const settings = options && typeof options === 'object' ? options : {};
                     const stagedBooksForMemory = _cloneStorageValue(_cache[KEYS.BOOKS] || {});
@@ -2190,7 +2130,7 @@
                     const previousMemory = _persistedLocalSnapshot.uid === uid
                         ? _parsePersistedSnapshot(_persistedLocalSnapshot.memory)
                         : null;
-                    const atomicRecords = window.ZHIYU_COMMUNITY_MODE === true || settings.cloudWrite === 'suppress'
+                    const atomicRecords = settings.cloudWrite === 'suppress'
                         ? []
                         : (window.prepareCloudMemoryOutboxRecords?.(value, previousMemory, uid, settings) || []);
                     const booksKey = _idbKey(KEYS.BOOKS, uid);
@@ -2221,9 +2161,7 @@
                             '作品所有权需要人工核对，本次资料已安全保存到旧储存'
                         )?.catch?.(function() {});
                     }
-                    if (saved && window.ZHIYU_COMMUNITY_MODE !== true && atomicRecords.length) {
-                        window.scheduleCloudWriteOutboxDrain?.(uid);
-                    }
+                    if (saved && atomicRecords.length) window.scheduleCloudWriteOutboxDrain?.(uid);
                     return saved;
                     } finally {
                         _endAccountWrite(writeToken);

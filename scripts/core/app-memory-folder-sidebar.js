@@ -11,10 +11,18 @@
     const getMemorySystemFolderName = window.getMemorySystemFolderName || function() { return ''; };
     const getMemoryVolumeFolders = window.getMemoryVolumeFolders || function() { return []; };
 
+    function getMemBooks() {
+        const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active === true && preview.books && typeof preview.books === 'object') {
+            return preview.books;
+        }
+        return typeof window.getMemBooks === 'function' ? window.getMemBooks() : {};
+    }
+
     function renderMemFolderSidebar() {
         const sidebar = document.getElementById('memFolderSidebar');
         if (!sidebar) return;
-        const memBooks = typeof window.getMemBooks === 'function' ? window.getMemBooks() : {};
+        const memBooks = getMemBooks();
         const book = memBooks[AppState.memory.book];
         if (!book) {
             sidebar.innerHTML = '';

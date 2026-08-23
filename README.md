@@ -2,7 +2,7 @@
 
 简体中文 | [English](README_EN.md)
 
-> 当前目录已通过本机技术门禁，可以作为 GitHub 社区版源码仓库使用。首次公开前仍应由权利人复核提交文件和素材来源记录。
+> 首次公开前的本地发布门禁已通过，当前为可形成正式提交并准备上传 GitHub 的候选版本。验收证据见 [公开状态](OPEN-SOURCE-STATUS.md)。
 
 知屿写作（英文名：Omniisle Write）社区版是一套面向中文长篇写作的本地电脑应用。作品保存在当前浏览器中，不要求登录，不连接知屿后端；需要 AI 时，由使用者在设置中填写自己的模型地址、模型名和 API Key。
 
@@ -41,16 +41,19 @@ npm run serve
 - 作品数据保存在当前浏览器；清理浏览器数据会导致作品丢失，请定期导出备份。
 - 默认阻止外部网络请求。首次连接用户填写的模型地址前，会显示目标域名并要求确认。
 - API Key 和写作内容只应发送到用户确认的模型地址，不经过知屿服务器。
+- 新配置的 API Key 默认只在当前页面会话使用；只有用户主动开启“记住 API Key”后，才会加密保存在当前浏览器中。
 - 社区版不包含账号、云同步、积分、充值、支付和管理后台。
 
 ## 开发检查
 
 ```bash
 npm test
+npm run licenses:check
+npm run secrets:check
 npm run audit:public
 ```
 
-`npm test` 检查社区运行包、本机写作边界和全文分析流程。`npm run audit:public` 检查密钥、旧后端、商业实现、额外联网和缺失素材；两项都应在每次公开提交前保持通过。
+`npm test` 检查社区运行包、本机写作边界、API Key 保存边界和全文分析流程。`npm run licenses:check` 检查第三方依赖清单和许可证声明；`npm run secrets:check` 检查当前文件和 Git 历史中的高可信密钥；`npm run audit:public` 检查旧后端、商业实现、额外联网和缺失素材。全部检查都应在每次公开提交前保持通过，GitHub 上线步骤见 [GitHub 免费上线设置](GITHUB-SETUP.md)。
 
 ## 反馈与安全问题
 
@@ -60,6 +63,6 @@ npm run audit:public
 
 除第三方组件和另有说明的素材外，由 Zeyu 原创或依法持有权利的知屿写作 Omniisle Write 社区版代码版权归 Zeyu 所有，并仅按 [GNU Affero General Public License v3.0](LICENSE)（`AGPL-3.0-only`）公开。外部贡献者保留其贡献的版权，并按照 [贡献者许可协议](CLA.md) 授权项目使用和再许可。
 
-希望闭源集成或取得其他授权的使用者，可以另行联系权利人获得商业许可。外部贡献须先接受 [贡献者许可协议](CLA.md)。Logo、壁纸和第三方组件不自动适用项目代码许可证，具体见 [素材许可清单](ASSETS-LICENSES.md)、[商标政策](TRADEMARKS.md)和 [NOTICE](NOTICE)。
+希望闭源集成或取得其他授权的使用者，可以另行联系权利人获得商业许可。外部贡献须先接受 [贡献者许可协议](CLA.md)。Logo、壁纸和第三方组件不自动适用项目代码许可证，具体见 [素材许可清单](ASSETS-LICENSES.md)、[商标政策](TRADEMARKS.md)、[NOTICE](NOTICE)和[第三方依赖清单](THIRD_PARTY_NOTICES.md)。
 
 当前技术公开状态、已验证范围和仍需人工承担的权属边界见 [公开状态](OPEN-SOURCE-STATUS.md)。

@@ -18,7 +18,8 @@
     }
 
     function readRefUiPreference(key) {
-        const transient = window.AppState?.ui?.refUiTransientPreferences || {};
+        const appState = window.ZHIYU_APP_STATE || window.AppState;
+        const transient = appState?.ui?.refUiTransientPreferences || {};
         if (Object.prototype.hasOwnProperty.call(transient, key)) return transient[key];
         if (window.BrowserStoragePolicy?.readJsonWithFallback) {
             return window.BrowserStoragePolicy.readJsonWithFallback(key, window.sessionStorage, window.localStorage);
@@ -33,19 +34,25 @@
     }
 
     function writeRefUiPreference(key, value) {
+        const appState = window.ZHIYU_APP_STATE || window.AppState || (window.AppState = {});
+        if (window.document?.body?.classList?.contains('zhiyu-outline-tutorial-active')) {
+            if (!appState.ui) appState.ui = {};
+            if (!appState.ui.refUiTransientPreferences) appState.ui.refUiTransientPreferences = {};
+            appState.ui.refUiTransientPreferences[key] = value;
+            return 'tutorial';
+        }
         try {
             const target = window.BrowserStoragePolicy?.writeJsonWithFallback
                 ? window.BrowserStoragePolicy.writeJsonWithFallback(key, value, window.localStorage, window.sessionStorage)
                 : (window.localStorage.setItem(key, JSON.stringify(value)), 'local');
-            if (window.AppState?.ui?.refUiTransientPreferences) {
-                delete window.AppState.ui.refUiTransientPreferences[key];
+            if (appState.ui?.refUiTransientPreferences) {
+                delete appState.ui.refUiTransientPreferences[key];
             }
             return target;
         } catch (error) {
-            if (!window.AppState) window.AppState = {};
-            if (!window.AppState.ui) window.AppState.ui = {};
-            if (!window.AppState.ui.refUiTransientPreferences) window.AppState.ui.refUiTransientPreferences = {};
-            window.AppState.ui.refUiTransientPreferences[key] = value;
+            if (!appState.ui) appState.ui = {};
+            if (!appState.ui.refUiTransientPreferences) appState.ui.refUiTransientPreferences = {};
+            appState.ui.refUiTransientPreferences[key] = value;
             return 'memory';
         }
     }

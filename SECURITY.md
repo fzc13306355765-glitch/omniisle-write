@@ -12,7 +12,11 @@
 
 ## 报告方式
 
-公共仓库创建前，由项目所有者指定独立安全邮箱。邮箱尚未建立期间，不应公开发布本候选目录，也不要在公共 Issue 中粘贴密钥、小说正文、账号信息或漏洞利用细节。
+公共仓库启用后，请进入仓库的 `Security` → `Advisories`，使用 `Report a vulnerability` 私密报告。项目所有者必须在仓库设为 Public 前启用 GitHub Private vulnerability reporting；如果该入口尚未显示，请暂停公开漏洞提交并等待安全入口启用，不要改用公共 Issue。
+
+仓库所有者的免费安全设置步骤见 [GITHUB-SETUP.md](GITHUB-SETUP.md)。
+
+任何情况下都不要在公共 Issue、Discussion、截图或日志中粘贴 API Key、小说正文、账号信息或漏洞利用细节。
 
 报告中请提供受影响版本、复现步骤、预期结果和实际结果。请使用虚构测试数据，并删除请求中的 Key。
 

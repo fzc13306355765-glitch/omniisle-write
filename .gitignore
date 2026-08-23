@@ -7,6 +7,22 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.ppk
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
 # Browser test profiles and generated smoke-test output
 tmp-edge-*/
 .tmp-edge-*/

@@ -12,3 +12,7 @@
 *.jpeg binary
 *.png binary
 *.webp binary
+
+# TipTap bundles are generated. A template literal intentionally ends a line with two spaces
+# to emit a Markdown hard break, so blank-at-eol is semantic in these generated chunks.
+scripts/vendor/tiptap/chunks/*.js whitespace=-blank-at-eol

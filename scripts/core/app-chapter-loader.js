@@ -195,15 +195,18 @@
             const targetBook = currentBooks?.[bookName];
             const targetChapter = targetBook?.volumes?.[vi]?.chapters?.[ci];
             if (!targetBook || !targetChapter) return;
+            const tutorialPreviewActive = window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+                || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+                || document.body?.classList.contains('zhiyu-outline-tutorial-active');
             const resultBox = document.getElementById('resultBox');
-            window.finalizeLocalEditSessionsBeforeSave?.();
+            if (!tutorialPreviewActive) window.finalizeLocalEditSessionsBeforeSave?.();
             const wasViewingRefFile = typeof window.clearRefFileEditorState === 'function'
                 ? window.clearRefFileEditorState(resultBox)
                 : !!resultBox?.dataset?.editingRefFile;
-            const currentLocation = window.syncCurrentChapterLocation?.(currentBooks);
+            const currentLocation = tutorialPreviewActive ? null : window.syncCurrentChapterLocation?.(currentBooks);
             const genTaskKeys = Object.keys(window.generationTasks);
 
-            if (!wasViewingRefFile && !options?.skipCurrentSave && currentLocation && AppState.chapter.book && AppState.chapter.vi >= 0 && AppState.chapter.ci >= 0) {
+            if (!tutorialPreviewActive && !wasViewingRefFile && !options?.skipCurrentSave && currentLocation && AppState.chapter.book && AppState.chapter.vi >= 0 && AppState.chapter.ci >= 0) {
                 const isCurrentChapterGenerating = isCurrentlyGeneratingChapter(AppState.chapter.book, AppState.chapter.vi, AppState.chapter.ci);
                 if (!isCurrentChapterGenerating) {
                     const books = gB();
@@ -239,8 +242,8 @@
             const book=targetBook;
             const ch=targetChapter;
             const isThisChapterGenerating = isCurrentlyGeneratingChapter(bookName, vi, ci);
-            const localId = window.ensureChapterLocalId?.(ch) || '';
-            if (localId && !window.isChapterLocalIdPersisted?.(localId)) {
+            const localId = tutorialPreviewActive ? String(ch.localId || '') : (window.ensureChapterLocalId?.(ch) || '');
+            if (!tutorialPreviewActive && localId && !window.isChapterLocalIdPersisted?.(localId)) {
                 window.ZHIYU_STORAGE_SERVICE?.saveBooks(books);
             }
 
@@ -260,8 +263,10 @@
             }
             AppState.ui.selectedVolumeBook = '';
             AppState.ui.selectedVolumeVi = -1;
-        localStorage.setItem(AccountDataScope.key('novel_current_book'),bookName);
-        localStorage.setItem(AccountDataScope.key('novel_current_chapter'),JSON.stringify({vi,ci,localId}));
+            if (!tutorialPreviewActive) {
+                localStorage.setItem(AccountDataScope.key('novel_current_book'),bookName);
+                localStorage.setItem(AccountDataScope.key('novel_current_chapter'),JSON.stringify({vi,ci,localId}));
+            }
 
             // 更新当前编辑章节名称
             const editingChapterName = document.getElementById('editingChapterName');
@@ -285,13 +290,15 @@
                     || (resultBox.innerHTML = displayContent);
                 setLastSavedContent(resultBox.innerHTML);
                 updateDirtyIndicator();
-                void _hydrateChapterContentFromCloud(bookName, vi, ci);
-                if (!options?.skipDraftRestore) void _resolveChapterDraftAgainstCloud(bookName, vi, ci);
+                if (!tutorialPreviewActive) {
+                    void _hydrateChapterContentFromCloud(bookName, vi, ci);
+                    if (!options?.skipDraftRestore) void _resolveChapterDraftAgainstCloud(bookName, vi, ci);
+                }
             }
 
             // 剧情描述持久化：按章节 ID 加载
             const plotKey = window.AccountDataScope.key(`plot_${bookName}_${vi}_${ci}`);
-            const savedPlot = localStorage.getItem(plotKey) || ch.plot || '';
+            const savedPlot = tutorialPreviewActive ? (ch.plot || '') : (localStorage.getItem(plotKey) || ch.plot || '');
             document.getElementById('plotInput').value = savedPlot;
             // 更新字数统计：如果是正在生成的章节，显示生成内容的字数
             const task = window.generationTasks[genTaskKey(bookName, vi, ci)];

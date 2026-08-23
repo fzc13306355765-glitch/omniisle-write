@@ -95,6 +95,19 @@
         return document.getElementById('bookSel')?.value || AppState.chapter?.book || '';
     }
 
+    function getTreeMemoryBooks() {
+        if (window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active) {
+            const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+            return preview?.active && preview.books ? preview.books : {};
+        }
+        return window.getMemBooks?.() || {};
+    }
+
+    function readSavedChapterForTree() {
+        if (window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active) return null;
+        return localStorage.getItem(AccountDataScope.key('novel_current_chapter'));
+    }
+
     function getRefNameAliases(key, bookName) {
         const clean = String(key || '').replace(/\.md$/i, '');
         return [clean, clean + '.md', bookName + '_' + clean, bookName + '_' + clean + '.md'];
@@ -139,7 +152,7 @@
 
     function findRefFileInFolder(folderName, key) {
         const bookName = getCurrentRefBookName();
-        const bookMem = window.getMemBooks?.()?.[bookName];
+        const bookMem = getTreeMemoryBooks()[bookName];
         const list = Array.isArray(bookMem?.[folderName]) ? bookMem[folderName] : [];
         const aliases = getRefNameAliases(key, bookName).map(function(name) { return normalizeRefName(name, bookName); });
         const found = list.find(function(file) {
@@ -150,7 +163,7 @@
 
     function findBodyRefFile(key) {
         const bookName = getCurrentRefBookName();
-        const bookMem = window.getMemBooks?.()?.[bookName];
+        const bookMem = getTreeMemoryBooks()[bookName];
         if (!bookMem) return null;
         const folders = Object.keys(bookMem).filter(function(folder) {
             const name = String(folder || '');
@@ -250,7 +263,7 @@
         if (Number.isInteger(options.scrollToChapterVi) && Number.isInteger(options.scrollToChapterCi)) {
             scrollCatalogToChapter(options.scrollToChapterVi, options.scrollToChapterCi);
         }
-const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chapter'));
+        const savedChapter=readSavedChapterForTree();
         if(savedChapter && !(AppState.ui.selectedVolumeBook === bookName && AppState.ui.selectedVolumeVi >= 0)){
             try{
                 let {vi,ci,localId}=JSON.parse(savedChapter);
@@ -291,7 +304,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
                 '信息表': ['信息卡'],
                 '角色列表': ['角色关系网']
             } };
-            const memBooks = window.getMemBooks?.() || {};
+            const memBooks = getTreeMemoryBooks();
             const bookMem = memBooks[bookName];
             if (!AppState.ui.refFileType || !refFileGroups[AppState.ui.refFileType]) AppState.ui.refFileType = 'body';
             const activeRefType = AppState.ui.refFileType;
@@ -414,7 +427,14 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
                 const legacyNames = { '母大纲': '剧情总览', '拆书': '拆书设定', '仿写': '拆书设定', '仿写设定': '拆书设定', '信息卡': '信息表', '角色关系网': '角色列表' };
                 selectedNames = Array.from(new Set(selectedNames.map(name => legacyNames[name] || name)));
             }
+            const selectedSet = new Set(selectedNames);
+            const displayFiles = orderedFiles.filter(function(file) { return selectedSet.has(fileKey(file)); });
+            const hiddenFileCount = orderedFiles.length - displayFiles.length;
 
+            const contentRegion = document.createElement('div');
+            contentRegion.id = 'refFilesRegionContent';
+            contentRegion.style.display = 'contents';
+            refsContainer.appendChild(contentRegion);
             const tabRow = document.createElement('div');
             tabRow.style.cssText = 'display:flex;align-items:center;width:100%;border-bottom:1px solid #e5e7eb;margin:0 0 6px;padding:0;';
             Object.keys(refFileGroups).forEach(function(type) {
@@ -430,7 +450,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
                 });
                 tabRow.appendChild(btn);
             });
-            refsContainer.appendChild(tabRow);
+            contentRegion.appendChild(tabRow);
 
             const collapsedKey = AccountDataScope.key('zhiyu_ref_files_collapsed_' + bookName);
             AppState.ui.refFilesCollapsed = Number(window.readRefUiPreference?.(collapsedKey)) === 1;
@@ -440,6 +460,9 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             refsToggleButton.className = 'ref-files-collapse-toggle';
             refsToggleButton.innerHTML = '<span style="width:18px;height:16px;display:flex;align-items:center;justify-content:center;transform:' + (AppState.ui.refFilesCollapsed ? 'rotate(180deg)' : 'none') + ';transform-origin:center center;"><span style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:7px solid currentColor;border-radius:2px;"></span></span>';
             refsToggleButton.title = AppState.ui.refFilesCollapsed ? '展开关联文件区域' : '收起关联文件区域';
+            refsToggleButton.setAttribute('aria-label', refsToggleButton.title);
+            refsToggleButton.setAttribute('aria-expanded', String(!AppState.ui.refFilesCollapsed));
+            refsToggleButton.setAttribute('aria-controls', contentRegion.id);
             refsToggleButton.style.cssText = 'position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:34px;height:24px;padding:0;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-muted);font-weight:800;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;';
             refsToggleButton.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -450,13 +473,25 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             });
             refsContainer.appendChild(refsToggleButton);
             if (AppState.ui.refFilesCollapsed) {
-                tabRow.style.display = 'none';
+                contentRegion.style.display = 'none';
+                const collapsedSummary = document.createElement('div');
+                collapsedSummary.className = 'ref-files-collapsed-summary';
+                collapsedSummary.setAttribute('role', 'status');
+                collapsedSummary.style.cssText = 'padding:15px 10px 8px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.45;white-space:normal;';
+                if (orderedFiles.length === 0) {
+                    collapsedSummary.textContent = '暂无关联文件';
+                } else if (displayFiles.length === 0) {
+                    collapsedSummary.textContent = '已隐藏 ' + hiddenFileCount + ' 个文件';
+                } else if (hiddenFileCount > 0) {
+                    collapsedSummary.textContent = '已收起 ' + displayFiles.length + ' 个文件 · 另有 ' + hiddenFileCount + ' 个文件已隐藏';
+                } else {
+                    collapsedSummary.textContent = '已收起 ' + displayFiles.length + ' 个文件';
+                }
+                refsContainer.appendChild(collapsedSummary);
                 return;
             }
 
             if (orderedFiles.length === 0) return;
-            const selectedSet = new Set(selectedNames);
-            let displayFiles = orderedFiles.filter(function(file) { return selectedSet.has(fileKey(file)); });
 
             const titleDiv = document.createElement('div');
             titleDiv.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;font-weight:600;color:var(--text-muted);padding:4px 8px 4px;';
@@ -469,7 +504,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             settingsButton.style.cssText = 'height:22px;padding:0 7px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text-muted);font-size:11px;cursor:pointer;';
             titleDiv.appendChild(titleText);
             titleDiv.appendChild(settingsButton);
-            refsContainer.appendChild(titleDiv);
+            contentRegion.appendChild(titleDiv);
 
             const settingsPanel = document.createElement('div');
             settingsPanel.className = 'ref-files-settings-panel';
@@ -530,22 +565,213 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             const settingsList = document.createElement('div');
             settingsList.className = 'ref-files-settings-list';
             settingsList.style.cssText = 'display:grid;grid-template-columns:1fr;gap:2px;padding:8px 10px;overflow-y:auto;min-height:0;max-height:390px;';
-            let draggedFileKey = '';
-            function moveRefOrderByOffset(targetKey, offset) {
-                const nextOrder = window.getRefDisplayOrder(bookName, activeRefType, orderedFiles);
-                const fromIndex = nextOrder.indexOf(targetKey);
-                const toIndex = fromIndex + offset;
-                if (fromIndex < 0 || toIndex < 0 || toIndex >= nextOrder.length) return;
-                nextOrder.splice(fromIndex, 1);
-                nextOrder.splice(toIndex, 0, targetKey);
-                window.updateRefDisplayOrder(bookName, activeRefType, nextOrder, settingsOpenKey);
+            let refDragState = null;
+            function getRefOrderRows() {
+                return Array.from(settingsList.querySelectorAll('[data-ref-order-key]'));
+            }
+            function clearRefShiftAnimations() {
+                getRefOrderRows().forEach(function(row) {
+                    row.__refShiftAnimation?.cancel?.();
+                    row.__refShiftAnimation = null;
+                    row.removeAttribute('data-ref-drag-shifting');
+                });
+            }
+            function animateRefRowShifts(previousRects) {
+                getRefOrderRows().forEach(function(row) {
+                    if (row === refDragState?.sourceRow || row.style.display === 'none') return;
+                    const previousRect = previousRects.get(row);
+                    if (!previousRect) return;
+                    const deltaY = previousRect.top - row.getBoundingClientRect().top;
+                    if (Math.abs(deltaY) < 1) return;
+                    row.__refShiftAnimation?.cancel?.();
+                    row.setAttribute('data-ref-drag-shifting', '1');
+                    if (typeof row.animate !== 'function') return;
+                    const animation = row.animate([
+                        { transform: 'translateY(' + deltaY + 'px)' },
+                        { transform: 'translateY(0)' }
+                    ], {
+                        duration: 190,
+                        easing: 'cubic-bezier(.2,.8,.2,1)'
+                    });
+                    row.__refShiftAnimation = animation;
+                    function clearShiftMarker() {
+                        if (row.__refShiftAnimation !== animation) return;
+                        row.__refShiftAnimation = null;
+                        row.removeAttribute('data-ref-drag-shifting');
+                    }
+                    animation.onfinish = clearShiftMarker;
+                    animation.oncancel = clearShiftMarker;
+                });
+            }
+            function moveFloatingRefRow(clientX, clientY) {
+                if (!refDragState) return;
+                refDragState.floatingRow.style.left = (clientX - refDragState.pointerOffsetX) + 'px';
+                refDragState.floatingRow.style.top = (clientY - refDragState.pointerOffsetY) + 'px';
+            }
+            function updateRefPlaceholder(clientX, clientY) {
+                if (!refDragState) return;
+                moveFloatingRefRow(clientX, clientY);
+                const listRect = settingsList.getBoundingClientRect();
+                const isInside = clientX >= listRect.left && clientX <= listRect.right
+                    && clientY >= listRect.top && clientY <= listRect.bottom;
+                refDragState.hasValidDrop = isInside;
+                refDragState.floatingRow.toggleAttribute('data-ref-drag-outside', !isInside);
+                refDragState.floatingRow.style.opacity = isInside ? '.96' : '.62';
+                refDragState.placeholder.style.opacity = isInside ? '1' : '.45';
+                if (!isInside) return;
+                const rows = getRefOrderRows().filter(function(row) {
+                    return row !== refDragState.sourceRow;
+                });
+                let insertionIndex = rows.findIndex(function(row) {
+                    const rect = row.getBoundingClientRect();
+                    return clientY < rect.top + rect.height / 2;
+                });
+                if (insertionIndex < 0) insertionIndex = rows.length;
+                const visibleItems = Array.from(settingsList.children).filter(function(node) {
+                    return node === refDragState.placeholder
+                        || (node.hasAttribute?.('data-ref-order-key') && node !== refDragState.sourceRow);
+                });
+                if (visibleItems.indexOf(refDragState.placeholder) === insertionIndex) return;
+                const previousRects = new Map(rows.map(function(row) {
+                    return [row, row.getBoundingClientRect()];
+                }));
+                const nextRow = rows[insertionIndex] || null;
+                if (nextRow) settingsList.insertBefore(refDragState.placeholder, nextRow);
+                else settingsList.appendChild(refDragState.placeholder);
+                refDragState.placeholder.setAttribute('data-ref-placeholder-index', String(insertionIndex));
+                animateRefRowShifts(previousRects);
+            }
+            function readRefPlaceholderOrder() {
+                if (!refDragState) return [];
+                const nextOrder = [];
+                Array.from(settingsList.children).forEach(function(node) {
+                    if (node === refDragState.placeholder) {
+                        nextOrder.push(refDragState.sourceKey);
+                        return;
+                    }
+                    if (node === refDragState.sourceRow) return;
+                    const key = node.getAttribute?.('data-ref-order-key');
+                    if (key) nextOrder.push(key);
+                });
+                return nextOrder;
+            }
+            function clearRefDragFeedback() {
+                if (!refDragState) return;
+                const state = refDragState;
+                refDragState = null;
+                state.removeListeners?.();
+                try { state.dragArea.releasePointerCapture?.(state.pointerId); } catch (_) {}
+                state.sourceRow.style.display = state.sourceDisplay;
+                state.sourceRow.removeAttribute('data-ref-drag-active');
+                state.dragArea.style.cursor = state.dragCursor;
+                state.placeholder.remove();
+                state.floatingRow.remove();
+                document.documentElement.style.cursor = state.rootCursor;
+                clearRefShiftAnimations();
+            }
+            function finishRefDrag() {
+                if (!refDragState) return;
+                const currentOrder = window.getRefDisplayOrder(bookName, activeRefType, orderedFiles);
+                const nextOrder = readRefPlaceholderOrder();
+                const isCompleteOrder = nextOrder.length === currentOrder.length
+                    && currentOrder.every(function(key) { return nextOrder.includes(key); });
+                const orderChanged = isCompleteOrder
+                    && nextOrder.some(function(key, index) { return key !== currentOrder[index]; });
+                clearRefDragFeedback();
+                if (orderChanged) {
+                    window.updateRefDisplayOrder(bookName, activeRefType, nextOrder, settingsOpenKey);
+                }
+            }
+            function cancelRefDrag() {
+                clearRefDragFeedback();
+            }
+            function beginRefDrag(event, sourceKey, sourceRow, dragArea) {
+                cancelRefDrag();
+                const sourceRect = sourceRow.getBoundingClientRect();
+                const floatingRow = sourceRow.cloneNode(true);
+                floatingRow.removeAttribute('data-ref-order-key');
+                floatingRow.setAttribute('data-ref-drag-floating', sourceKey);
+                floatingRow.setAttribute('aria-hidden', 'true');
+                floatingRow.querySelectorAll('[data-ref-drag-key]').forEach(function(node) {
+                    node.removeAttribute('data-ref-drag-key');
+                });
+                floatingRow.style.cssText += 'position:fixed;box-sizing:border-box;margin:0;pointer-events:none;z-index:100000;width:'
+                    + sourceRect.width + 'px;height:' + sourceRect.height + 'px;left:' + sourceRect.left + 'px;top:'
+                    + sourceRect.top + 'px;background:var(--bg-card,#fff);border:1px solid rgba(59,130,246,.55);box-shadow:0 14px 30px rgba(15,23,42,.25);opacity:.96;transform:scale(1.018);transition:opacity .14s ease,box-shadow .14s ease;';
+                const placeholder = document.createElement('div');
+                placeholder.setAttribute('data-ref-drag-placeholder', sourceKey);
+                placeholder.setAttribute('data-ref-placeholder-index', String(getRefOrderRows().indexOf(sourceRow)));
+                placeholder.setAttribute('aria-hidden', 'true');
+                placeholder.style.cssText = 'display:flex;align-items:center;justify-content:center;box-sizing:border-box;height:'
+                    + sourceRect.height + 'px;min-height:' + sourceRect.height + 'px;border:2px dashed rgba(59,130,246,.7);border-radius:7px;background:rgba(59,130,246,.10);color:#2563eb;font-size:11px;font-weight:700;letter-spacing:.02em;transition:opacity .14s ease,background-color .14s ease;';
+                placeholder.textContent = '松开后放在这里';
+                settingsList.insertBefore(placeholder, sourceRow);
+                document.body.appendChild(floatingRow);
+                const pointerId = event.pointerId;
+                const rootCursor = document.documentElement.style.cursor;
+                refDragState = {
+                    sourceKey,
+                    sourceRow,
+                    sourceDisplay: sourceRow.style.display,
+                    dragArea,
+                    dragCursor: dragArea.style.cursor,
+                    floatingRow,
+                    placeholder,
+                    pointerId,
+                    pointerOffsetX: event.clientX - sourceRect.left,
+                    pointerOffsetY: event.clientY - sourceRect.top,
+                    rootCursor,
+                    hasValidDrop: true,
+                    removeListeners: null
+                };
+                sourceRow.setAttribute('data-ref-drag-active', '1');
+                sourceRow.style.display = 'none';
+                dragArea.style.cursor = 'grabbing';
+                document.documentElement.style.cursor = 'grabbing';
+                function onPointerMove(moveEvent) {
+                    if (!refDragState || moveEvent.pointerId !== pointerId) return;
+                    moveEvent.preventDefault();
+                    const listRect = settingsList.getBoundingClientRect();
+                    if (moveEvent.clientX >= listRect.left - 24 && moveEvent.clientX <= listRect.right + 24) {
+                        if (moveEvent.clientY < listRect.top + 28) settingsList.scrollTop -= 10;
+                        else if (moveEvent.clientY > listRect.bottom - 28) settingsList.scrollTop += 10;
+                    }
+                    updateRefPlaceholder(moveEvent.clientX, moveEvent.clientY);
+                }
+                function removePointerListeners() {
+                    window.removeEventListener('pointermove', onPointerMove);
+                    window.removeEventListener('pointerup', onPointerUp);
+                    window.removeEventListener('pointercancel', onPointerCancel);
+                    document.removeEventListener('keydown', onKeyDown, true);
+                }
+                function onPointerUp(upEvent) {
+                    if (!refDragState || upEvent.pointerId !== pointerId) return;
+                    updateRefPlaceholder(upEvent.clientX, upEvent.clientY);
+                    if (refDragState?.hasValidDrop) finishRefDrag();
+                    else cancelRefDrag();
+                }
+                function onPointerCancel(cancelEvent) {
+                    if (!refDragState || cancelEvent.pointerId !== pointerId) return;
+                    cancelRefDrag();
+                }
+                function onKeyDown(keyEvent) {
+                    if (keyEvent.key !== 'Escape') return;
+                    keyEvent.preventDefault();
+                    cancelRefDrag();
+                }
+                refDragState.removeListeners = removePointerListeners;
+                try { dragArea.setPointerCapture?.(pointerId); } catch (_) {}
+                window.addEventListener('pointermove', onPointerMove, { passive: false });
+                window.addEventListener('pointerup', onPointerUp);
+                window.addEventListener('pointercancel', onPointerCancel);
+                document.addEventListener('keydown', onKeyDown, true);
             }
             orderedFiles.forEach(function(file) {
                 const key = fileKey(file);
                 const row = document.createElement('div');
                 row.className = 'ref-files-settings-row';
                 row.setAttribute('data-ref-order-key', key);
-                row.style.cssText = 'display:grid;grid-template-columns:minmax(0,1fr) 1px 124px;align-items:center;min-height:34px;border-radius:7px;font-size:13px;color:var(--text);overflow:hidden;';
+                row.style.cssText = 'display:grid;grid-template-columns:minmax(0,1fr) 1px 104px;align-items:center;min-height:34px;border-radius:7px;font-size:13px;color:var(--text);overflow:hidden;transition:transform .19s cubic-bezier(.2,.8,.2,1),background-color .16s ease,box-shadow .16s ease,opacity .16s ease;';
                 const label = document.createElement('label');
                 label.style.cssText = 'display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:8px;min-width:0;height:100%;padding:3px 8px;cursor:pointer;';
                 const checkbox = document.createElement('input');
@@ -566,48 +792,15 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
                 divider.style.cssText = 'width:1px;height:22px;background:var(--border);';
                 const dragArea = document.createElement('div');
                 dragArea.setAttribute('data-ref-drag-key', key);
-                dragArea.draggable = true;
-                dragArea.title = '按住可拖动顺序';
-                dragArea.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;height:100%;padding:3px 8px;color:var(--text-muted);cursor:grab;user-select:none;';
-                dragArea.innerHTML = '<span aria-hidden="true" style="font-size:17px;line-height:1;color:currentColor;pointer-events:none;">≡</span>';
-                const upButton = document.createElement('button');
-                upButton.type = 'button';
-                upButton.textContent = '上移';
-                upButton.title = '把该文件上移一位';
-                upButton.style.cssText = 'height:24px;padding:0 7px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text-muted);font-size:11px;cursor:pointer;';
-                upButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    moveRefOrderByOffset(key, -1);
-                });
-                const downButton = document.createElement('button');
-                downButton.type = 'button';
-                downButton.textContent = '下移';
-                downButton.title = '把该文件下移一位';
-                downButton.style.cssText = upButton.style.cssText;
-                downButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    moveRefOrderByOffset(key, 1);
-                });
-                dragArea.append(upButton, downButton);
-                dragArea.addEventListener('dragstart', function(e) {
-                    e.stopPropagation();
-                    draggedFileKey = key;
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', key);
-                });
-                dragArea.addEventListener('dragend', function() { draggedFileKey = ''; });
-                row.addEventListener('dragover', function(e) { if (draggedFileKey) e.preventDefault(); });
-                row.addEventListener('drop', function(e) {
+                dragArea.title = '按住并上下拖动调整顺序';
+                dragArea.setAttribute('aria-label', '按住并上下拖动“' + key + '”调整顺序');
+                dragArea.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;height:100%;padding:3px 8px;border-radius:6px;color:var(--text-muted);cursor:grab;user-select:none;touch-action:none;transition:color .16s ease,background-color .16s ease;';
+                dragArea.innerHTML = '<span aria-hidden="true" style="font-size:17px;line-height:1;color:currentColor;pointer-events:none;">≡</span><span style="font-size:11px;white-space:nowrap;pointer-events:none;">按住拖动</span>';
+                dragArea.addEventListener('pointerdown', function(e) {
+                    if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    if (!draggedFileKey || draggedFileKey === key) return;
-                    const nextOrder = window.getRefDisplayOrder(bookName, activeRefType, orderedFiles);
-                    const fromIndex = nextOrder.indexOf(draggedFileKey);
-                    const toIndex = nextOrder.indexOf(key);
-                    if (fromIndex < 0 || toIndex < 0) return;
-                    nextOrder.splice(fromIndex, 1);
-                    nextOrder.splice(toIndex, 0, draggedFileKey);
-                    window.updateRefDisplayOrder(bookName, activeRefType, nextOrder, settingsOpenKey);
+                    beginRefDrag(e, key, row, dragArea);
                 });
                 row.appendChild(label);
                 row.appendChild(divider);
@@ -623,6 +816,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             closeSettings.style.cssText = 'height:30px;padding:0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;';
             closeSettings.addEventListener('click', function(e) {
                 e.stopPropagation();
+                cancelRefDrag();
                 window.writeRefUiPreference?.(settingsOpenKey, 0);
                 settingsPanel.style.display = 'none';
                 settingsDragged = false;
@@ -631,7 +825,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             settingsPanel.appendChild(settingsHeader);
             settingsPanel.appendChild(settingsList);
             settingsPanel.appendChild(settingsFooter);
-            refsContainer.appendChild(settingsPanel);
+            contentRegion.appendChild(settingsPanel);
             settingsButton.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const opening = settingsPanel.style.display === 'none';
@@ -651,7 +845,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
             let expanded = Number(window.readRefUiPreference?.(moreKey)) === 1;
             const showFiles = expanded ? displayFiles : displayFiles.slice(0, MAX_SHOW);
             const renderRefEntry = (rf, idx) => window.renderRefEntry({ rf, idx, bookName, book });
-            showFiles.forEach((rf, i) => { refsContainer.appendChild(renderRefEntry(rf, i)); });
+            showFiles.forEach((rf, i) => { contentRegion.appendChild(renderRefEntry(rf, i)); });
             if (displayFiles.length > MAX_SHOW) {
                 const moreDiv = document.createElement('div');
                 moreDiv.className = 'chapter-item';
@@ -662,7 +856,7 @@ const savedChapter=localStorage.getItem(AccountDataScope.key('novel_current_chap
                     window.writeRefUiPreference?.(moreKey, expanded ? 1 : 0);
                     refreshTree();
                 });
-                refsContainer.appendChild(moreDiv);
+                contentRegion.appendChild(moreDiv);
             }
             return;
         }

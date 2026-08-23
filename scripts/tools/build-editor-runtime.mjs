@@ -22,7 +22,10 @@ await build({
   platform: 'browser',
   target: ['chrome90', 'edge90', 'firefox90', 'safari15'],
   minify: true,
-  legalComments: 'none',
+  legalComments: 'eof',
+  banner: {
+    js: '/*! Third-party license notices: see THIRD_PARTY_NOTICES.md in the source distribution. */'
+  },
   sourcemap: false,
   charset: 'utf8',
   entryNames: '[name]',

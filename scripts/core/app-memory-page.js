@@ -113,6 +113,9 @@
             return saved !== false;
         }
         async function _saveMemBooks(mb, options) {
+            if (window.ZHIYU_OPERATION_TUTORIAL?.isActive?.()
+                || window.ZHIYU_MEMORY_PREVIEW_CONTEXT?.active
+                || document.body?.classList.contains('zhiyu-outline-tutorial-active')) return false;
             const uid = AccountDataScope.getActiveUid();
             const ownerUid = mb && typeof mb === 'object' ? _memBooksOwners.get(mb) : '';
             if (ownerUid && ownerUid !== uid) return false;

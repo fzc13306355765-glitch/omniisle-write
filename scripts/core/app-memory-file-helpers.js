@@ -96,6 +96,23 @@
     }
 
     function createMemoryReferenceSelection(bookName, folderName, fileIndex) {
+        const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active && preview.books) {
+            const previewFiles = preview.books?.[bookName]?.[folderName];
+            const previewIndex = Number(fileIndex);
+            const previewFile = Array.isArray(previewFiles) && Number.isInteger(previewIndex) && previewIndex >= 0
+                ? previewFiles[previewIndex]
+                : null;
+            if (!previewFile) return null;
+            return {
+                name: previewFile.name,
+                memBook: bookName,
+                ownerUid: String(window.AccountDataScope?.getActiveUid?.() || window.ZHIYU_APP_STATE?.auth?.uid || window.AppState?.auth?.uid || 'guest'),
+                memFolder: folderName,
+                memIdx: previewIndex,
+                memFingerprint: 'tutorial-preview:' + folderName + ':' + previewIndex
+            };
+        }
         const memBooks = getMemBooksSafe();
         const files = memBooks?.[bookName]?.[folderName];
         const idx = Number(fileIndex);
@@ -119,6 +136,20 @@
     }
 
     function getRefFileContent(bookName, fileName, folderName, fileIndex, expectedFingerprint) {
+        const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active && preview.books) {
+            const files = preview.books?.[bookName]?.[folderName];
+            const idx = Number(fileIndex);
+            const file = Array.isArray(files) && Number.isInteger(idx) && idx >= 0 ? files[idx] : null;
+            if (!file || String(file.name || '') !== String(fileName || '')) return null;
+            return {
+                name: String(file.name || '').replace(/\.md$/i, ''),
+                content: file.content || '',
+                folder: folderName,
+                idx,
+                fingerprint: String(expectedFingerprint || ('tutorial-preview:' + folderName + ':' + idx))
+            };
+        }
         const memBooks = getMemBooksSafe();
         if (!memBooks[bookName]) return null;
         const requestedName = String(fileName || '');

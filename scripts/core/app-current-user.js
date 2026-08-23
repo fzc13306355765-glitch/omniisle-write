@@ -6,6 +6,7 @@
     const AppState = window.ZHIYU_APP_STATE || {};
 
         function getCurrentUserId(){
+            if (window.document?.body?.classList.contains('zhiyu-outline-tutorial-active')) return 'tutorial_demo_user';
             if (AppState.auth.isLoggedIn && AppState.auth.uid) return AppState.auth.uid;
             let uid=localStorage.getItem('novel_user_id');
             if(!uid){ uid='user_'+Date.now()+'_'+Math.random().toString(36).substr(2,9); localStorage.setItem('novel_user_id',uid); }

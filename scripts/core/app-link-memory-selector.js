@@ -36,6 +36,8 @@
     }
 
     function getMemoryBooks() {
+        const preview = window.ZHIYU_MEMORY_PREVIEW_CONTEXT;
+        if (preview?.active && preview.books) return preview.books;
         if (typeof window.getMemBooks === 'function') return window.getMemBooks();
         return {};
     }
@@ -423,13 +425,15 @@
         updateLinkedMemoryCount();
     }
 
-    function openAdvancedOutlineLinkSelector() {
+    function openAdvancedOutlineLinkSelector(options) {
         const state = getAppState();
         window._linkMemoryContext = 'outlineAdvanced';
         const bookName = getMemoryLinkBookName('outlineAdvanced');
         if (!bookName) { getToast().warn('请先选择书籍'); return; }
         if (!Array.isArray(state.outline.outlineAdvancedLinkedFiles)) state.outline.outlineAdvancedLinkedFiles = [];
-        initializeAdvancedOutlineLinkDefaults(getMemoryBooks()[bookName], bookName, state.outline);
+        if (options?.skipDefaults !== true) {
+            initializeAdvancedOutlineLinkDefaults(getMemoryBooks()[bookName], bookName, state.outline);
+        }
         getModal().open('memoryLinkModal');
         refreshMemoryLinkTree();
         updateLinkedMemoryCount();
@@ -901,7 +905,12 @@
             });
         }));
         const associatedViewId = '__memory_link_associated__';
+        const tutorialAllViewId = '__memory_link_tutorial_all__';
         const folderViews = [];
+        const tutorialAllFiles = window.ZHIYU_MEMORY_LINK_TUTORIAL_CONTEXT?.active === true;
+        if (tutorialAllFiles) {
+            folderViews.push({ id: tutorialAllViewId, label: '全部可选文件', folders: physicalFolderNames, tutorialAll: true });
+        }
         if (associatedPhysicalFolders.size) {
             folderViews.push({
                 id: associatedViewId,
@@ -918,7 +927,7 @@
 
         let selectedFolder = folderViews[0].id;
         const focusTarget = window._memoryLinkAutoFocusTarget;
-        if (focusTarget && physicalFolderNames.includes(focusTarget.memFolder)) {
+        if (!tutorialAllFiles && focusTarget && physicalFolderNames.includes(focusTarget.memFolder)) {
             selectedFolder = associatedPhysicalFolders.has(focusTarget.memFolder)
                 ? associatedViewId
                 : focusTarget.memFolder;
@@ -926,7 +935,7 @@
         const selectedChapterFile = (getActiveMemoryLinkFiles() || []).find(function(f) {
             return f.memFolder && physicalFolderNames.includes(f.memFolder) && isFineOutlineOrDecomposeLink(f);
         });
-        if (!focusTarget && selectedChapterFile) {
+        if (!tutorialAllFiles && !focusTarget && selectedChapterFile) {
             selectedFolder = associatedPhysicalFolders.has(selectedChapterFile.memFolder)
                 ? associatedViewId
                 : selectedChapterFile.memFolder;
@@ -954,7 +963,13 @@
                 renderSelectedMemoryLinks(activeFiles, book, bookName, associatedPhysicalFolders),
                 'flex:0 0 104px;'
             );
-            if (isDefaultFolder) {
+            if (folderView.tutorialAll) {
+                html += renderMemoryLinkSection(
+                    '全部可选文件',
+                    renderMemoryLinkCards(fileEntries, activeFiles, bookName),
+                    'flex:1 1 auto;'
+                );
+            } else if (isDefaultFolder) {
                 const used = new Set();
                 const associatedEntries = pickOrderedLinkEntries(fileEntries, ASSOCIATED_LINK_FILE_DEFS, used, bookName);
                 const outlineEntries = pickOrderedLinkEntries(fileEntries, OUTLINE_LINK_FILE_DEFS, used, bookName);
@@ -1170,6 +1185,7 @@
             window.refreshAllOGFileStacks?.();
         }
         getModal().close('memoryLinkModal');
+        delete window.ZHIYU_MEMORY_LINK_TUTORIAL_CONTEXT;
         if (['outlineFunction', 'outlineAdvanced', 'fineOutline', 'og'].includes(context)) {
             window._linkMemoryContext = null;
         }

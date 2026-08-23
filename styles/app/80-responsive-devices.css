@@ -155,29 +155,6 @@ canvas {
     .main-content {
         height: 100dvh;
     }
-
-    .single-auth-screen {
-        min-height: 100dvh;
-    }
-}
-
-@supports (height: 100dvh) {
-    @media (min-width: 901px) {
-        .single-auth-left,
-        .single-auth-right {
-            min-height: 100dvh;
-        }
-    }
-
-    @media (min-width: 601px) and (max-width: 900px) {
-        .single-auth-left {
-            min-height: 34dvh;
-        }
-
-        .single-auth-right {
-            min-height: 66dvh;
-        }
-    }
 }
 
 @media (max-width: 1180px), (any-pointer: coarse) and (max-width: 1440px) {
@@ -376,14 +353,6 @@ canvas {
 
     .workbench-head {
         flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 900px) {
-    .single-auth-screen.active {
-        align-content: start;
-        overflow-x: hidden;
-        overflow-y: auto;
     }
 }
 
@@ -765,54 +734,6 @@ canvas {
 }
 
 @media (max-width: 600px) {
-    .single-auth-screen.active {
-        min-height: 100vh;
-        min-height: 100dvh;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-    .single-auth-left {
-        min-height: 150px;
-        padding:
-            max(24px, env(safe-area-inset-top))
-            max(18px, env(safe-area-inset-right))
-            24px
-            max(18px, env(safe-area-inset-left));
-    }
-
-    .single-auth-brand h1 {
-        margin-bottom: 4px;
-        font-size: 30px;
-    }
-
-    .single-auth-brand .single-auth-en {
-        margin-bottom: 0;
-    }
-
-    .single-auth-points {
-        display: none;
-    }
-
-    .single-auth-right {
-        min-height: calc(100dvh - 150px);
-        padding:
-            22px
-            max(16px, env(safe-area-inset-right))
-            max(24px, env(safe-area-inset-bottom))
-            max(16px, env(safe-area-inset-left));
-        align-items: flex-start;
-    }
-
-    .single-auth-logo-wrap img {
-        width: 112px;
-        height: 112px;
-    }
-
-    .single-auth-account-actions {
-        grid-template-columns: 1fr;
-    }
-
     .modal-overlay > .modal-box,
     .modal-overlay > [role="dialog"] {
         width: calc(100vw - 16px) !important;
@@ -964,6 +885,10 @@ canvas {
         transform-origin: right center;
     }
 
+    html[data-zhiyu-device="tablet"] #page-overview .overview-billing-trigger .overview-stat-head {
+        min-height: 0;
+    }
+
     html[data-zhiyu-device="tablet"] #page-overview .overview-list-panel {
         grid-column: 1;
         grid-row: 2;
@@ -1020,8 +945,7 @@ canvas {
         #page-template,
         #page-memory,
         #page-publish,
-        #page-setting,
-        .single-auth-screen
+        #page-setting
     ) :is(input, select, textarea):not([data-responsive-font-opt-out]) {
         font-size: 16px !important;
     }
@@ -1029,7 +953,8 @@ canvas {
 
 @media (hover: none) {
     #page-overview .overview-action-tile:hover,
-    #page-overview .book-card:hover {
+    #page-overview .book-card:hover,
+    #page-overview .overview-billing-trigger:hover {
         transform: none;
     }
 }

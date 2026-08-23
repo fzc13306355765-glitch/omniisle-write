@@ -1,7 +1,13 @@
-// 全文分析长文本无损切块器。
-// 算法借鉴 Google LangExtract 的 chunking.py 与 core/tokenizer.py：
-// https://github.com/google/langextract/tree/b5fe0baf807ac35ec95b968a71e4d03f198a1b60
-// 原项目使用 Apache License 2.0；本文件改写为浏览器原生 JavaScript，并增加 UTF-8 字节上限。
+/*!
+ * 全文分析长文本无损切块器。
+ * Copyright 2025 Google LLC.
+ * 算法改写自 Google LangExtract 的 chunking.py 与 core/tokenizer.py：
+ * https://github.com/google/langextract/tree/b5fe0baf807ac35ec95b968a71e4d03f198a1b60
+ * 本文件已改写为浏览器原生 JavaScript，并增加 UTF-8 字节上限等社区版调整。
+ * SPDX-License-Identifier: Apache-2.0
+ * 完整许可证与修改说明见 docs/licenses/Apache-2.0.txt 和
+ * docs/full-analysis-open-source-notices.md。
+ */
 (function(window) {
     'use strict';
 

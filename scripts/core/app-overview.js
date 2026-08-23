@@ -85,7 +85,8 @@
                         const escapedName=Utils.escapeHtml(name);
                         const card=document.createElement('div');
                         card.className='book-card';
-                        let coverHTML = (book.cover && /^data:image\//.test(book.cover))
+                        const tutorialCover = window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active && /^\.\/assets\/tutorials\/[a-z0-9._-]+\.png$/i.test(book.cover || '');
+                        let coverHTML = (book.cover && (/^data:image\//.test(book.cover) || tutorialCover))
                             ? `<button type="button" data-action="upload-cover" data-book="${escapedName}" style="width:100%;height:100%;border:0;padding:0;background:transparent;cursor:pointer;" title="点击更换封面"><img src="${Utils.escapeHtml(book.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"></button>`
                             : `<button type="button" data-action="upload-cover" data-book="${escapedName}" style="width:100%;height:100%;border:0;display:flex;align-items:center;justify-content:center;background:#e2e5ea;border-radius:10px;cursor:pointer;font-size:32px;color:#aaa;" title="点击上传封面">+</button>`;
                         card.innerHTML=`

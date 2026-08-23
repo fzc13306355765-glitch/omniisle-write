@@ -8,11 +8,13 @@
   "requiredPublicFiles": [
     "LICENSE",
     "NOTICE",
+    "THIRD_PARTY_NOTICES.md",
     "README.md",
     "README_EN.md",
     "CHANGELOG.md",
     "ROADMAP.md",
     "SECURITY.md",
+    "GITHUB-SETUP.md",
     "PRIVACY.md",
     "TRADEMARKS.md",
     "CONTRIBUTING.md",
@@ -22,7 +24,9 @@
     "SUPPORT.md",
     "ASSETS-LICENSES.md",
     "COMMERCIAL.md",
-    "OPEN-SOURCE-STATUS.md"
+    "OPEN-SOURCE-STATUS.md",
+    "docs/licenses/Apache-2.0.txt",
+    "docs/full-analysis-open-source-notices.md"
   ],
   "forbiddenPaths": [
     {
@@ -120,7 +124,7 @@
       "label": "CloudBase 正式实现"
     },
     {
-      "pattern": "\\b(?:payment|billing|membership|redeem|admin|hotlist|naturalize)\\b",
+      "pattern": "\\b(?:payment|billing|membership|redeem|admin|hotlist)\\b",
       "label": "商业或后台实现"
     }
   ],

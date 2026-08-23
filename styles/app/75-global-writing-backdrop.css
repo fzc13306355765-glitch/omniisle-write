@@ -1,7 +1,7 @@
 /* 全站写作背景：只负责页面底层氛围，不改变各业务模块的阅读层。 */
 :root {
     --writing-backdrop-color: #ffffff;
-    --writing-backdrop-image: url('../../assets/wallpapers/shanshui-sunrise-optimized.jpg');
+    --writing-backdrop-image: url('../../assets/wallpapers/shanshui-sunrise.png');
     --wallpaper-overlay-opacity: .5;
     --wallpaper-overlay-color: #ffffff;
     --writing-backdrop-panel: rgba(255, 255, 255, 0.48);
@@ -121,7 +121,8 @@ html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .wo
 
 html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-action-icon,
 html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-stat-icon,
-html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-group-qr-box {
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .overview-group-qr-box,
+html:not([data-theme="dark"]) body:has(#page-overview.active) #page-overview .billing-ledger-empty {
     background: var(--overview-surface-strong) !important;
 }
 
@@ -200,11 +201,6 @@ body:has(#page-overview.active) #page-overview .book-card,
 body:has(#page-overview.active) #page-overview .workbench-tabs,
 body:has(#page-overview.active) #page-overview .workbench-search {
     backdrop-filter: none;
-}
-
-/* 登录页保留已有的专属引导图；其余业务页面使用统一写作背景。 */
-.single-auth-screen {
-    background-color: rgba(246, 247, 248, 0.9);
 }
 
 /* 十套客户端主题只调整配色变量；壁纸和透明度由独立底层负责。 */
@@ -394,6 +390,7 @@ html[data-theme="dark"] #page-overview .overview-announcement-bar,
 html[data-theme="dark"] #page-overview .overview-recharge-entry,
 html[data-theme="dark"] #page-overview .workbench-tabs,
 html[data-theme="dark"] #page-overview .overview-stat-item,
+html[data-theme="dark"] #page-overview .overview-billing-trigger,
 html[data-theme="dark"] #page-overview .overview-list-panel,
 html[data-theme="dark"] #page-overview .overview-bottom-card,
 html[data-theme="dark"] #page-overview .book-card,
@@ -424,7 +421,8 @@ html[data-theme="dark"] #page-overview .overview-sixday-title {
     color: #d8dae2;
 }
 
-html[data-theme="dark"] #page-overview .overview-stat-item strong {
+html[data-theme="dark"] #page-overview .overview-stat-item strong,
+html[data-theme="dark"] #page-overview .overview-billing-trigger {
     color: #f5f7fb;
 }
 

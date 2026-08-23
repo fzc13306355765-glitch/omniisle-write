@@ -35,6 +35,9 @@
         }
 
         window.addEventListener('beforeunload', function() {
+            if (window.ZHIYU_OPERATION_TUTORIAL?.isActive?.() === true
+                || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
+                || document.body?.classList.contains('zhiyu-outline-tutorial-active')) return;
             const activeUid = String(window.AccountDataScope?.getActiveUid?.() || 'guest');
             const lease = window.ZHIYU_ACCOUNT_WRITE_LEASE;
             if (lease && lease.assertCanWrite(activeUid, { silent: true }) !== true) return;

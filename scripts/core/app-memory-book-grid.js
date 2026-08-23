@@ -13,9 +13,13 @@
     function refreshMemGrid() {
         const grid = document.getElementById('memBookGrid');
         if (!grid) return;
-        const memBooks = typeof window.getMemBooks === 'function' ? window.getMemBooks() : {};
+        const previewBooks = window.ZHIYU_MEMORY_PREVIEW_CONTEXT?.active
+            ? window.ZHIYU_MEMORY_PREVIEW_CONTEXT.books
+            : null;
+        const memBooks = previewBooks || (typeof window.getMemBooks === 'function' ? window.getMemBooks() : {});
         const books = gB();
         const visibleBookNames = Object.keys(memBooks).filter(function(bookName) {
+            if (previewBooks) return true;
             return !!books[bookName];
         });
         grid.innerHTML = '';
@@ -28,6 +32,7 @@
             const card = document.createElement('div');
             const stats = getMemBookGroupStats(book);
             card.className = 'book-card memory-book-card';
+            card.dataset.book = bookName;
             card.style.position = 'relative';
             card.innerHTML = `<input type="checkbox" class="mem-book-checkbox" data-book="${Utils.escapeHtml(bookName)}" style="position:absolute;top:10px;right:10px;width:18px;height:18px;cursor:pointer;display:none;z-index:5;" onclick="event.stopPropagation();" onchange="updateMemMainBatchUI()">
                 <div class="memory-book-top">

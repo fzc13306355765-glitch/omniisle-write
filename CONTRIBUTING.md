@@ -5,7 +5,7 @@
 1. 先用 Issue 说明要解决的问题和影响范围。
 2. 每个提交只处理一个清楚的问题，不混入正式服务、账号、云、计费或管理代码。
 3. 使用虚构测试内容；不得提交 API Key、真实小说、账号数据或内部地址。
-4. 运行 `npm test` 和 `npm run audit:public`。
+4. 运行 `npm test`、`npm run licenses:check`、`npm run secrets:check` 和 `npm run audit:public`。
 5. 阅读并接受 [贡献者许可协议](CLA.md)，在合并请求中完成确认。
 6. 在合并请求中说明改动、验证结果、数据兼容影响和回退方法。
 

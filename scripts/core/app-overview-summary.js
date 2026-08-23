@@ -237,7 +237,7 @@
         const progressEl = document.querySelector('#overviewAnnouncementBar .overview-announcement-progress');
         if (!textEl) return;
         if (window.ZHIYU_COMMUNITY_MODE === true) {
-            const text = '社区版：作品保存在当前浏览器，请定期导出备份';
+            const text = '';
             textEl.textContent = text;
             textEl.title = text;
             textEl.style.animation = 'none';

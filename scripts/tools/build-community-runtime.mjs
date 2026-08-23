@@ -11,7 +11,7 @@ const entryPath = path.join(root, 'index.html');
 const scriptOutputPath = path.join(root, 'scripts', 'dist', 'community-runtime.js');
 const styleOutputPath = path.join(root, 'styles', 'community-runtime.css');
 const realRoot = fs.realpathSync(root);
-const forbiddenCommercialStylePattern = /(?:billing|payment|membership|redeem|recharge|naturalize|member-feature|hotlist)/i;
+const forbiddenCommercialStylePattern = /(?:billing|payment|membership|redeem|recharge|member-feature|hotlist)/i;
 const approvedCommunityAnalysisSources = new Set([
     './scripts/core/app-full-text-analysis-core.js',
     './scripts/core/app-full-text-analysis-community-engine.js',
@@ -64,10 +64,10 @@ async function buildJavascript(sources) {
         loader: 'js',
         target: 'es2019',
         minify: true,
-        legalComments: 'none',
+        legalComments: 'eof',
         charset: 'utf8'
     });
-    return `/* 知屿写作社区版运行包；由 scripts/tools/build-community-runtime.mjs 生成。 */\n${transformed.code}`
+    return `/*! 知屿写作社区版运行包；许可证与第三方归属见 LICENSE、NOTICE 和 THIRD_PARTY_NOTICES.md。 */\n${transformed.code}`
         .replace(/[ \t]+$/gm, '')
         .replace(/\n+$/, '\n');
 }
@@ -125,6 +125,40 @@ function findCssBlockEnd(source, openIndex) {
     throw new Error('社区样式包含未闭合代码块。');
 }
 
+function splitCssSelectorList(source) {
+    const selectors = [];
+    let start = 0;
+    let quote = '';
+    let parentheses = 0;
+    let brackets = 0;
+    for (let index = 0; index < source.length; index += 1) {
+        const character = source[index];
+        const nextCharacter = source[index + 1];
+        if (!quote && character === '/' && nextCharacter === '*') {
+            const commentEnd = source.indexOf('*/', index + 2);
+            if (commentEnd < 0) throw new Error('社区样式包含未闭合注释。');
+            index = commentEnd + 1;
+            continue;
+        }
+        if (quote) {
+            if (character === '\\') index += 1;
+            else if (character === quote) quote = '';
+            continue;
+        }
+        if (character === '"' || character === "'") quote = character;
+        else if (character === '(') parentheses += 1;
+        else if (character === ')' && parentheses > 0) parentheses -= 1;
+        else if (character === '[') brackets += 1;
+        else if (character === ']' && brackets > 0) brackets -= 1;
+        else if (character === ',' && parentheses === 0 && brackets === 0) {
+            selectors.push(source.slice(start, index).trim());
+            start = index + 1;
+        }
+    }
+    selectors.push(source.slice(start).trim());
+    return selectors.filter(Boolean);
+}
+
 function sanitizeCommunityCss(source) {
     let output = '';
     let cursor = 0;
@@ -143,13 +177,18 @@ function sanitizeCommunityCss(source) {
         const prelude = source.slice(cursor, control.index);
         const significantPrelude = prelude.replace(/\/\*[\s\S]*?\*\//g, '').trim();
         const blockBody = source.slice(control.index + 1, blockEnd);
-        if (forbiddenCommercialStylePattern.test(significantPrelude)) {
-            // 商业功能样式不进入社区产物；原共享源码保持不变。
-        } else if (/^@(?:media|supports|container|layer|document)\b/i.test(significantPrelude)) {
+        if (/^@(?:media|supports|container|layer|document)\b/i.test(significantPrelude)) {
             const sanitizedBody = sanitizeCommunityCss(blockBody);
             if (sanitizedBody.trim()) output += `${prelude}{${sanitizedBody}}`;
         } else {
-            output += source.slice(cursor, blockEnd + 1);
+            const firstContentIndex = prelude.search(/\S/);
+            const leadingTrivia = firstContentIndex < 0 ? prelude : prelude.slice(0, firstContentIndex);
+            const selectorSource = prelude.slice(leadingTrivia.length);
+            const safeSelectors = splitCssSelectorList(selectorSource)
+                .filter(selector => !forbiddenCommercialStylePattern.test(selector));
+            if (safeSelectors.length) {
+                output += `${leadingTrivia}${safeSelectors.join(',\n')}{${blockBody}}`;
+            }
         }
         cursor = blockEnd + 1;
     }
@@ -233,7 +272,7 @@ if (!Array.isArray(manifest.styles) || !manifest.styles.length) {
     throw new Error('社区运行包清单缺少样式。');
 }
 
-const forbiddenSourcePattern = /(?:cloud-backup|cloud-sync|billing|payment|membership|redeem|recharge|official-notices|login-notice|hotlist|full-text-analysis|full-analysis-continuation|naturalize|admin)/i;
+const forbiddenSourcePattern = /(?:cloud-backup|cloud-sync|billing|payment|membership|redeem|recharge|official-notices|login-notice|hotlist|full-text-analysis|full-analysis-continuation|admin)/i;
 const forbiddenSources = [...manifest.classicScripts, ...manifest.styles]
     .filter(source => forbiddenSourcePattern.test(source)
         && !approvedCommunityAnalysisSources.has(String(source).split('?')[0]));

@@ -1,1 +1,2 @@
-import{a,b,c,d,e}from"./chunks/chunk-URWLEF5Y.js";import"./chunks/chunk-EIZKGZNY.js";import"./chunks/chunk-JEFM7ZPC.js";import"./chunks/chunk-KHAYNNSE.js";export{a as Decoration,b as DecorationSet,e as EditorView,d as __endComposition,c as __parseFromClipboard};
+/*! Third-party license notices: see THIRD_PARTY_NOTICES.md in the source distribution. */
+import{a,b,c,d,e}from"./chunks/chunk-PUE64TT2.js";import"./chunks/chunk-PF4S6YZY.js";import"./chunks/chunk-5DQBMYVR.js";import"./chunks/chunk-IXWR5NWT.js";export{a as Decoration,b as DecorationSet,e as EditorView,d as __endComposition,c as __parseFromClipboard};

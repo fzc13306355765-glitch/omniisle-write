@@ -10,7 +10,9 @@
         input.dataset.zhiyuPlotBound = '1';
         input.addEventListener('input', function() {
             clearTimeout(plotSaveTimer);
+            if (document.body?.classList.contains('zhiyu-outline-tutorial-active')) return;
             plotSaveTimer = setTimeout(() => {
+                if (document.body?.classList.contains('zhiyu-outline-tutorial-active')) return;
                 const { book, vi, ci } = AppState.chapter || {};
                 if (book && vi >= 0 && ci >= 0) {
                     const plotKey = window.AccountDataScope.key(`plot_${book}_${vi}_${ci}`);

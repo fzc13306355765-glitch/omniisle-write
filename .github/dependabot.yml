@@ -8,6 +8,10 @@ updates:
       time: "09:00"
       timezone: Asia/Shanghai
     open-pull-requests-limit: 5
+    groups:
+      tiptap:
+        patterns:
+          - "@tiptap/*"
 
   - package-ecosystem: github-actions
     directory: /
@@ -17,3 +21,7 @@ updates:
       time: "09:30"
       timezone: Asia/Shanghai
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"

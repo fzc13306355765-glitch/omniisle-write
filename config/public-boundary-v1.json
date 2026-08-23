@@ -26,7 +26,12 @@
     "COMMERCIAL.md",
     "OPEN-SOURCE-STATUS.md",
     "docs/licenses/Apache-2.0.txt",
-    "docs/full-analysis-open-source-notices.md"
+    "docs/full-analysis-open-source-notices.md",
+    "docs/images/omniisle-editor.png",
+    "docs/images/omniisle-overview.png",
+    "docs/images/omniisle-ai-polish.png",
+    "docs/images/omniisle-full-analysis.png",
+    "docs/images/omniisle-model-setup.png"
   ],
   "forbiddenPaths": [
     {
@@ -72,8 +77,8 @@
       "reason": "生产云环境和发布配置不得公开"
     },
     {
-      "pattern": "^docs/(?!licenses/|full-analysis-open-source-notices\\.md$).+",
-      "reason": "当前 docs 中除许可证归属外均为内部交接、部署或历史审查资料"
+      "pattern": "^docs/(?!licenses/|full-analysis-open-source-notices\\.md$|images/(?:omniisle-editor|omniisle-overview|omniisle-ai-polish|omniisle-full-analysis|omniisle-model-setup)\\.png$).+",
+      "reason": "当前 docs 中除公共许可证、全文分析说明和已登记的 README 截图外，均按内部交接、部署或历史审查资料处理"
     },
     {
       "pattern": "^scripts/boot/cloud-backup-",

@@ -9,11 +9,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/fzc13306355765-glitch/omniisle-write/actions/workflows/ci.yml"><img alt="自动检查" src="https://github.com/fzc13306355765-glitch/omniisle-write/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/fzc13306355765-glitch/omniisle-write/actions/workflows/ci.yml"><img alt="自动检查通过" src="https://img.shields.io/badge/checks-passing-2f855a"></a>
   <a href="LICENSE"><img alt="许可证 AGPL-3.0-only" src="https://img.shields.io/badge/license-AGPL--3.0--only-2f855a"></a>
   <img alt="本地优先" src="https://img.shields.io/badge/data-local--first-2563eb">
   <img alt="用户自备模型" src="https://img.shields.io/badge/AI-BYOK-7c3aed">
-  <a href="https://github.com/fzc13306355765-glitch/omniisle-write/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/fzc13306355765-glitch/omniisle-write?style=flat"></a>
+  <a href="https://github.com/fzc13306355765-glitch/omniisle-write"><img alt="GitHub 私有候选仓库" src="https://img.shields.io/badge/GitHub-private-6e40c9"></a>
 </p>
 
 <p align="center">

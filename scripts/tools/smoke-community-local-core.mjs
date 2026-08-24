@@ -392,8 +392,10 @@ assert.equal(statsWindow.getWriteStats().todayWords, 2, '正文成功但草稿�
 
 const polishActions = read('scripts/core/app-polish-actions.js');
 const historyVersions = read('scripts/core/app-history-versions.js');
+const saveActions = read('scripts/core/app-save-actions.js');
 assert.match(polishActions, /prepareChapterContentForLocalSave[\s\S]*persistPreparedChapter/, '确定使用入口没有走统一正文保存链路');
 assert.match(historyVersions, /restoreSelectedSnapshot[\s\S]*prepareChapterContentForLocalSave[\s\S]*persistPreparedChapter/, '历史恢复入口没有走统一正文保存链路');
+assert.match(saveActions, /Confirm:\s*window\.ZHIYU_CONFIRM\s*\|\|\s*window\.Confirm/, '保存章节入口没有使用社区版确认弹窗');
 
 const modelUsageStorage = new Map();
 const adapterDocument = createFakeDocument();

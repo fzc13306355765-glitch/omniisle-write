@@ -6,7 +6,9 @@
             AppState: window.ZHIYU_APP_STATE || window.AppState,
             Utils: window.ZHIYU_UTILS || window.Utils,
             Toast: window.ZHIYU_TOAST || window.Toast,
-            Confirm: window.Confirm,
+            Confirm: window.ZHIYU_CONFIRM || window.Confirm || {
+                show: function() { return Promise.resolve(false); }
+            },
             InfoCardRenderer: window.InfoCardRenderer,
             gB: window.gB,
             sB: window.sB,

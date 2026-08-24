@@ -101,7 +101,34 @@
         sync();
     }
 
+    function parseDateValue(value) {
+        if (value instanceof Date) {
+            return Number.isFinite(value.getTime()) ? new Date(value.getTime()) : null;
+        }
+        if (typeof value === 'number') {
+            if (!Number.isFinite(value)) return null;
+            const milliseconds = Math.abs(value) < 100000000000 ? value * 1000 : value;
+            const date = new Date(milliseconds);
+            return Number.isFinite(date.getTime()) ? date : null;
+        }
+        const raw = String(value ?? '').trim();
+        if (!raw) return null;
+        const dateOnly = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (dateOnly) {
+            const date = new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+            return Number.isFinite(date.getTime()) ? date : null;
+        }
+        if (/^\d{10}$/.test(raw) || /^\d{13}$/.test(raw)) {
+            const numeric = Number(raw);
+            const date = new Date(raw.length === 10 ? numeric * 1000 : numeric);
+            return Number.isFinite(date.getTime()) ? date : null;
+        }
+        const date = new Date(raw);
+        return Number.isFinite(date.getTime()) ? date : null;
+    }
+
     window.ZHIYU_UTILS = {
+            parseDateValue,
             escapeHtml(s) { const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}; return String(s).replace(/[&<>"']/g,c=>map[c]); },
             // 安全日志写入：所有 stepLog/logEl 必须通过此函数追加，禁止直接 innerHTML+=
             appendLog(container, text, type) {
@@ -163,7 +190,21 @@
                 Array.from(source.childNodes || []).forEach(node => appendSafe(node, output, 0));
                 return output.innerHTML;
             },
-            formatDate(d) { if (!d) return '-'; try { const dt = new Date(d); if (isNaN(dt.getTime())) return '-'; return dt.toISOString().slice(0,10); } catch(e) { return '-'; } },
+            formatDate(value) {
+                if (!value) return '-';
+                try {
+                    const raw = typeof value === 'string' ? value.trim() : '';
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+                    const date = parseDateValue(value);
+                    if (!date) return '-';
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                } catch(e) {
+                    return '-';
+                }
+            },
             generateId() { return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9); },
             debounce(func, wait) { let t; return function(...args){ clearTimeout(t); t=setTimeout(()=>func.apply(this,args),wait); }; },
             // 清理 API 响应中混入的 JSON 元数据 / thinking 片段 / 转义字符

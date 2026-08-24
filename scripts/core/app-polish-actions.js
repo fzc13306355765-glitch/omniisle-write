@@ -237,12 +237,20 @@
                         clearAIDetectHighlights(true);
                         const content = document.getElementById('resultBox').innerHTML;
                         if (!content || !content.trim()) throw new Error('正文为空，无法确定使用');
-                        ch.content = content;
-                        window.ZhiyuEditorAdapter?.applyContentMetadata?.(ch, content, document.getElementById('resultBox'));
-                        sB(books);
+                        const prepared = window.prepareChapterContentForLocalSave?.(
+                            AppState.chapter.book,
+                            AppState.chapter.vi,
+                            AppState.chapter.ci,
+                            content,
+                            { books }
+                        );
+                        if (!prepared) throw new Error('当前正文无法保存');
+                        updateWordCount(books[AppState.chapter.book]);
+                        const persisted = typeof window.persistPreparedChapter === 'function'
+                            ? await window.persistPreparedChapter(prepared)
+                            : { ok: await Promise.resolve(sB(books)) !== false, draftCleared: false };
+                        if (!persisted.ok) throw new Error('正文保存失败，当前内容已保留为草稿');
                         touchBook(AppState.chapter.book);
-                        updateWordCount(books[AppState.chapter.book], AppState.chapter.book);
-                        clearDraft(AppState.chapter.book, AppState.chapter.vi, AppState.chapter.ci);
                         if (typeof Utils.beginExecutionLogWait === 'function') {
                             memoryWaitLogToken = Utils.beginExecutionLogWait('✅ 本章正文已保存，开始AI分析记忆文件...', 'progress');
                         }

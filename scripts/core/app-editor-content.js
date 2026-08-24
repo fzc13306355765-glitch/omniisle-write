@@ -1,6 +1,25 @@
 (function(window) {
     'use strict';
     const chapterPersistTokens = new Map();
+    const chapterPendingStatsBaselines = new Map();
+
+    function prepareChapterStatsBaseline(persistKey, persistToken, previousContent) {
+        const existing = chapterPendingStatsBaselines.get(persistKey);
+        const baseline = existing || {
+            content: String(previousContent || ''),
+            latestToken: persistToken
+        };
+        baseline.latestToken = persistToken;
+        chapterPendingStatsBaselines.set(persistKey, baseline);
+        return baseline.content;
+    }
+
+    function clearChapterStatsBaselineIfLatest(prepared) {
+        const baseline = chapterPendingStatsBaselines.get(prepared?.persistKey);
+        if (baseline?.latestToken !== prepared?.persistToken) return false;
+        chapterPendingStatsBaselines.delete(prepared.persistKey);
+        return true;
+    }
 
     function getAppState() {
         return window.ZHIYU_APP_STATE || {};
@@ -28,6 +47,22 @@
         Object.keys(chapter).forEach(function(key) { delete chapter[key]; });
         Object.assign(chapter, cloneChapterState(snapshot));
         return true;
+    }
+
+    function snapshotBookWriteMeta(book) {
+        const hasOwn = function(key) { return Object.prototype.hasOwnProperty.call(book || {}, key); };
+        return {
+            updatedAt: { exists: hasOwn('updatedAt'), value: book?.updatedAt },
+            lastWriteDate: { exists: hasOwn('lastWriteDate'), value: book?.lastWriteDate }
+        };
+    }
+
+    function restoreBookWriteMeta(book, snapshot) {
+        if (!book || !snapshot) return;
+        ['updatedAt', 'lastWriteDate'].forEach(function(key) {
+            if (snapshot[key]?.exists) book[key] = snapshot[key].value;
+            else delete book[key];
+        });
     }
 
     function normalizeBrTags(html) {
@@ -113,6 +148,8 @@
         if (window.wouldBlankOverwriteExisting?.(content, context.chapter.content, explicitClear)) return null;
 
         const previousChapter = cloneChapterState(context.chapter);
+        const previousBookWriteMeta = snapshotBookWriteMeta(context.book);
+        const savedAt = new Date().toISOString();
         context.chapter.content = content;
         window.ZhiyuEditorAdapter?.applyContentMetadata?.(
             context.chapter,
@@ -130,26 +167,42 @@
         } else {
             delete context.chapter.contentClearedAt;
         }
+        context.chapter.updatedAt = savedAt;
+        context.book.updatedAt = savedAt;
+        context.book.lastWriteDate = savedAt;
         const persistKey = String(window.AccountDataScope?.getActiveUid?.() || 'guest')
             + '\n' + String(context.chapter._localId || bookName + ':' + vi + ':' + ci);
         const persistToken = Number(chapterPersistTokens.get(persistKey) || 0) + 1;
         chapterPersistTokens.set(persistKey, persistToken);
+        const statsBaselineContent = prepareChapterStatsBaseline(
+            persistKey,
+            persistToken,
+            previousChapter.content
+        );
         return {
             ...context,
             content,
             explicitClear,
             clearRecord,
             previousChapter,
+            previousBookWriteMeta,
+            savedAt,
             bookName,
             volumeIndex: vi,
             chapterIndex: ci,
             persistKey,
-            persistToken
+            persistToken,
+            statsBaselineContent
         };
     }
 
     function rollbackPreparedChapter(prepared) {
-        return restoreChapterState(prepared?.chapter, prepared?.previousChapter);
+        const restored = restoreChapterState(prepared?.chapter, prepared?.previousChapter);
+        restoreBookWriteMeta(prepared?.book, prepared?.previousBookWriteMeta);
+        if (restored && typeof window.updateWordCount === 'function') {
+            window.updateWordCount(prepared.book);
+        }
+        return restored;
     }
 
     async function persistPreparedChapter(prepared, options) {
@@ -158,6 +211,7 @@
             || window.ZHIYU_BOOK_PREVIEW_CONTEXT?.active === true
             || window.document?.body?.classList.contains('zhiyu-outline-tutorial-active')) {
             rollbackPreparedChapter(prepared);
+            clearChapterStatsBaselineIfLatest(prepared);
             return { ok: false, draftCleared: false, tutorialBlocked: true };
         }
         if (chapterPersistTokens.get(prepared.persistKey) !== prepared.persistToken) {
@@ -186,26 +240,50 @@
                 }
             );
             rollbackPreparedChapter(prepared);
+            clearChapterStatsBaselineIfLatest(prepared);
             window.setDraftPersistenceStatus?.('error', '正文保存失败，当前编辑内容仍保留在草稿中，请重试。');
             return { ok: false, draftCleared: false };
         }
-        if (chapterPersistTokens.get(prepared.persistKey) !== prepared.persistToken) {
-            return { ok: true, draftCleared: false, superseded: true };
+        let statsRecorded = true;
+        try {
+            if (typeof window.recordChapterWritingChange === 'function') {
+                statsRecorded = window.recordChapterWritingChange(
+                    prepared.statsBaselineContent ?? prepared.previousChapter?.content ?? '',
+                    prepared.content || '',
+                    prepared.savedAt,
+                    { chapterKey: prepared.persistKey, sequence: prepared.persistToken }
+                ) !== false;
+            }
+        } catch(error) {
+            statsRecorded = false;
+            window.console?.warn?.('写作字数增量记录失败，正文已正常保存。', error);
         }
+        if (!statsRecorded) {
+            window.ZHIYU_TOAST?.warn?.('正文已保存，但今日字数统计未更新；请检查浏览器存储空间。');
+        }
+        if (chapterPersistTokens.get(prepared.persistKey) !== prepared.persistToken) {
+            return { ok: true, draftCleared: false, superseded: true, statsRecorded };
+        }
+        clearChapterStatsBaselineIfLatest(prepared);
         let draftCleared = true;
         if (options?.keepDraft !== true) {
-            const clearOperation = typeof window.clearDraftDurably === 'function'
-                ? window.clearDraftDurably(
-                    prepared.bookName,
-                    prepared.volumeIndex,
-                    prepared.chapterIndex
-                )
-                : window.clearDraft?.(
-                    prepared.bookName,
-                    prepared.volumeIndex,
-                    prepared.chapterIndex
-                );
-            draftCleared = (await Promise.resolve(clearOperation)) !== false;
+            try {
+                const clearOperation = typeof window.clearDraftDurably === 'function'
+                    ? window.clearDraftDurably(
+                        prepared.bookName,
+                        prepared.volumeIndex,
+                        prepared.chapterIndex
+                    )
+                    : window.clearDraft?.(
+                        prepared.bookName,
+                        prepared.volumeIndex,
+                        prepared.chapterIndex
+                    );
+                draftCleared = (await Promise.resolve(clearOperation)) !== false;
+            } catch(error) {
+                draftCleared = false;
+                window.console?.warn?.('正文已保存，但旧草稿清理失败。', error);
+            }
         }
         if (draftCleared) {
             window.clearDraftPersistenceFailure?.();
@@ -216,7 +294,7 @@
                 '正文已保存；旧草稿暂未清理，不影响正文，可稍后重试。'
             );
         }
-        return { ok: true, draftCleared };
+        return { ok: true, draftCleared, statsRecorded };
     }
 
     function clearChapterContentClearState(chapter, content, bookName, vi, ci, options) {

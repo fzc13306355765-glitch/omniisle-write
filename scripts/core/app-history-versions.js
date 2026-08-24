@@ -209,12 +209,21 @@
             const located = Core.locateTarget(state.target);
             if (!located) throw new Error('章节状态已变化，请重新打开历史版本');
             const restoredContent = Core.normalizeContent(snapshot.content);
-            located.chapter.content = restoredContent;
-            located.chapter._version = Number(located.chapter._version || 0) + 1;
-            located.chapter.updatedAt = new Date().toISOString();
-            window.ZhiyuEditorAdapter?.applyExternalContentMetadata?.(located.chapter, restoredContent);
-            const saved = await Promise.resolve(window.sB?.(located.books, { cloudWrite: 'suppress' }));
-            if (saved === false) throw new Error('本机章节保存失败，未完成恢复');
+            const prepared = window.prepareChapterContentForLocalSave?.(
+                state.target.book,
+                located.vi,
+                located.ci,
+                restoredContent,
+                { books: located.books }
+            );
+            if (!prepared) throw new Error('历史正文无法保存，未完成恢复');
+            prepared.chapter._version = Number(prepared.chapter._version || 0) + 1;
+            window.ZhiyuEditorAdapter?.applyExternalContentMetadata?.(prepared.chapter, restoredContent);
+            window.updateWordCount?.(located.book);
+            const persisted = typeof window.persistPreparedChapter === 'function'
+                ? await window.persistPreparedChapter(prepared)
+                : { ok: await Promise.resolve(window.sB?.(located.books, { cloudWrite: 'suppress' })) !== false };
+            if (!persisted.ok) throw new Error('本机章节保存失败，未完成恢复');
             const editor = byId('resultBox');
             if (editor && Core.isTargetActive(state.target)) {
                 if (window.ZhiyuEditorAdapter?.replaceContent) {
@@ -223,9 +232,7 @@
                     editor.innerHTML = restoredContent;
                 }
             }
-            await window.clearDraft?.(state.target.book, located.vi, located.ci);
             window.touchBook?.(state.target.book);
-            window.updateWordCount?.(located.book, state.target.book);
             window.refreshTree?.();
             toast('success', '已恢复该章节；恢复前的正文也已保留为历史版本');
             closeHistoryVersions();

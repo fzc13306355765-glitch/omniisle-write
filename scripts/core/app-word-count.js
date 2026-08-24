@@ -27,7 +27,7 @@ function updateWordCount(book,name){
     if (!book || typeof book !== 'object') return 0;
     let wc=0;
     (Array.isArray(book.volumes) ? book.volumes : []).forEach(function(volume) {
-        if (!volume || !Array.isArray(volume.chapters)) return;
+        if (!volume || volume.title === '参考文件' || !Array.isArray(volume.chapters)) return;
         volume.chapters.forEach(function(chapter) {
             if (!chapter || typeof chapter !== 'object') return;
             wc += countWords(chapter.content || '');
@@ -77,21 +77,10 @@ function _isWhitespaceCode(code) {
 
 function countWords(text) {
     if (!text) return 0;
-    const value = String(text);
+    const value = getChapterContentPlainText(text);
     let count = 0;
     for (let index = 0; index < value.length; index += 1) {
         const code = value.charCodeAt(index);
-        if (code === 0x3c) {
-            const closeIndex = value.indexOf('>', index + 1);
-            if (closeIndex > index + 1) {
-                index = closeIndex;
-                continue;
-            }
-        }
-        if (code === 0x26 && value.startsWith('&nbsp;', index)) {
-            index += 5;
-            continue;
-        }
         if (_wordCountIncludePunctuation) {
             if (!_isWhitespaceCode(code)) count += 1;
         } else if (_isWordCharacterCode(code)) {
@@ -118,12 +107,21 @@ function getChapterContentPlainText(content) {
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/(?:p|div|h[1-6]|li|tr)>/gi, '\n')
         .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
+        .replace(/&(?:nbsp|amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, function(match) {
+            const normalized = match.toLowerCase();
+            const named = {
+                '&nbsp;': ' ',
+                '&amp;': '&',
+                '&lt;': '<',
+                '&gt;': '>',
+                '&quot;': '"',
+                '&apos;': "'"
+            };
+            if (Object.prototype.hasOwnProperty.call(named, normalized)) return named[normalized];
+            const hexadecimal = normalized.startsWith('&#x');
+            const codePoint = Number.parseInt(normalized.slice(hexadecimal ? 3 : 2, -1), hexadecimal ? 16 : 10);
+            try { return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match; } catch(e) { return match; }
+        })
         .replace(/\n{3,}/g, '\n\n')
         .trim();
 }

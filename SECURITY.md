@@ -12,7 +12,7 @@
 
 ## 报告方式
 
-公共仓库启用后，请进入仓库的 `Security` → `Advisories`，使用 `Report a vulnerability` 私密报告。项目所有者必须在仓库设为 Public 前启用 GitHub Private vulnerability reporting；如果该入口尚未显示，请暂停公开漏洞提交并等待安全入口启用，不要改用公共 Issue。
+公共仓库启用后，请进入仓库的 `Security` → `Advisories`，使用 `Report a vulnerability` 私密报告。GitHub 只为 Public 仓库提供 Repository security advisories 和 Private vulnerability reporting，因此项目所有者会在仓库改为 Public 后立即开启该入口，并在入口确认可用前暂缓发布公告和 Release。不要改用公共 Issue 报告漏洞。
 
 仓库所有者的免费安全设置步骤见 [GITHUB-SETUP.md](GITHUB-SETUP.md)。
 

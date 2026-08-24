@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 
 const root = process.cwd();
 const read = relativePath => fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -153,5 +154,273 @@ assert.match(
     /#page-overview\s+\.workbench-tabs\s*\{[^}]*width:\s*100%/,
     '移除商业选择器时误删了同组的原版总览页响应式样式'
 );
+
+const RealDate = Date;
+const fixedNow = RealDate.parse('2026-08-23T17:10:44Z');
+const shanghaiOffsetMs = 8 * 60 * 60 * 1000;
+class FixedShanghaiDate extends RealDate {
+    constructor(...args) {
+        if (!args.length) {
+            super(fixedNow);
+        } else if (args.length >= 2) {
+            const [year, month, day = 1, hour = 0, minute = 0, second = 0, millisecond = 0] = args;
+            super(RealDate.UTC(year, month, day, hour, minute, second, millisecond) - shanghaiOffsetMs);
+        } else {
+            super(args[0]);
+        }
+    }
+
+    static now() {
+        return fixedNow;
+    }
+
+    shifted() {
+        return new RealDate(this.getTime() + shanghaiOffsetMs);
+    }
+
+    getFullYear() { return this.shifted().getUTCFullYear(); }
+    getMonth() { return this.shifted().getUTCMonth(); }
+    getDate() { return this.shifted().getUTCDate(); }
+    getDay() { return this.shifted().getUTCDay(); }
+    setDate(value) {
+        const shifted = this.shifted();
+        shifted.setUTCDate(value);
+        return this.setTime(shifted.getTime() - shanghaiOffsetMs);
+    }
+}
+
+const createFakeDocument = () => ({
+    readyState: 'loading',
+    body: { classList: { contains: () => false } },
+    documentElement: { clientWidth: 1600, clientHeight: 1000, dataset: {} },
+    addEventListener() {},
+    getElementById() { return null; },
+    querySelector() { return null; }
+});
+
+const utilsDocument = createFakeDocument();
+const utilsWindow = {
+    document: utilsDocument,
+    navigator: { maxTouchPoints: 0 },
+    screen: { width: 1600, height: 1000 },
+    innerWidth: 1600,
+    innerHeight: 1000,
+    matchMedia: () => ({ matches: false, addEventListener() {} }),
+    addEventListener() {},
+    requestAnimationFrame: () => 1,
+    console
+};
+vm.runInNewContext(read('scripts/core/app-utils.js'), {
+    window: utilsWindow,
+    document: utilsDocument,
+    Date: FixedShanghaiDate,
+    console
+});
+assert.equal(
+    utilsWindow.ZHIYU_UTILS.formatDate('2026-08-23T17:10:44Z'),
+    '2026-08-24',
+    '日期显示仍使用 UTC，东八区凌晨会显示成前一天'
+);
+assert.equal(utilsWindow.ZHIYU_UTILS.formatDate('2026-08-23'), '2026-08-23', '纯日期值不应再次做时区换算');
+for (const timestamp of [fixedNow, String(fixedNow), Math.floor(fixedNow / 1000), String(Math.floor(fixedNow / 1000))]) {
+    assert.equal(utilsWindow.ZHIYU_UTILS.formatDate(timestamp), '2026-08-24', `时间戳格式未按本地日期显示：${timestamp}`);
+}
+
+const wordCountStorage = new Map();
+const wordCountDocument = createFakeDocument();
+const wordCountWindow = {
+    document: wordCountDocument,
+    ZHIYU_APP_STATE: { chapter: {} },
+    ZHIYU_UTILS: utilsWindow.ZHIYU_UTILS
+};
+vm.runInNewContext(read('scripts/core/app-word-count.js'), {
+    window: wordCountWindow,
+    document: wordCountDocument,
+    localStorage: {
+        getItem: key => wordCountStorage.get(key) ?? null,
+        setItem: (key, value) => wordCountStorage.set(key, value)
+    },
+    console
+});
+assert.equal(wordCountWindow.countWords('<p>&amp;&lt;&#39;&quot;潮雾</p>'), 2, 'HTML 转义符仍被当成英文字母计数');
+assert.equal(wordCountWindow.countWords('<p>&amp;lt;潮雾</p>'), 4, '二次转义的可见实体文本被重复解码');
+
+const overviewContent = '<p>潮雾</p><p><br></p><p>归潮巷。</p>';
+const overviewBook = {
+    updatedAt: '2026-08-23T17:10:44Z',
+    volumes: [
+        {
+            title: '第一卷',
+            chapters: [
+                { name: '旧章节', content: '<p>旧章</p>', updatedAt: '2026-08-23T20:00:00+08:00' },
+                { name: '第一章', content: overviewContent, updatedAt: String(Math.floor(fixedNow / 1000)) }
+            ]
+        },
+        { title: '参考文件', chapters: [{ name: '设定', content: '<p>不应计入正文统计的参考文字</p>', updatedAt: '2026-08-23T17:10:44Z' }] }
+    ]
+};
+const overviewDocument = createFakeDocument();
+const overviewWindow = {
+    ZHIYU_APP_STATE: { ui: {} },
+    ZHIYU_UTILS: utilsWindow.ZHIYU_UTILS,
+    ZHIYU_STORAGE_SERVICE: { getBooks: () => ({ 雾港夜巡: overviewBook }) },
+    countWords: wordCountWindow.countWords
+};
+vm.runInNewContext(read('scripts/core/app-overview-summary.js'), {
+    window: overviewWindow,
+    document: overviewDocument,
+    Date: FixedShanghaiDate,
+    console
+});
+assert.equal(overviewWindow.getOverviewChapterTarget(overviewBook).words, 5, '总览最近章节仍把 HTML 标签计入字数');
+assert.equal(overviewWindow.getOverviewChapterTarget(overviewBook).name, '第一章', '混合时间格式导致最近章节排序错误');
+assert.equal(overviewWindow.getOverviewBookEditRows('雾港夜巡', overviewBook)[0].words, 5, '总览编辑表与正文使用了不同字数算法');
+assert.equal(overviewWindow.getOverviewBookEditRows('雾港夜巡', overviewBook)[0].chapterName, '第一章', '编辑表混合时间格式排序错误');
+const overviewDays = overviewWindow.getOverviewSixDayData();
+assert.equal(overviewDays.at(-1).key, '2026-08-24', '近六日图表最后一天不是用户本地日期');
+assert.equal(overviewDays.at(-1).words, 5, '近六日图表没有使用正文有效字数');
+assert.equal(wordCountWindow.updateWordCount(overviewBook), 7, '作品总字数没有排除参考文件');
+
+const statsBooks = {
+    今天: { lastWriteDate: '2026-08-23T17:05:00Z', volumes: [{ title: '正文', chapters: [{ content: overviewContent }] }] },
+    昨天: { lastWriteDate: '2026-08-22T17:05:00Z', volumes: [] }
+};
+const statsDocument = createFakeDocument();
+const statsStorage = new Map();
+const statsWindow = {
+    document: statsDocument,
+    addEventListener() {},
+    ZHIYU_UTILS: utilsWindow.ZHIYU_UTILS,
+    countWords: wordCountWindow.countWords,
+    AccountDataScope: {
+        getActiveUid: () => 'guest',
+        key: (base, uid = 'guest') => `${base}:${uid}`
+    }
+};
+vm.runInNewContext(read('scripts/core/app-write-stats.js'), {
+    window: statsWindow,
+    document: statsDocument,
+    Date: FixedShanghaiDate,
+    StorageService: { getBooks: () => statsBooks },
+    localStorage: {
+        getItem: key => statsStorage.get(key) ?? null,
+        setItem: (key, value) => statsStorage.set(key, value)
+    },
+    setInterval() {},
+    console
+});
+statsWindow.recordChapterWritingChange('', overviewContent, '2026-08-23T17:05:00Z', { chapterKey: 'today' });
+statsWindow.recordChapterWritingChange('', '<p>旧章文</p>', '2026-08-22T17:05:00Z', { chapterKey: 'yesterday' });
+const localStats = statsWindow.getWriteStats();
+assert.equal(localStats.todayWords, 5, '今日字数仍按 UTC 日期归档');
+assert.equal(localStats.streak, 2, '连续写作天数没有按本地日期计算');
+assert.equal(localStats.totalWords, 5, '全部字数没有按真实正文重新统计');
+
+statsStorage.clear();
+const saveFlowBooks = {
+    测试作品: { volumes: [{ title: '第一卷', chapters: [{ name: '第一章', content: '' }] }] }
+};
+let saveBooksHandler = async () => true;
+const saveFlowDocument = createFakeDocument();
+const saveFlowWindow = {
+    document: saveFlowDocument,
+    ZHIYU_APP_STATE: { chapter: { book: '测试作品', vi: 0, ci: 0 } },
+    ZHIYU_STORAGE_SERVICE: { saveBooks: (...args) => saveBooksHandler(...args) },
+    AccountDataScope: { getActiveUid: () => 'guest' },
+    gB: () => saveFlowBooks,
+    isBlankChapterContent: value => !wordCountWindow.getChapterContentPlainText(value),
+    wouldBlankOverwriteExisting: wordCountWindow.wouldBlankOverwriteExisting,
+    countWords: wordCountWindow.countWords,
+    recordChapterWritingChange: statsWindow.recordChapterWritingChange,
+    clearDraftDurably: async () => true,
+    updateWordCount: wordCountWindow.updateWordCount
+};
+vm.runInNewContext(read('scripts/core/app-editor-content.js'), {
+    window: saveFlowWindow,
+    document: saveFlowDocument,
+    Date: FixedShanghaiDate,
+    console
+});
+let preparedSave = saveFlowWindow.prepareChapterContentForLocalSave('测试作品', 0, 0, '<p>潮雾</p>', { books: saveFlowBooks });
+assert.equal((await saveFlowWindow.persistPreparedChapter(preparedSave)).ok, true, '正文保存链路失败');
+assert.equal(statsWindow.getWriteStats().todayWords, 2, '成功保存没有记录真实新增字数');
+preparedSave = saveFlowWindow.prepareChapterContentForLocalSave('测试作品', 0, 0, '<p>潮雾港</p>', { books: saveFlowBooks });
+assert.equal((await saveFlowWindow.persistPreparedChapter(preparedSave)).ok, true, '正文增量保存失败');
+assert.equal(statsWindow.getWriteStats().todayWords, 3, '重复保存按整章累计而不是按净增量累计');
+const savedTimestamp = saveFlowBooks.测试作品.updatedAt;
+saveBooksHandler = async () => false;
+preparedSave = saveFlowWindow.prepareChapterContentForLocalSave('测试作品', 0, 0, '<p>潮雾港灯</p>', { books: saveFlowBooks });
+assert.equal((await saveFlowWindow.persistPreparedChapter(preparedSave)).ok, false, '失败保存被误报成功');
+assert.equal(saveFlowBooks.测试作品.volumes[0].chapters[0].content, '<p>潮雾港</p>', '失败保存没有恢复原正文');
+assert.equal(saveFlowBooks.测试作品.updatedAt, savedTimestamp, '失败保存没有恢复作品时间');
+assert.equal(statsWindow.getWriteStats().todayWords, 3, '失败保存仍然增加了今日字数');
+
+statsStorage.clear();
+statsWindow.recordChapterWritingChange('<p>潮雾港灯</p>', '<p>潮雾</p>', '2026-08-23T17:05:00Z', { chapterKey: 'delete-restore' });
+assert.equal(statsWindow.getWriteStats().todayWords, 0, '当日删减正文不应显示负数');
+statsWindow.recordChapterWritingChange('<p>潮雾</p>', '<p>潮雾港灯</p>', '2026-08-23T17:05:00Z', { chapterKey: 'delete-restore' });
+assert.equal(statsWindow.getWriteStats().todayWords, 0, '先删后恢复被错误统计为正向新增');
+
+statsStorage.clear();
+const concurrentBooks = {
+    并发作品: { volumes: [{ title: '第一卷', chapters: [{ name: '第一章', content: '' }] }] }
+};
+const pendingSaves = [];
+saveBooksHandler = () => new Promise(resolve => pendingSaves.push(resolve));
+const preparedA = saveFlowWindow.prepareChapterContentForLocalSave('并发作品', 0, 0, '<p>潮雾</p>', { books: concurrentBooks });
+const savingA = saveFlowWindow.persistPreparedChapter(preparedA);
+const preparedB = saveFlowWindow.prepareChapterContentForLocalSave('并发作品', 0, 0, '<p>潮雾港</p>', { books: concurrentBooks });
+const savingB = saveFlowWindow.persistPreparedChapter(preparedB);
+assert.equal(pendingSaves.length, 2, '并发保存测试没有进入两个独立持久化任务');
+pendingSaves[1](true);
+assert.equal((await savingB).ok, true, '后发保存失败');
+pendingSaves[0](true);
+assert.equal((await savingA).superseded, true, '先发保存没有被标记为已取代');
+assert.equal(statsWindow.getWriteStats().todayWords, 3, '自动保存与手动保存重叠时丢失前一段增量');
+
+statsStorage.clear();
+const draftCleanupBooks = {
+    草稿作品: { volumes: [{ title: '第一卷', chapters: [{ name: '第一章', content: '' }] }] }
+};
+saveBooksHandler = async () => true;
+saveFlowWindow.clearDraftDurably = async () => { throw new Error('模拟草稿清理失败'); };
+const preparedDraftCleanup = saveFlowWindow.prepareChapterContentForLocalSave('草稿作品', 0, 0, '<p>潮雾</p>', { books: draftCleanupBooks });
+const draftCleanupResult = await saveFlowWindow.persistPreparedChapter(preparedDraftCleanup);
+assert.equal(draftCleanupResult.ok, true, '草稿清理失败不应推翻已成功的正文保存');
+assert.equal(draftCleanupResult.draftCleared, false, '草稿清理失败没有返回警告状态');
+assert.equal(statsWindow.getWriteStats().todayWords, 2, '正文成功但草稿清理失败时漏记今日字数');
+
+const polishActions = read('scripts/core/app-polish-actions.js');
+const historyVersions = read('scripts/core/app-history-versions.js');
+assert.match(polishActions, /prepareChapterContentForLocalSave[\s\S]*persistPreparedChapter/, '确定使用入口没有走统一正文保存链路');
+assert.match(historyVersions, /restoreSelectedSnapshot[\s\S]*prepareChapterContentForLocalSave[\s\S]*persistPreparedChapter/, '历史恢复入口没有走统一正文保存链路');
+
+const modelUsageStorage = new Map();
+const adapterDocument = createFakeDocument();
+const adapterWindow = {
+    document: adapterDocument,
+    ZHIYU_UTILS: utilsWindow.ZHIYU_UTILS,
+    AccountDataScope: { getActiveUid: () => 'guest' },
+    addEventListener() {}
+};
+vm.runInNewContext(read('scripts/core/app-community-adapters.js'), {
+    window: adapterWindow,
+    document: adapterDocument,
+    Date: FixedShanghaiDate,
+    localStorage: {
+        getItem: key => modelUsageStorage.get(key) ?? null,
+        setItem: (key, value) => modelUsageStorage.set(key, value)
+    },
+    console
+});
+adapterWindow.recordLocalModelCall();
+assert.equal(modelUsageStorage.get('zhiyu_local_model_usage:guest:2026-08-24'), '1', '今日模型调用仍按 UTC 日期归档');
+
+const githubSetup = read('GITHUB-SETUP.md');
+const securityPolicy = read('SECURITY.md');
+const prePublicSetup = githubSetup.match(/## 公开前\s*([\s\S]*?)(?=\n## )/)?.[1] || '';
+assert.doesNotMatch(prePublicSetup, /Private vulnerability reporting/, '公开清单仍要求在 Private 仓库开启仅限 Public 的漏洞报告入口');
+assert.match(githubSetup, /改为 Public 后立即完成[\s\S]*Private vulnerability reporting/, '公开后缺少立即开启私密漏洞报告的步骤');
+assert.doesNotMatch(securityPolicy, /设为 Public 前启用 GitHub Private vulnerability reporting/, '安全政策仍包含无法执行的设置顺序');
 
 console.log('[smoke:community-local-core] PASS 本机写作入口、新版操作引导、原版响应式样式、历史版本、模板隐私和自备 API 边界均通过');

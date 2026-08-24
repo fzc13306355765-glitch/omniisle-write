@@ -9,7 +9,10 @@
 
     function modelUsageKey() {
         const uid = String(window.AccountDataScope?.getActiveUid?.() || 'community-local');
-        return 'zhiyu_local_model_usage:' + uid + ':' + new Date().toISOString().slice(0, 10);
+        const now = new Date();
+        const dateKey = window.ZHIYU_UTILS?.formatDate?.(now)
+            || (now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'));
+        return 'zhiyu_local_model_usage:' + uid + ':' + dateKey;
     }
 
     function getTodayModelCallUsage() {

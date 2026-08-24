@@ -7,6 +7,36 @@
     var Utils = window.ZHIYU_UTILS || window.Utils || {};
     var StorageService = window.ZHIYU_STORAGE_SERVICE || window.StorageService || { getBooks: function() { return {}; } };
 
+    function countOverviewWords(content) {
+        if (typeof window.countWords === 'function') return window.countWords(content || '');
+        const plain = String(content || '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>');
+        return (plain.match(/[\u3400-\u4dbf\u4e00-\u9fff\u3005-\u3007A-Za-z0-9]/g) || []).length;
+    }
+
+    function formatOverviewLocalDate(date) {
+        if (!date || !Number.isFinite(date.getTime())) return '';
+        if (typeof Utils.formatDate === 'function') {
+            const formatted = Utils.formatDate(date);
+            return formatted === '-' ? '' : formatted;
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+    }
+
+    function getOverviewTime(value) {
+        const date = typeof Utils.parseDateValue === 'function'
+            ? Utils.parseDateValue(value)
+            : new Date(value);
+        return date && Number.isFinite(date.getTime()) ? date.getTime() : 0;
+    }
+
     function getOverviewChapterTarget(book) {
         const fallback = { vi: -1, ci: -1, name: '暂无章节', words: 0, updatedAt: book?.updatedAt || book?.createdAt || '' };
         if (!book || !Array.isArray(book.volumes)) return fallback;
@@ -16,11 +46,11 @@
             vol.chapters.forEach(function(ch, ci) {
                 if (!ch || typeof ch !== 'object') return;
                 const stamp = ch.updatedAt || book.updatedAt || book.createdAt || '';
-                const words = String(ch.content || '').length;
+                const words = countOverviewWords(ch.content || '');
                 const item = { vi, ci, name: ch.name || ('第' + (ci + 1) + '章'), words, updatedAt: stamp };
                 if (!best) best = item;
-                else if ((item.updatedAt || '') > (best.updatedAt || '')) best = item;
-                else if ((item.updatedAt || '') === (best.updatedAt || '') && item.words > best.words) best = item;
+                else if (getOverviewTime(item.updatedAt) > getOverviewTime(best.updatedAt)) best = item;
+                else if (getOverviewTime(item.updatedAt) === getOverviewTime(best.updatedAt) && item.words > best.words) best = item;
             });
         });
         return best || fallback;
@@ -32,7 +62,7 @@
             const book = activeBooks[name];
             const target = getOverviewChapterTarget(book);
             const stamp = target.updatedAt || book.updatedAt || book.createdAt || '';
-            if (!recent || stamp > recent.stamp) {
+            if (!recent || getOverviewTime(stamp) > getOverviewTime(recent.stamp)) {
                 recent = { name, book, target, stamp };
             }
         });
@@ -52,13 +82,11 @@
     function getOverviewDateKey(value) {
         const raw = String(value ?? '').trim();
         if (!raw) return '';
-        if (/^\d{10,13}$/.test(raw)) {
-            const numeric = Number(raw);
-            const millis = raw.length <= 10 ? numeric * 1000 : numeric;
-            const date = new Date(millis);
-            if (Number.isFinite(date.getTime())) return date.toISOString().slice(0, 10);
-        }
-        return raw.slice(0, 10);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+        const date = typeof Utils.parseDateValue === 'function'
+            ? Utils.parseDateValue(value)
+            : new Date(raw);
+        return formatOverviewLocalDate(date);
     }
 
     function renderOverviewTable(containerId, headers, rows, emptyText) {
@@ -95,7 +123,7 @@
             const bTarget = getOverviewChapterTarget(activeBooks[b]);
             const aStamp = aTarget.updatedAt || activeBooks[a]?.updatedAt || activeBooks[a]?.createdAt || '';
             const bStamp = bTarget.updatedAt || activeBooks[b]?.updatedAt || activeBooks[b]?.createdAt || '';
-            return String(bStamp || '').localeCompare(String(aStamp || ''));
+            return getOverviewTime(bStamp) - getOverviewTime(aStamp);
         });
         if (!names.length) {
             select.innerHTML = '<option value="">暂无作品可选</option>';
@@ -117,10 +145,10 @@
             (vol.chapters || []).forEach(function(ch, ci) {
                 if (!ch || typeof ch !== 'object') return;
                 const stamp = ch.updatedAt || book.updatedAt || book.createdAt || '';
-                rows.push({ chapterName: ch.name || ('第' + (ci + 1) + '章'), words: String(ch.content || '').length, stamp });
+                rows.push({ chapterName: ch.name || ('第' + (ci + 1) + '章'), words: countOverviewWords(ch.content || ''), stamp });
             });
         });
-        rows.sort(function(a, b) { return String(b.stamp || '').localeCompare(String(a.stamp || '')); });
+        rows.sort(function(a, b) { return getOverviewTime(b.stamp) - getOverviewTime(a.stamp); });
         return rows;
     }
 
@@ -140,7 +168,7 @@
         }
         const editRows = getOverviewBookEditRows(selectedName, activeBooks[selectedName]);
         const limit = getOverviewEditRowLimit();
-        editRows.sort(function(a, b) { return String(b.stamp || '').localeCompare(String(a.stamp || '')); });
+        editRows.sort(function(a, b) { return getOverviewTime(b.stamp) - getOverviewTime(a.stamp); });
         renderOverviewTable(
             'overviewEditList',
             ['章节名称', '字数', '编辑时间'],
@@ -175,23 +203,34 @@
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0, 10);
+            const key = formatOverviewLocalDate(d);
             days.push({ key, label: weekdayLabels[d.getDay()], words: 0 });
         }
         const dayMap = days.reduce(function(map, item) {
             map[item.key] = item;
             return map;
         }, {});
+        const recordedDays = typeof window.getWritingWordDays === 'function'
+            ? window.getWritingWordDays()
+            : null;
+        if (recordedDays && typeof recordedDays === 'object') {
+            days.forEach(function(item) {
+                const record = recordedDays[item.key];
+                const words = typeof record === 'object' ? Number(record?.words || 0) : Number(record || 0);
+                item.words = Number.isFinite(words) ? Math.max(0, words) : 0;
+            });
+            return days;
+        }
         Object.keys(books || {}).forEach(function(name) {
             const book = books[name] || {};
             let chapterMatched = false;
             (Array.isArray(book.volumes) ? book.volumes : []).forEach(function(vol) {
-                if (!vol || !Array.isArray(vol.chapters)) return;
+                if (!vol || vol.title === '参考文件' || !Array.isArray(vol.chapters)) return;
                 vol.chapters.forEach(function(ch) {
                     if (!ch || typeof ch !== 'object') return;
                     const stamp = getOverviewDateKey(ch.updatedAt);
                     if (dayMap[stamp]) {
-                        dayMap[stamp].words += String(ch.content || '').length;
+                        dayMap[stamp].words += countOverviewWords(ch.content || '');
                         chapterMatched = true;
                     }
                 });

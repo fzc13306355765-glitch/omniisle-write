@@ -13,7 +13,7 @@
   <a href="LICENSE"><img alt="AGPL-3.0-only license" src="https://img.shields.io/badge/license-AGPL--3.0--only-2f855a"></a>
   <img alt="Local-first data" src="https://img.shields.io/badge/data-local--first-2563eb">
   <img alt="Bring your own model" src="https://img.shields.io/badge/AI-BYOK-7c3aed">
-  <a href="https://github.com/fzc13306355765-glitch/omniisle-write"><img alt="Private GitHub release candidate" src="https://img.shields.io/badge/GitHub-private-6e40c9"></a>
+  <a href="https://github.com/fzc13306355765-glitch/omniisle-write"><img alt="Public GitHub repository" src="https://img.shields.io/badge/GitHub-public-2ea44f"></a>
 </p>
 
 <p align="center">

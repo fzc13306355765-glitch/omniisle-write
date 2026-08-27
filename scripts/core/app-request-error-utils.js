@@ -110,6 +110,10 @@
     }
 
     function formatExecutionLogMessage(error, fallback) {
+        if (typeof error === 'string' || typeof error === 'number' || typeof error === 'boolean') {
+            const message = redactSensitiveErrorText(String(error)).trim();
+            return message || fallback || '模型请求失败';
+        }
         return formatAiErrorForDisplay(error, fallback || '模型请求失败');
     }
 

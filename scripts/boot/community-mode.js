@@ -156,6 +156,14 @@
         return /^\/(?:LOGO(?:-256)?\.png|UI背景(?:-optimized)?\.jpg|app-version\.json)$/.test(pathname);
     }
 
+    function isSafeLocalProviderProxyRequest(url, method) {
+        if (url.origin !== window.location.origin) return false;
+        if (url.pathname === '/__omniisle/provider-proxy/capabilities') {
+            return method === 'GET' || method === 'HEAD';
+        }
+        return url.pathname === '/__omniisle/provider-proxy/request' && method === 'POST';
+    }
+
     function createBlockedRequestError(url) {
         const error = new Error('社区版已阻止未授权网络请求：' + url.origin);
         error.name = 'CommunityNetworkBlockedError';
@@ -174,7 +182,9 @@
         }
         const method = String(init?.method || input?.method || 'GET').toUpperCase();
         if (url.protocol === 'data:' || url.protocol === 'blob:') return nativeFetch(input, init);
-        if (isSafeLocalStaticRequest(url, method) || isProviderOriginAllowed(url)) {
+        if (isSafeLocalStaticRequest(url, method)
+            || isSafeLocalProviderProxyRequest(url, method)
+            || isProviderOriginAllowed(url)) {
             return nativeFetch(input, init);
         }
         return Promise.reject(createBlockedRequestError(url));

@@ -25,20 +25,23 @@
         '【章末钩子】锈死的闸机自行开启，广播播报“下一站，临海旧城”。周砚回头时，现实中的出口已经消失。'
     ].join('\n');
     const DEMO_CHAPTER_REQUIREMENT = '周砚收到哥哥留下的旧城地图，午夜时地图第一次亮起，并指向已经封闭的地铁口。';
-    // 与 ai-proxy/official-template-seed-core.js 的正式种子保持同一稳定 ID 和元数据。
-    // 教程只读展示这些快照，不写模板缓存，也不把提示词发送给 AI。
+    // 教程直接读取社区版自带的知屿模板快照，不再依赖线上模板种子或第三方提示词。
+    // 快照只用于教程预览，不写模板缓存，也不把提示词发送给 AI。
+    const COMMUNITY_TEMPLATE_IDS = window.ZHIYU_COMMUNITY_OFFICIAL_TEMPLATE_IDS || {};
+    const COMMUNITY_OFFICIAL_TEMPLATES = window.ZHIYU_COMMUNITY_OFFICIAL_TEMPLATES || [];
+    function getOfficialTemplateSnapshot(id) {
+        const template = COMMUNITY_OFFICIAL_TEMPLATES.find(function(item) {
+            return String(item?.id || '') === String(id || '');
+        });
+        if (!template) throw new Error('社区版知屿内置模板未加载');
+        return Object.freeze({ ...template, tags: Object.freeze(Array.from(template.tags || [])) });
+    }
     const OFFICIAL_TEMPLATE_SNAPSHOTS = Object.freeze([
-        { id: 'official_template_v1_outline', seedKey: 'outline', seedVersion: 'official-templates:v1', title: '大纲生成模板', description: '帮助快速生成小说大纲', category: '大纲', tags: ['大纲', '框架'], builtIn: true, isOfficial: true, isPublic: true, deleted: false, author: '官方', creatorId: 'zhiyu-official-2026', systemPrompt: '你是一位资深编辑，擅长帮助作家构建完整的故事框架。请根据用户提供的信息，生成详细的小说大纲。' },
-        { id: 'd0dc319b6a2a427c00165f1e7f2139ea', seedKey: 'fine_outline_tomato', seedVersion: 'tutorial-live-snapshot:20260822', title: '【细纲】粗纲转细纲（番茄爆款）', description: '将整理好的大纲转换成每章详细的细纲，格式请用【第X章】标题的格式', category: '细纲', tags: ['细纲', '番茄', '爆款'], builtIn: false, isOfficial: true, isPublic: true, deleted: false, author: '官方', creatorId: 'zhiyu-official-2026', systemPrompt: '' },
-        { id: 'official_template_v1_platform_blockbuster', seedKey: 'platform_blockbuster', seedVersion: 'official-templates:v1', title: '平台爆款写作指令', description: '番茄/起点爆款网文风格', category: '正文', tags: ['网文', '爆款'], builtIn: true, isOfficial: true, isPublic: true, deleted: false, author: '官方', creatorId: 'zhiyu-official-2026', systemPrompt: '你是一位擅长创作爆款网文的作家，文风简洁有力，节奏紧凑，擅长制造冲突和悬念。\n\n写作规则：\n1. 每章必须有至少一个反转或悬念\n2. 人物对话要符合人设\n3. 节奏要快，避免冗长描述\n4. 结尾要有钩子，吸引读者继续阅读' }
+        getOfficialTemplateSnapshot(COMMUNITY_TEMPLATE_IDS.outline),
+        getOfficialTemplateSnapshot(COMMUNITY_TEMPLATE_IDS.fineOutline),
+        getOfficialTemplateSnapshot(COMMUNITY_TEMPLATE_IDS.chapterTomato)
     ]);
-    const DEMO_DECOMPOSE_TEMPLATE = Object.freeze({
-        id: 'tutorial_decompose_miaomang_guide',
-        title: '[拆书】全能至强拆书提示词(渺茫指引提供)',
-        description: '拆书教程指定展示模板',
-        category: '拆书', tags: ['拆书'], author: '渺茫指引',
-        isPublic: true, deleted: false, systemPrompt: ''
-    });
+    const DEMO_DECOMPOSE_TEMPLATE = getOfficialTemplateSnapshot(COMMUNITY_TEMPLATE_IDS.decomposeStructure);
     const DEMO_CHAPTER = [
         '午夜十一点五十九分，周砚把代驾折叠车塞进后备箱，指尖忽然碰到一层发脆的纸。',
         '',
@@ -398,7 +401,7 @@
                 {
                     id: 'select-template', type: 'click',
                     target: findTutorialTemplateCard,
-                    title: '选择官方模板', body: '请选中正式官方模板“大纲生成模板”。教程会真实应用模板，但不会发送它调用 AI。'
+                    title: '选择知屿内置模板', body: '请选中“知屿·长篇小说大纲”。教程会真实应用模板，但不会发送它调用 AI。'
                 },
                 {
                     id: 'apply-template', type: 'click', target: '#btnApplyTemplate',
@@ -622,7 +625,7 @@
                 },
                 {
                     id: 'fine-select-template', type: 'click', target: function() { return findTutorialTemplateCard('fineOutline'); },
-                    title: '选择官方细纲模板', body: '请选中正式官方“【细纲】粗纲转细纲（番茄爆款）”。这里练习真实的选择与应用；演示内容仍由教程预置。'
+                    title: '选择知屿内置细纲模板', body: '请选中“知屿·单章细纲”。这里练习真实的选择与应用；演示内容仍由教程预置。'
                 },
                 {
                     id: 'fine-apply-template', type: 'click', target: '#btnApplyTemplate',
@@ -722,7 +725,7 @@
                 },
                 {
                     id: 'chapter-select-template', type: 'click', target: function() { return findTutorialTemplateCard('chapter'); },
-                    title: '选择官方正文模板', body: '请选择正式官方“平台爆款写作指令”。'
+                    title: '选择知屿内置正文模板', body: '请选择“知屿·番茄向爆款正文”。这是知屿自研的番茄向模板，不是平台官方模板，也不承诺流量或成绩。'
                 },
                 {
                     id: 'chapter-apply-template', type: 'click', target: '#btnApplyTemplate',

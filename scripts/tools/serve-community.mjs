@@ -2,10 +2,12 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createCommunityProviderProxy } from './community-provider-proxy.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const port = Number(process.env.PORT || 8081);
 const entryPath = path.join(root, 'index.html');
+const providerProxy = createCommunityProviderProxy();
 const allowedRootFiles = new Set([
     'index.html',
     'app-version.json',
@@ -59,7 +61,9 @@ function resolveStaticFile(requestUrl) {
     return filePath;
 }
 
-const server = http.createServer(function(req, res) {
+const server = http.createServer(async function(req, res) {
+    const requestUrl = new URL(req.url || '/', `http://127.0.0.1:${port}`);
+    if (await providerProxy.handle(req, res, requestUrl)) return;
     if (!['GET', 'HEAD'].includes(String(req.method || 'GET').toUpperCase())) {
         res.writeHead(405, { 'content-type': 'text/plain; charset=utf-8', allow: 'GET, HEAD' });
         res.end('Method not allowed');
@@ -86,5 +90,8 @@ const server = http.createServer(function(req, res) {
 });
 
 server.listen(port, '127.0.0.1', function() {
-    console.log(`Omniisle Write Community: http://127.0.0.1:${port}/`);
+    const address = server.address();
+    const activePort = typeof address === 'object' && address ? address.port : port;
+    console.log(`Omniisle Write Community: http://127.0.0.1:${activePort}/`);
+    console.log('Local provider proxy: enabled (loopback only)');
 });

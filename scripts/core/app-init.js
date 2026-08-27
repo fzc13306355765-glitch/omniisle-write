@@ -62,6 +62,10 @@
         window.reloadModelStateForCurrentUser?.();
         await window.restoreSession?.();
         await window.ensureCurrentAccountScopeReady?.();
+        const officialTemplatesReady = await window.ensureCommunityOfficialTemplates?.();
+        if (officialTemplatesReady && officialTemplatesReady.ok === false) {
+            console.warn('知屿内置模板保存失败：', officialTemplatesReady.reason || '本机模板库写入失败');
+        }
         await window.ZhiyuFullTextAnalysisClient?.resumeForCurrentUser?.();
         window.refreshUserUI?.();
         window.bindEditorSaveShortcuts?.();

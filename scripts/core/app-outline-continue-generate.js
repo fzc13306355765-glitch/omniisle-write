@@ -10,6 +10,12 @@
         return base + separator + addition;
     }
 
+    function getReasoningSafeOutline(value) {
+        return typeof window.stripOutlineReasoningText === 'function'
+            ? window.stripOutlineReasoningText(value)
+            : String(value || '').replace(/<think(?:\s[^>]*)?>[\s\S]*?<\/think\s*>/gi, '');
+    }
+
     function isCurrentOutlineContinueSession(session) {
         if (!session?.active || AppState?.outline?.continueSession !== session) return false;
         const activeUid = String(window.AccountDataScope?.getActiveUid?.() || AppState.auth?.uid || '');
@@ -20,12 +26,14 @@
     function finishOutlineContinueState(baseContent, generatedContent, expectedSession) {
         const session = expectedSession || AppState?.outline?.continueSession;
         if (!isCurrentOutlineContinueSession(session)) return null;
-        const mergedContent = joinOutlineContinueContent(baseContent, generatedContent);
+        const safeBaseContent = getReasoningSafeOutline(baseContent);
+        const safeGeneratedContent = getReasoningSafeOutline(generatedContent);
+        const mergedContent = joinOutlineContinueContent(safeBaseContent, safeGeneratedContent);
         AppState.outline.content = mergedContent;
-        AppState.outline.continueResult = generatedContent;
+        AppState.outline.continueResult = safeGeneratedContent;
         session.ready = true;
         session.saved = false;
-        session.generatedContent = generatedContent;
+        session.generatedContent = safeGeneratedContent;
         session.completedAt = Date.now();
         return mergedContent;
     }
@@ -88,6 +96,7 @@
         const btn = document.getElementById('btnStartOutline');
         const resultBox = document.getElementById('outlineResultBox');
         const baseContent = String(continueSession.baseContent || '');
+        const safeBaseContent = getReasoningSafeOutline(baseContent);
         const linkedFiles = Array.isArray(continueSession.linkedFiles)
             ? continueSession.linkedFiles
             : [];
@@ -98,7 +107,11 @@
 
         const systemPrompt = '';
 
-        let userMessage = baseContent + '\n\n';
+        if (resultBox && String(resultBox.textContent || '') === baseContent) {
+            resultBox.textContent = safeBaseContent;
+        }
+
+        let userMessage = safeBaseContent + '\n\n';
 
         if (linkedFiles.length > 0) {
             userMessage += '---\n';
@@ -117,7 +130,7 @@
             userMessage += '\n' + userRef + '\n';
         }
 
-        userMessage += '\n请从上述大纲末尾接着续写，保持相同格式（分卷、分章结构），补充后续剧情发展。';
+        userMessage += '\n请从上述大纲末尾接着续写，保持相同格式（分卷、分章结构），补充后续剧情发展。全部可见内容必须使用简体中文，不要输出 <think> 标签、推理过程、分析过程或创作说明。';
 
         // 参考资料组装成功后才进入生成态，避免文件失效时按钮卡住。
         resultBox.style.background = '#e3f2fd';
@@ -158,12 +171,18 @@
                             abortController.abort();
                             return;
                         }
-                        fullContent += chunk;
-                        window.appendOutlineStreamText?.(resultBox, chunk, streamState);
+                        const cleanChunk = window.normalizeOutlineStreamText?.(chunk, streamState) ?? chunk;
+                        if (!cleanChunk) return;
+                        fullContent += cleanChunk;
+                        window.appendOutlineStreamText?.(resultBox, cleanChunk, streamState, { normalized: true });
                     },
                     (final) => {
                         if (!isCurrentOutlineContinueSession(continueSession)) return;
-                        fullContent = final || fullContent;
+                        if (String(fullContent || '').trim() || !String(final || '').trim()) return;
+                        const cleanFinal = window.normalizeOutlineStreamText?.(final, { started: false }) ?? final;
+                        if (!cleanFinal) return;
+                        fullContent = cleanFinal;
+                        window.appendOutlineStreamText?.(resultBox, cleanFinal, streamState, { normalized: true });
                     },
                     (err) => {
                         if (!isCurrentOutlineContinueSession(continueSession)) {

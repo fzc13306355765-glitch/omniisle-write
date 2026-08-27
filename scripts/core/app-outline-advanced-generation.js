@@ -64,7 +64,7 @@
         let streamError = null;
         await window.streamGenerate(
             { ...model, maxTokens: ctx.maxTokens || 8192 },
-            '你是专业小说大纲规划助手。严格按系统内置格式输出，不写解释。',
+            '你是专业小说大纲规划助手。全部可见内容必须使用简体中文；严格按系统内置格式输出，不输出 <think> 标签、推理过程或解释。',
             prompt,
             chunk => { output += chunk; ctx.onText?.(chunk); },
             final => { output = final || output; },

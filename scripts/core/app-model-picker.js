@@ -26,6 +26,8 @@ let modelStateEpoch = 0;
 let customModelMutationRevision = 0;
 let customModelSecretMigrationPending = false;
 let customModelSecretMigrationToken = null;
+let customModelDiscoveryRevision = 0;
+let customModelDiscoveryController = null;
 const LEGACY_MODEL_ID_MIGRATIONS = Object.freeze({});
 const ORDINARY_MODEL_ROUTES = Object.freeze([]);
 
@@ -139,8 +141,10 @@ function getCustomModelProtocol(provider) {
 function getCustomProviderBaseUrlMap() {
     return {
         openai: 'https://api.openai.com/v1',
+        opencode: 'https://opencode.ai/zen/v1',
         deepseek: 'https://api.deepseek.com',
-        minimax: 'https://api.minimax.io/v1',
+        minimax: 'https://api.minimaxi.com/v1',
+        minimax_global: 'https://api.minimax.io/v1',
         qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
         glm: 'https://open.bigmodel.cn/api/paas/v4',
         kimi: 'https://api.moonshot.cn/v1',
@@ -157,10 +161,19 @@ function getDefaultCustomModelBaseUrl(provider) {
 
 function normalizeCustomModelBaseUrl(base) {
     let value = String(base || '').trim().replace(/\/+$/, '');
-    while (/\/(?:chat\/completions|messages)$/i.test(value)) {
-        value = value.replace(/\/(?:chat\/completions|messages)$/i, '').replace(/\/+$/, '');
+    while (/\/(?:chat\/completions|messages|models)$/i.test(value)) {
+        value = value.replace(/\/(?:chat\/completions|messages|models)$/i, '').replace(/\/+$/, '');
     }
     return value;
+}
+
+function isOpenCodeZenBaseUrl(base) {
+    try {
+        const url = new URL(normalizeCustomModelBaseUrl(base));
+        return url.hostname.toLowerCase() === 'opencode.ai' && /^\/zen(?:\/|$)/i.test(url.pathname);
+    } catch (_error) {
+        return false;
+    }
 }
 
 function getCustomModelEndpointPath(protocol) {
@@ -190,6 +203,149 @@ function syncCustomModelBaseInputForProvider(input, provider, options) {
         if (opts.clear) input.value = '';
         input.placeholder = 'https://api.example.com/v1';
     }
+}
+
+function getCustomModelDiscoveryElements() {
+    return {
+        button: document.getElementById('btnDiscoverCustomModels'),
+        select: document.getElementById('customModelSelect'),
+        status: document.getElementById('customModelDiscoveryStatus'),
+        manualToggle: document.getElementById('btnToggleManualModelId'),
+        manualField: document.getElementById('customModelManualField'),
+        manualInput: document.getElementById('customModelName')
+    };
+}
+
+function setCustomModelDiscoveryStatus(message, state) {
+    const status = getCustomModelDiscoveryElements().status;
+    if (!status) return;
+    status.textContent = String(message || '');
+    status.dataset.state = String(state || 'idle');
+}
+
+function setCustomModelManualFieldVisible(visible, options) {
+    const elements = getCustomModelDiscoveryElements();
+    const show = visible === true;
+    const opts = options || {};
+    if (elements.manualField) elements.manualField.hidden = !show;
+    if (elements.manualToggle) {
+        elements.manualToggle.setAttribute('aria-expanded', show ? 'true' : 'false');
+        elements.manualToggle.textContent = show ? '收起手动填写' : '无法检索？手动填写模型 ID';
+    }
+    if (!opts.preserveValue && elements.manualInput) elements.manualInput.value = '';
+    if (show && opts.focus !== false) elements.manualInput?.focus?.();
+}
+
+function clearCustomModelDiscoveryOptions(message) {
+    const elements = getCustomModelDiscoveryElements();
+    if (elements.select) {
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '请先检索模型';
+        elements.select.replaceChildren(placeholder);
+        elements.select.disabled = true;
+    }
+    if (message) setCustomModelDiscoveryStatus(message, 'idle');
+}
+
+function resetCustomModelDiscovery(message) {
+    customModelDiscoveryRevision += 1;
+    const activeController = customModelDiscoveryController;
+    customModelDiscoveryController = null;
+    try { activeController?.abort?.(); } catch (_error) {}
+    const elements = getCustomModelDiscoveryElements();
+    if (elements.button) {
+        elements.button.disabled = false;
+        elements.button.textContent = '检索可用模型';
+    }
+    clearCustomModelDiscoveryOptions(message || '填写 URL 和 API Key 后点击检索');
+    setCustomModelManualFieldVisible(false);
+}
+
+function renderDiscoveredCustomModels(models) {
+    const elements = getCustomModelDiscoveryElements();
+    if (!elements.select) return;
+    const fragment = document.createDocumentFragment();
+    (Array.isArray(models) ? models : []).forEach(function(modelId) {
+        const option = document.createElement('option');
+        option.value = String(modelId || '');
+        option.textContent = String(modelId || '');
+        fragment.appendChild(option);
+    });
+    elements.select.replaceChildren(fragment);
+    elements.select.disabled = elements.select.options.length === 0;
+    if (!elements.select.disabled) elements.select.selectedIndex = 0;
+    setCustomModelManualFieldVisible(false);
+}
+
+function getCustomModelNameFromForm() {
+    const elements = getCustomModelDiscoveryElements();
+    if (elements.manualField?.hidden === false) return String(elements.manualInput?.value || '').trim();
+    return String(elements.select?.value || '').trim();
+}
+
+function getCustomModelDiscoveryErrorMessage(error, context) {
+    const details = context && typeof context === 'object' ? context : {};
+    const provider = String(details.provider || '').trim();
+    let baseHost = '';
+    try { baseHost = new URL(String(details.base || '')).hostname.toLowerCase(); } catch (_error) {}
+    const status = Number(error?.status || 0);
+    const isMiniMax = provider === 'minimax'
+        || provider === 'minimax_global'
+        || baseHost === 'api.minimaxi.com'
+        || baseHost === 'api.minimax.io';
+    if (isMiniMax && (status === 401 || status === 403)) {
+        if (provider === 'minimax_global' || baseHost === 'api.minimax.io') {
+            return 'MiniMax 国际站未接受这个 API Key。若 Key 是在中国大陆开放平台申请的，请改选“MiniMax（国内）”；若确属国际站 Key，请重新复制并检查权限';
+        }
+        return 'MiniMax 国内站未接受这个 API Key。请确认 Key 来自中国大陆开放平台；若 Key 是在国际站申请的，请改选“MiniMax（国际）”';
+    }
+    if (isOpenCodeZenBaseUrl(details.base) && error?.code === 'MODEL_DISCOVERY_NETWORK') {
+        return 'OpenCode Zen 当前未允许浏览器直接跨域访问。请通过 npm run serve 启动本机版后重新检索；手动填写模型 ID 也不能绕过此限制';
+    }
+    if (error?.code === 'MODEL_DISCOVERY_NETWORK') {
+        return '浏览器无法读取模型列表，可能是服务商未开放模型列表接口或未允许浏览器跨域访问';
+    }
+    return String(error?.message || '模型列表检索失败，请检查服务地址后重试');
+}
+
+function clearCustomModelForm() {
+    resetCustomModelDiscovery();
+    const providerInput = document.getElementById('customModelProvider');
+    const keyInput = document.getElementById('customModelKey');
+    const baseInput = document.getElementById('customModelBase');
+    const keyToggle = document.getElementById('toggleKeyVisibility');
+    if (providerInput) providerInput.value = '';
+    if (keyInput) {
+        keyInput.value = '';
+        keyInput.type = 'password';
+    }
+    if (baseInput) baseInput.value = '';
+    if (keyToggle) keyToggle.textContent = '👁️';
+}
+
+function upsertCustomModelEntry(entry) {
+    const nextEntry = entry && typeof entry === 'object' ? { ...entry } : null;
+    const name = String(nextEntry?.name || '').trim();
+    if (!name) return { updated: false, entry: null };
+    nextEntry.name = name;
+    let updatedEntry = null;
+    let foundExisting = false;
+    customModels = customModels.reduce(function(models, model) {
+        if (String(model?.name || '').trim() !== name) {
+            models.push(model);
+            return models;
+        }
+        if (!foundExisting) {
+            updatedEntry = { ...model, ...nextEntry };
+            models.push(updatedEntry);
+            foundExisting = true;
+        }
+        return models;
+    }, []);
+    if (foundExisting) return { updated: true, entry: updatedEntry };
+    customModels.push(nextEntry);
+    return { updated: false, entry: nextEntry };
 }
 
 function getApiSettingsModelDisplayName(api) {
@@ -737,25 +893,99 @@ document.getElementById('customModelProvider')?.addEventListener('change', funct
     const provider = this.value;
     const normalizedBaseInput = document.getElementById('customModelBase');
     syncCustomModelBaseInputForProvider(normalizedBaseInput, provider, { force: true, clear: provider === 'custom' });
-    return;
-    const baseUrlMap = {
-        'openai': 'https://api.openai.com/v1',
-        'deepseek': 'https://api.deepseek.com',
-        'minimax': 'https://api.minimax.chat/v1',
-        'qwen': 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        'glm': 'https://open.bigmodel.cn/api/paas/v4',
-        'kimi': 'https://api.moonshot.cn/v1',
-        'claude': 'https://api.anthropic.com/v1',
-        'siliconflow': 'https://api.siliconflow.cn/v1',
-        'gemini': 'https://generativelanguage.googleapis.com/v1beta/openai',
-        'grok': 'https://api.x.ai/v1'
-    };
+    const providerHint = provider === 'minimax'
+        ? '已填写 MiniMax 国内站地址，请使用国内开放平台申请的 API Key'
+        : (provider === 'minimax_global'
+            ? '已填写 MiniMax 国际站地址，请使用国际站申请的 API Key'
+            : '提供商已变化，请重新检索模型');
+    resetCustomModelDiscovery(providerHint);
+});
+
+['customModelBase', 'customModelKey'].forEach(function(id) {
+    document.getElementById(id)?.addEventListener('input', function() {
+        resetCustomModelDiscovery('地址或密钥已变化，请重新检索模型');
+    });
+});
+
+document.getElementById('btnToggleManualModelId')?.addEventListener('click', function() {
+    const manualField = document.getElementById('customModelManualField');
+    setCustomModelManualFieldVisible(manualField?.hidden !== false);
+});
+
+document.getElementById('btnCancelCustomModel')?.addEventListener('click', function() {
+    clearCustomModelForm();
+    Modal.close('addModelModal');
+});
+
+document.getElementById('btnDiscoverCustomModels')?.addEventListener('click', async function() {
+    const provider = document.getElementById('customModelProvider')?.value.trim() || '';
+    const key = document.getElementById('customModelKey')?.value.trim() || '';
     const baseInput = document.getElementById('customModelBase');
-    if (baseUrlMap[provider]) {
-        baseInput.value = baseUrlMap[provider];
-    } else if (provider === 'custom') {
-        baseInput.value = '';
-        baseInput.placeholder = '请输入自定义中转站地址';
+    const base = normalizeCustomModelBaseUrl(baseInput?.value.trim() || '');
+    if (!provider) {
+        setCustomModelDiscoveryStatus('请先选择 API 提供商', 'error');
+        Toast.warn('请先选择 API 提供商');
+        return;
+    }
+    if (!base) {
+        setCustomModelDiscoveryStatus('请先填写模型服务地址', 'error');
+        Toast.warn('请先填写模型服务地址');
+        return;
+    }
+    if (baseInput) baseInput.value = base;
+    if (window.ZHIYU_COMMUNITY_MODE === true) {
+        try {
+            if (!window.ZHIYU_COMMUNITY_RUNTIME?.network?.requestProviderApproval?.(base)) return;
+        } catch (error) {
+            const message = error?.message || '模型地址不符合社区版安全规则';
+            setCustomModelDiscoveryStatus(message, 'error');
+            Toast.warn(message);
+            return;
+        }
+    }
+    const discoverModels = window.ZHIYU_AI_TRANSPORT?.discoverAvailableModels;
+    if (typeof discoverModels !== 'function') {
+        setCustomModelDiscoveryStatus('模型检索模块尚未加载，请刷新页面后重试', 'error');
+        Toast.error('模型检索模块尚未加载，请刷新页面后重试');
+        return;
+    }
+
+    const requestRevision = ++customModelDiscoveryRevision;
+    customModelDiscoveryController = new AbortController();
+    this.disabled = true;
+    this.textContent = '正在检索…';
+    clearCustomModelDiscoveryOptions();
+    setCustomModelManualFieldVisible(false);
+    setCustomModelDiscoveryStatus('正在向该模型服务查询可用模型…', 'idle');
+    try {
+        const models = await discoverModels({
+            base,
+            key,
+            provider,
+            protocol: getCustomModelProtocol(provider)
+        }, {
+            signal: customModelDiscoveryController.signal,
+            timeoutMs: 20000
+        });
+        if (requestRevision !== customModelDiscoveryRevision) return;
+        renderDiscoveredCustomModels(models);
+        setCustomModelDiscoveryStatus('已找到 ' + models.length + ' 个模型，请从列表中选择', 'success');
+    } catch (error) {
+        if (requestRevision !== customModelDiscoveryRevision || error?.name === 'AbortError') return;
+        const message = getCustomModelDiscoveryErrorMessage(error, { provider, base });
+        const browserBlockedOpenCode = isOpenCodeZenBaseUrl(base) && error?.code === 'MODEL_DISCOVERY_NETWORK';
+        clearCustomModelDiscoveryOptions();
+        setCustomModelManualFieldVisible(!browserBlockedOpenCode, { focus: false });
+        setCustomModelDiscoveryStatus(
+            message + (browserBlockedOpenCode ? '。' : '。你仍可手动填写模型 ID。'),
+            'error'
+        );
+    } finally {
+        if (requestRevision === customModelDiscoveryRevision) {
+            customModelDiscoveryController = null;
+            this.disabled = false;
+            this.textContent = '重新检索';
+        }
     }
 });
 
@@ -775,11 +1005,13 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', async f
     const p = document.getElementById('customModelProvider').value.trim();
     const k = document.getElementById('customModelKey').value.trim();
     const b = normalizeCustomModelBaseUrl(document.getElementById('customModelBase').value.trim());
-    const n = document.getElementById('customModelName').value.trim();
-    if (!n) { Toast.warn('请填写模型名称'); return; }
+    const n = getCustomModelNameFromForm();
+    if (!p) { Toast.warn('请选择 API 提供商'); return; }
+    if (!n) { Toast.warn('请选择模型，或手动填写模型 ID'); return; }
     if (window.ZHIYU_COMMUNITY_MODE === true) {
         if (!b) { Toast.warn('请填写模型服务地址'); return; }
         try {
+            window.ZHIYU_AI_TRANSPORT?.buildModelDiscoveryUrl?.(b);
             if (!window.ZHIYU_COMMUNITY_RUNTIME?.network?.requestProviderApproval?.(b)) return;
         } catch (error) {
             Toast.warn(error?.message || '模型地址不符合社区版安全规则');
@@ -802,7 +1034,16 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', async f
         return;
     }
     const previousModels = customModels.slice();
-    customModels.push({ name:n, modelId:n, provider:p, key:k, base:b, official:false, protocol });
+    const upsertResult = upsertCustomModelEntry({
+        name: n,
+        modelId: n,
+        provider: p,
+        key: k,
+        base: b,
+        official: false,
+        protocol,
+        source: 'picker'
+    });
     const saved = await saveCustomModelsForCurrentUser();
     if (saved === false) {
         customModels = previousModels;
@@ -811,15 +1052,13 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', async f
         return;
     }
     Modal.close('addModelModal');
-    document.getElementById('customModelProvider').value = '';
-    document.getElementById('customModelKey').value = '';
-    document.getElementById('customModelBase').value = '';
-    document.getElementById('customModelName').value = '';
+    clearCustomModelForm();
     activeModelScope = normalizeModelScope(activeModelScope || 'writing');
     pendingModelId = n;
     renderModelPicker();
     refreshApiKeyPersistenceControls();
-    Toast.success(rememberKey ? '模型已添加，API Key 已记住' : '模型已添加，API Key 仅本次页面会话使用');
+    const actionText = upsertResult.updated ? '模型设置已更新' : '模型已添加';
+    Toast.success(rememberKey ? actionText + '，API Key 已记住' : actionText + '，API Key 仅本次页面会话使用');
 });
 
 window.normalizeModelId = normalizeModelId;
@@ -831,10 +1070,13 @@ window.getModelScopeStorageKey = getModelScopeStorageKey;
 window.loadCustomModelsForCurrentUser = loadCustomModelsForCurrentUser;
 window.saveCustomModelsForCurrentUser = saveCustomModelsForCurrentUser;
 window.refreshApiKeyPersistenceControls = refreshApiKeyPersistenceControls;
+window.upsertCustomModelEntry = upsertCustomModelEntry;
 window.getCustomModelProtocol = getCustomModelProtocol;
 window.getCustomProviderBaseUrlMap = getCustomProviderBaseUrlMap;
 window.getDefaultCustomModelBaseUrl = getDefaultCustomModelBaseUrl;
+window.getCustomModelDiscoveryErrorMessage = getCustomModelDiscoveryErrorMessage;
 window.normalizeCustomModelBaseUrl = normalizeCustomModelBaseUrl;
+window.isOpenCodeZenBaseUrl = isOpenCodeZenBaseUrl;
 window.getCustomModelEndpointPath = getCustomModelEndpointPath;
 window.buildCustomModelTargetUrl = buildCustomModelTargetUrl;
 window.isKnownCustomModelBaseUrl = isKnownCustomModelBaseUrl;

@@ -23,6 +23,7 @@
         async function doGenerateOutline() {
             var og = ACTION_PANEL_APP_STATE.outlineGen;
             var contentBox = document.getElementById('ogContentBox');
+            try {
             window.activateOGLinkedMemoryBook?.(ACTION_PANEL_APP_STATE.chapter?.book || '');
 
             // 获取选中大纲文件的内容
@@ -133,7 +134,6 @@
             ACTION_PANEL_APP_STATE.outlineGen.ogAbortController = abortController;
             var modelCfg = getActionModelConfig();
 
-            try {
                 if (!modelCfg?.base || !modelCfg?.model) throw new Error('请先添加并选择自己的工具模型');
                 var cfg = { ...modelCfg, maxTokens: calcOutlineMaxTokens('medium') };
                 generatedText = '';

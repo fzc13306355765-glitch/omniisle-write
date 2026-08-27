@@ -15,9 +15,15 @@
             .replace(/^\n+|\n+$/g, '');
     }
 
+    function getReasoningSafeOutline(value) {
+        return typeof window.stripOutlineReasoningText === 'function'
+            ? window.stripOutlineReasoningText(value)
+            : String(value || '').replace(/<think(?:\s[^>]*)?>[\s\S]*?<\/think\s*>/gi, '');
+    }
+
     function extractOutlineContinueAddition(resultContent, baseContent) {
         // 专业编辑器会统一换行、NBSP 和行尾空格。这里只按它的纯文本显示规则
-        // 核对原大纲前缀；最终合并仍使用 session.baseContent 的原文，绝不反写显示副本。
+        // 核对原大纲前缀；原始 baseContent 仍用于并发身份校验，落盘内容会清理历史 reasoning。
         const result = normalizeOutlineContinueEditorText(resultContent);
         const base = normalizeOutlineContinueEditorText(baseContent);
         if (!base.trim()) {
@@ -123,8 +129,12 @@
             );
         }
 
-        const additionContent = extractOutlineContinueAddition(resultContent, baseContent);
-        const mergedContent = joinOutlineContinueContent(baseContent, additionContent);
+        const safeBaseContent = getReasoningSafeOutline(baseContent);
+        const safeResultContent = getReasoningSafeOutline(resultContent);
+        const additionContent = getReasoningSafeOutline(
+            extractOutlineContinueAddition(safeResultContent, safeBaseContent)
+        );
+        const mergedContent = joinOutlineContinueContent(safeBaseContent, additionContent);
         const now = String(nowValue || new Date().toISOString());
         targetFile.content = mergedContent;
         targetFile.updatedAt = now;

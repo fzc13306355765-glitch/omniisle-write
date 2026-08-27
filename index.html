@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' blob:; frame-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http://localhost:* http://127.0.0.1:* http://[::1]:*; media-src 'self' blob:; frame-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>知屿写作 Omniisle Write 社区版</title>
     <link rel="icon" href="LOGO-256.png" type="image/png">
     <link rel="shortcut icon" href="LOGO-256.png" type="image/png">
     <script src="./scripts/boot/community-mode.js?v=2026082201"></script>
     <script src="./scripts/boot/theme-bootstrap.js?v=202607280442"></script>
-        <link rel="stylesheet" href="./styles/community-runtime.css?v=11bef92bd544">
+        <link rel="stylesheet" href="./styles/community-runtime.css?v=488d44af21cc">
     <link rel="stylesheet" href="./styles/community-mode.css?v=2026082201">
 </head>
 <body>
@@ -221,9 +221,16 @@
                                                             <button class="chapter-compose-template-arrow" id="btnComposerTemplateMenu" title="展开常用提示词模版" aria-label="展开常用提示词模版" aria-expanded="false" type="button"><svg class="chapter-compose-template-arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5l8 14L20 5" /></svg></button>
                                                         </div>
                                                     </div>
-                                                    <label class="chapter-compose-word-target" title="留空时优先读取提示词模版中的明确字数；模版未写则按 3000 字">
-                                                        <span>本章字数：</span><input id="chapterTargetWordsInput" type="number" min="1" step="100" inputmode="numeric" placeholder="自动"><span>字</span>
+                                                    <label class="chapter-compose-word-target" title="留空时按 3000 字，单章最多 20000 字">
+                                                        <span>本章字数：</span><input id="chapterTargetWordsInput" type="number" min="1" max="20000" step="100" inputmode="numeric" placeholder="自动"><span>字</span>
                                                     </label>
+                                                    <div class="chapter-generation-focus">
+                                                        <div class="workflow-segmented-toggle chapter-generation-focus-toggle" id="chapterGenerationFocusToggle" role="group" aria-label="正文生成侧重点">
+                                                            <button type="button" class="active" data-chapter-generation-focus="story" aria-pressed="true">剧情</button>
+                                                            <button type="button" data-chapter-generation-focus="words" aria-pressed="false">字数</button>
+                                                        </div>
+                                                        <button class="flow-help-trigger chapter-generation-focus-help" type="button" data-flow-help="chapter-generation-focus" title="查看剧情和字数模式说明" aria-label="查看剧情和字数模式说明" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.7"/><path d="M12 17h.01"/></svg></button>
+                                                    </div>
                                                 </div>
                                                 <textarea id="plotInput" placeholder="输入剧情描述生成的内容会更加精准 . . . . . ." style="font-size:13px;font-family:inherit;"></textarea>
                                                 <div class="chapter-compose-bottom">
@@ -737,8 +744,10 @@
                 <select id="customModelProvider" style="width:100%;padding:8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
                     <option value="">选择提供商</option>
                     <option value="openai">OpenAI</option>
+                    <option value="opencode">OpenCode Zen（正文兼容）</option>
                     <option value="deepseek">DeepSeek</option>
-                    <option value="minimax">MiniMax</option>
+                    <option value="minimax">MiniMax（国内）</option>
+                    <option value="minimax_global">MiniMax（国际）</option>
                     <option value="qwen">Qwen（通义千问）</option>
                     <option value="glm">GLM（智谱）</option>
                     <option value="kimi">Kimi（月之暗面）</option>
@@ -765,12 +774,23 @@
                     <span>记住 API Key（加密保存在此浏览器；共享电脑不要开启）</span>
                 </label>
             </div>
-            <div style="margin-bottom:16px;">
-                <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:4px;">模型 ID</label>
-                <input id="customModelName" placeholder="gpt-4o" style="width:100%;padding:8px;border:1px solid #e2e5ea;border-radius:6px;font-size:13px;">
+            <div class="custom-model-discovery-field">
+                <label for="customModelSelect">可用模型</label>
+                <div class="custom-model-discovery-row">
+                    <button class="btn btn-outline btn-sm" id="btnDiscoverCustomModels" type="button">检索可用模型</button>
+                    <select id="customModelSelect" disabled>
+                        <option value="">请先检索模型</option>
+                    </select>
+                </div>
+                <div class="custom-model-discovery-status" id="customModelDiscoveryStatus" data-state="idle" aria-live="polite">填写 URL 和 API Key 后点击检索</div>
+                <button class="custom-model-manual-toggle" id="btnToggleManualModelId" type="button" aria-expanded="false">无法检索？手动填写模型 ID</button>
+                <div class="custom-model-manual-field" id="customModelManualField" hidden>
+                    <label for="customModelName">手动模型 ID</label>
+                    <input id="customModelName" placeholder="例如：gpt-4o">
+                </div>
             </div>
             <div style="display:flex;gap:8px;justify-content:flex-end;">
-                <button class="btn btn-outline btn-sm" data-zhiyu-static-click="Modal.close('addModelModal')">取消</button>
+                <button class="btn btn-outline btn-sm" id="btnCancelCustomModel" type="button">取消</button>
                 <button class="btn btn-dark btn-sm" id="btnSaveCustomModel">保存设置</button>
             </div>
         </div>
@@ -1836,7 +1856,7 @@
     <input type="file" id="chapterImportFilePicker" accept=".md,.txt,.docx" style="display:none;">
 
 
-<script src="./scripts/dist/community-runtime.js?v=11bef92bd544"></script>
+<script src="./scripts/dist/community-runtime.js?v=488d44af21cc"></script>
 <script type="module" src="./scripts/vendor/tiptap/runtime.js?v=202607280442"></script>
 <script type="module" src="./scripts/core/app-professional-editor-adapter.js?v=202607280442"></script>
 <template data-zhiyu-lazy data-page="template" data-src="./scripts/core/app-template-create-form.js?v=202607301940"></template>

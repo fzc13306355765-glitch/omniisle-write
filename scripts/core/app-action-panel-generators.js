@@ -27,6 +27,8 @@
 
             // --- 拆书 ---
             async function triggerDecompose() {
+                var contentBox = document.getElementById('dcContentBox');
+                try {
                 var dcChapters = (ACTION_PANEL_APP_STATE.outlineGen.decomposeChapters || []).map(function(ch, index) {
                     return {
                         title: ch.title || ch.name || ('第' + (index + 1) + '章'),
@@ -56,7 +58,6 @@
                     }
                 }
                 if (!decomposeTargets.length) { ACTION_PANEL_TOAST.warn('请先粘贴正文或导入章节后再拆解'); return; }
-                var contentBox = document.getElementById('dcContentBox');
                 setOGSendWorking(true, '拆书分析');
                 contentBox.classList.add('generating');
                 contentBox.textContent = '';
@@ -136,7 +137,6 @@
                     return chunkResult;
                 }
 
-                try {
                     var decomposeOutputs = [];
                     var activeDecomposeIndex = -1;
                     for (var ti = 0; ti < decomposeTargets.length; ti++) {

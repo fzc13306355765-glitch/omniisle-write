@@ -49,7 +49,10 @@
     }
 
     function cleanAdvancedOutlineText(text) {
-        const stripped = String(text || '').replace(/^```(?:markdown|md|text)?\s*/i, '').replace(/```$/i, '').trim();
+        const reasoningSafe = typeof window.stripOutlineReasoningText === 'function'
+            ? window.stripOutlineReasoningText(text)
+            : String(text || '').replace(/<think(?:\s[^>]*)?>[\s\S]*?<\/think\s*>/gi, '');
+        const stripped = String(reasoningSafe || '').replace(/^```(?:markdown|md|text)?\s*/i, '').replace(/```$/i, '').trim();
         return normalizeOutlineChapterHeadingNumbers(stripped);
     }
 

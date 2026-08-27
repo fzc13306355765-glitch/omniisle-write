@@ -5,7 +5,7 @@
 
 const AppState = {
             chapter: { book: null, vi: -1, ci: -1, localId: '' },
-            gen: { templateId: '', refChapters: [], linkedFiles: [], linkedFilesByChapter: {}, linkedDefaultsInitializedByChapter: {}, linkedMemoryBookName: '', linkedMemoryBookScopeKey: '', linkedMemoryChapterScopeKey: '', plotInput: '' },
+            gen: { templateId: '', refChapters: [], linkedFiles: [], linkedFilesByChapter: {}, linkedDefaultsInitializedByChapter: {}, linkedMemoryBookName: '', linkedMemoryBookScopeKey: '', linkedMemoryChapterScopeKey: '', plotInput: '', chapterGenerationFocus: 'story' },
             template: { viewingId: '', tab: 'fav', showAll: false, listTab: 'all', lengthCats: [], subCats: [], page: 1, pageSize: 12 },
             ui: { page: 'overview', tab: 'works', batchMode: false, searchQuery: '', bookForCover: '', overviewEditBook: '', dragChapter: null, selectedVolumeBook: '', selectedVolumeVi: -1 },
             memory: { book: '', folder: '', view: 'associated', batchMode: false },

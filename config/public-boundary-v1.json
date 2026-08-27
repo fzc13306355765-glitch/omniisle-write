@@ -111,6 +111,24 @@
     "scripts/tools/build-community-runtime.mjs",
     "scripts/boot/community-mode.js"
   ],
+  "forbiddenCodeAllowances": [
+    {
+      "path": "scripts/tools/community-provider-proxy.mjs",
+      "labels": [
+        "知屿正式域名",
+        "正式云服务域名"
+      ],
+      "reason": "这些域名只存在于本机代理的主动拒绝名单；该文件仍接受其他公开边界规则检查"
+    },
+    {
+      "path": "scripts/tools/smoke-community-local-proxy.mjs",
+      "labels": [
+        "知屿正式域名",
+        "正式云服务域名"
+      ],
+      "reason": "这些域名只用于验证本机代理确实拒绝正式服务；该测试文件仍接受其他公开边界规则检查"
+    }
+  ],
   "forbiddenCodePatterns": [
     {
       "pattern": "(?:www\\.)?omniisle\\.com",

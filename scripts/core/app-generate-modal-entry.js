@@ -49,8 +49,42 @@
     function updateChapterGenerationModelNotice() {
         const creditInfo = document.getElementById('genCreditInfo');
         if (!creditInfo) return;
-        creditInfo.textContent = '使用当前选择的自备模型；费用由模型供应商结算';
+        const targetInput = document.getElementById('chapterTargetWordsInput');
+        const parsedTarget = typeof window.parseChapterWordTargetInput === 'function'
+            ? window.parseChapterWordTargetInput(targetInput?.value, targetInput?.validity?.badInput === true)
+            : { ok: true, value: Number(targetInput?.value || 0) };
+        const focus = typeof window.normalizeChapterGenerationFocus === 'function'
+            ? window.normalizeChapterGenerationFocus(AppState?.gen?.chapterGenerationFocus)
+            : (AppState?.gen?.chapterGenerationFocus === 'words' ? 'words' : 'story');
+        const plan = parsedTarget.ok && typeof window.getChapterGenerationPlan === 'function'
+            ? window.getChapterGenerationPlan(parsedTarget.value, '', focus)
+            : null;
+        const requestNotice = plan
+            ? (plan.focus === 'story'
+                ? '剧情模式最多 1 次请求'
+                : '字数模式预计最多 ' + plan.executionTotal + ' 次请求')
+            : '本章字数需为 1—20000 的整数';
+        creditInfo.textContent = requestNotice + '；使用当前选择的自备模型；费用由模型供应商结算';
         creditInfo.style.color = '#8b8d98';
+    }
+
+    function syncChapterGenerationFocusToggle() {
+        if (!AppState?.gen) return;
+        const focus = typeof window.normalizeChapterGenerationFocus === 'function'
+            ? window.normalizeChapterGenerationFocus(AppState.gen.chapterGenerationFocus)
+            : (AppState.gen.chapterGenerationFocus === 'words' ? 'words' : 'story');
+        AppState.gen.chapterGenerationFocus = focus;
+        document.querySelectorAll('[data-chapter-generation-focus]').forEach(function(button) {
+            const selected = button.dataset.chapterGenerationFocus === focus;
+            button.classList.toggle('active', selected);
+            button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+    }
+
+    function setChapterGenerationFocusLocked(locked) {
+        document.querySelectorAll('[data-chapter-generation-focus]').forEach(function(button) {
+            button.disabled = !!locked;
+        });
     }
 
     function muteSelectedChapterCardForComposer() {
@@ -120,6 +154,7 @@
             generateBtn.title = readiness.ready
                 ? '按当前输入、模板和关联文件生成本章正文'
                 : readiness.reasons.join('；');
+            setChapterGenerationFocusLocked(readiness.running > 0 || readiness.preflightRunning);
         }
         updateChapterGenerationModelNotice();
     }
@@ -142,6 +177,15 @@
     });
 
     document.getElementById('chapterTargetWordsInput')?.addEventListener('input', updateChapterGenerationModelNotice);
+
+    document.querySelectorAll('[data-chapter-generation-focus]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            if (!AppState?.gen || button.disabled) return;
+            AppState.gen.chapterGenerationFocus = button.dataset.chapterGenerationFocus === 'words' ? 'words' : 'story';
+            syncChapterGenerationFocusToggle();
+            updateChapterGenerationModelNotice();
+        });
+    });
 
     document.getElementById('btnComposerTemplate')?.addEventListener('click', function() {
         closeComposerTemplateMenu();
@@ -175,6 +219,7 @@
         updateChapterComposerState();
     });
 
+    syncChapterGenerationFocusToggle();
     updateChapterComposerState();
 
     }
@@ -184,6 +229,8 @@
     window.applyComposerTemplate = applyComposerTemplate;
     window.getChapterComposerReadiness = getChapterComposerReadiness;
     window.muteSelectedChapterCardForComposer = muteSelectedChapterCardForComposer;
+    window.syncChapterGenerationFocusToggle = syncChapterGenerationFocusToggle;
+    window.setChapterGenerationFocusLocked = setChapterGenerationFocusLocked;
     bindGenerateChapterDialogEntry();
     window.ZHIYU_GENERATE_MODAL_ENTRY_READY = true;
 })(window);

@@ -480,7 +480,6 @@
                     const abortController = new AbortController();
                     window.outlineAbortController = abortController;
                     let fullContent = '';
-                    const outlineStreamState = { started: false };
                     generationRuntime = window.startOutlineGenerationRuntime?.({
                         mode: 'outline',
                         subMode: 'normal',
@@ -548,6 +547,9 @@
                                 Utils.appendLog(null, '✍️ 大纲分段生成：' + outlinePlan.total + '段，避免长大纲被截断', '');
                             }
                             for (let seg = 1; seg <= outlinePlan.total; seg++) {
+                                // 每一段都是独立 API 请求；思考标签状态不能跨请求继承，
+                                // 否则上一段未闭合的 <think> 会吞掉下一段的全部章节粗纲。
+                                const outlineStreamState = { started: false };
                                 const segmentPrompt = buildSegmentedOutlinePrompt(userMessage, wcKey, wcLabel, outlinePlan, seg, fullContent);
                                 const segmentStartLength = fullContent.length;
                                 let segmentError = null;

@@ -790,7 +790,7 @@
                 },
                 {
                     id: 'functional-select-template', type: 'click', target: function() { return findTutorialTemplateCard('functionalOutline'); },
-                    title: '选择官方模板', body: '请选择正式官方“大纲生成模板”。这里练习真实的模板选择，生成效果仍使用教程预置内容。'
+                    title: '选择知屿内置模板', body: '请选择“知屿·长篇小说大纲”。这里练习真实的模板选择，生成效果仍使用教程预置内容。'
                 },
                 {
                     id: 'functional-apply-template', type: 'click', target: '#btnApplyTemplate',
@@ -905,7 +905,7 @@
                 {
                     id: 'decompose-select-template', type: 'click',
                     target: function() { return findTutorialTemplateCard('decompose'); },
-                    title: '选择拆书模板', body: '请选择“[拆书】全能至强拆书提示词(渺茫指引提供)”。本步只真实展示选中状态，演示内容不会使用或发送这份提示词。'
+                    title: '选择拆书模板', body: '请选择“知屿·拆书 A（结构节奏）”。本步只真实展示选中状态，演示内容不会使用或发送这份提示词。'
                 },
                 {
                     id: 'decompose-apply-template', type: 'click', target: '#btnApplyTemplate',

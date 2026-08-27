@@ -38,8 +38,8 @@ Omniisle Write Community Edition keeps that workflow in the local browser. It re
 | --- | --- |
 | Project organization | Projects, volumes, chapters, archive, trash, search, and batch management |
 | Story planning | Standard and advanced outlines, stage outlines, scene outlines, characters, worldbuilding, and other structured generators |
-| Context management | Memory books, linked files, previous-chapter references, prompt templates, and user templates |
-| Drafting | Chapter generation, rich-text editing, autosave, version history, search and replace, and formatting |
+| Context management | Memory books, linked files, previous-chapter references, five Omniisle built-in prompt templates, and user templates |
+| Drafting | Story/word-count chapter generation, rich-text editing, autosave, version history, search and replace, and formatting |
 | Revision | Partial polish, partial rewrite, AI detection, plot lock, AI optimization, and Naturalize I / II |
 | Manuscript analysis | Chapter import, scope selection, automatic or staged execution, local checkpoints, and eight analysis outputs |
 | Local operation | Import and export, backups, light and dark themes, appearance controls, and an interactive tutorial |
@@ -66,7 +66,7 @@ These images come from the real community candidate. All titles, cover art, and 
     </td>
     <td width="50%">
       <img src="docs/images/omniisle-model-setup.png" alt="Bring-your-own-model configuration">
-      <br><strong>Bring your own model</strong><br>Provide a vendor, base URL, API key, and model ID. Long-term key storage is disabled by default.
+      <br><strong>Bring your own model</strong><br>Provide a vendor, base URL, and API key, then discover and select an available model. Long-term key storage is disabled by default.
     </td>
   </tr>
 </table>
@@ -88,17 +88,27 @@ npm run build
 npm run serve
 ```
 
-Open the local address printed in the terminal, normally <http://127.0.0.1:8081/>. Do not open `index.html` directly; browser storage and module loading may not work correctly.
+Open the local address printed in the terminal, normally <http://127.0.0.1:8081/>. Do not open `index.html` directly. The local server keeps browser storage and modules working and provides a loopback-only provider proxy for user-supplied APIs that do not permit browser CORS.
 
 The tutorial entry at the top of the application uses isolated demonstration data. It does not call a model or write into real projects.
+
+On first launch, the community edition adds five prompts authored by Omniisle to the local template library: long-form outline, chapter fine outline, structure-and-pacing deconstruction, character-and-reader-reward deconstruction, and fast-paced Fanqie-oriented chapter drafting. “Fanqie-oriented” describes a general reading style; it is not an official platform template and does not promise traffic or performance. Prompts created, pasted, or imported by users remain in the current browser and are never added to or overwritten by this repository.
 
 ## Configure your model
 
 1. Select “Add your own model” on the writing screen.
 2. Choose a provider or the custom relay option.
-3. Enter the base URL, API key, and model ID, then save.
+3. Enter the base URL and API key, select “Discover models,” choose a returned model, and save.
 4. Select the saved model in drafting, tool-model, or full-analysis controls as needed.
 5. Confirm the displayed destination domain before the first request and only send manuscripts to endpoints you trust.
+
+Model discovery uses the provider's common `/models` endpoint. Some providers do not expose a model list or do not allow browser cross-origin access; the dialog then reveals a manual model-ID fallback. During discovery, the API key is sent only as a request header to the endpoint that you entered and approved. It is never placed in the URL or execution log and is not sent to Omniisle servers.
+
+When launched with `npm run serve`, provider requests can pass through the proxy bound only to `127.0.0.1`, so services such as OpenCode Zen can work without browser CORS support. A purely static deployment can only connect directly to providers that permit browser cross-origin requests. For OpenCode Zen, select **OpenCode Zen (writing-compatible)**; the picker shows only model families documented for `chat/completions`. A pasted `/models` URL is automatically normalized back to its base URL.
+
+MiniMax uses separate mainland China and international endpoints. Use **MiniMax (China)** with keys created on the mainland platform (`https://api.minimaxi.com/v1`), and **MiniMax (International)** with keys created on the international platform (`https://api.minimax.io/v1`). Keys and endpoints from the two regions are not interchangeable.
+
+Chapter generation has two distinct execution modes. Story mode makes one request and prioritizes a complete, natural chapter ending. Word-count mode can continue with planned requests when the draft is short and prioritizes the requested length. Both modes use only the currently selected bring-your-own model. The per-chapter target is capped at 20,000 Chinese characters; plans above five API requests show the estimated count and require confirmation before starting.
 
 API keys remain in the current page session by default and must be entered again after the page is refreshed or closed. A key is encrypted and persisted in the current browser only after the user explicitly enables and confirms “Remember API key.” Availability, quotas, and charges are controlled by the selected provider; this repository supplies no model credits.
 
@@ -126,7 +136,7 @@ This repository contains only the community edition. Publishing it does not make
 
 - Current version: `0.1.0-alpha.1`
 - Publication status: local candidate gates are **GO**; see [OPEN-SOURCE-STATUS.md](OPEN-SOURCE-STATUS.md)
-- Verified: Chrome, Microsoft Edge, local writing, API-key boundaries, the AI optimization chain, and full-manuscript analysis
+- Verified: Chrome, Microsoft Edge, local writing, API-key boundaries, the AI optimization chain, full-manuscript analysis, and Chinese output from Zhiyu Assistant content feedback
 - Not yet provided: a signed installer, cloud sync, hosted models, or an English application interface
 
 See [ROADMAP.md](ROADMAP.md) for planned work and [CHANGELOG.md](CHANGELOG.md) for version history.

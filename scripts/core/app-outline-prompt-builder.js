@@ -47,8 +47,10 @@
         // 公开模板列表只返回元数据，不下发提示词正文。
         // 此处必须保留空值，让官方生成接口按 templateId 读取真实模板；
         // 不能用通用提示词顶替，否则会绕过用户实际选择的模板。
-        const systemPrompt = template?.systemPrompt || '';
-        let userMessage = '请根据以下资料生成小说大纲，严格参考所有资料内容。\n\n';
+        const outlineOutputGuard = '全部可见内容必须使用简体中文。不要输出 <think> 标签、推理过程、分析过程、提示词复述或创作说明，只输出最终大纲内容。';
+        const systemPrompt = [template?.systemPrompt || '', outlineOutputGuard].filter(Boolean).join('\n\n');
+        let userMessage = '请根据以下资料生成小说大纲，严格参考所有资料内容。\n'
+            + outlineOutputGuard + '\n\n';
 
         userMessage += `题材：${genres}\n小说总字数：${wcLabel}`;
         if (genreContext) userMessage += '\n\n' + genreContext;

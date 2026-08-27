@@ -17,6 +17,7 @@
     "./scripts/core/app-draft-autosave.js?v=202607280442",
     "./scripts/core/app-current-user.js?v=202607280442",
     "./scripts/core/app-data-access.js?v=202607280442",
+    "./scripts/core/app-community-official-templates.js?v=2026082401",
     "./scripts/core/app-sync-status.js?v=202607280442",
     "./scripts/core/app-community-adapters.js?v=2026082201",
     "./scripts/core/app-auth.js?v=202607280442",

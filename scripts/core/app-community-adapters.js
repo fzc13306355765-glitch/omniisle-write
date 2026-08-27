@@ -6,6 +6,30 @@
         saveState: 'idle',
         saveMessage: ''
     };
+    const TRUSTED_GENERATION_UNIT_PREFIX = '[[ZHIYU_TRUSTED_UNIT|';
+
+    // 细纲和拆书仍需要稳定的分段边界，但社区版不应为此恢复登录或计费模块。
+    function buildTrustedGenerationUnit(feature, index, total, content) {
+        const normalizedFeature = String(feature || '').trim().toLowerCase();
+        const unitIndex = index;
+        const unitTotal = total;
+        const value = String(content || '').trim();
+        if (!['decompose', 'detail_outline'].includes(normalizedFeature)
+            || !Number.isSafeInteger(unitIndex)
+            || !Number.isSafeInteger(unitTotal)
+            || unitIndex < 1
+            || unitTotal < 1
+            || unitIndex > unitTotal
+            || !value
+            || value.includes(TRUSTED_GENERATION_UNIT_PREFIX)) {
+            throw new Error('分段生成输入格式无效，请重新选择内容后重试');
+        }
+        const head = TRUSTED_GENERATION_UNIT_PREFIX
+            + normalizedFeature + '|' + unitIndex + '|' + unitTotal + '|START]]';
+        const tail = TRUSTED_GENERATION_UNIT_PREFIX
+            + normalizedFeature + '|' + unitIndex + '|' + unitTotal + '|END]]';
+        return head + '\n' + value + '\n' + tail;
+    }
 
     function modelUsageKey() {
         const uid = String(window.AccountDataScope?.getActiveUid?.() || 'community-local');
@@ -138,6 +162,7 @@
 
     window.getTodayModelCallUsage = getTodayModelCallUsage;
     window.recordLocalModelCall = recordLocalModelCall;
+    window.buildTrustedGenerationUnit = buildTrustedGenerationUnit;
     window.openUserPanel = function() {
         window.ZHIYU_TOAST?.show?.('当前为社区版本地身份；无需登录，作品只保存在这个浏览器中');
     };

@@ -7,23 +7,19 @@
             Utils: window.ZHIYU_UTILS || window.Utils,
             Toast: window.ZHIYU_TOAST || window.Toast,
             Modal: window.Modal,
-            gA: window.gA,
+            Confirm: window.ZHIYU_CONFIRM || window.Confirm || { show: function() { return Promise.resolve(false); } },
             gB: window.gB,
             gTPublic: window.gT,
             getSelectedModelConfig: window.getSelectedModelConfig,
-            getRequestTier: window.getRequestTier,
             calculateChapterNumber: window.calculateChapterNumber,
             buildGenerationPrompt: window.buildGenerationPrompt,
             getLastChapterGenerationCallSpec: window.getLastChapterGenerationCallSpec,
             validateChapterGenerationOutput: window.validateChapterGenerationOutput,
             parseChapterWordTargetInput: window.parseChapterWordTargetInput,
-            getSegmentedWritingPlan: window.getSegmentedWritingPlan,
-            getSegmentedWritingBudget: window.getSegmentedWritingBudget,
-            getChapterSegmentDisplayPlan: window.getChapterSegmentDisplayPlan,
-            getChapterSupplementalWritingPlan: window.getChapterSupplementalWritingPlan,
-            buildSegmentedWritingPrompt: window.buildSegmentedWritingPrompt,
-            getSegmentedWritingInputBudget: window.getSegmentedWritingInputBudget,
-            calcChapterSegmentMaxTokens: window.calcChapterSegmentMaxTokens,
+            normalizeChapterGenerationFocus: window.normalizeChapterGenerationFocus,
+            getChapterGenerationPlan: window.getChapterGenerationPlan,
+            executeChapterGenerationPlan: window.executeChapterGenerationPlan,
+            countChapterGenerationWords: window.countChapterGenerationWords,
             markChapterGenerating: window.markChapterGenerating,
             genTaskKey: window.genTaskKey,
             updateGeneratingStatus: window.updateGeneratingStatus,
@@ -31,17 +27,7 @@
             updateWordProgress: window.updateWordProgress,
             streamGenerate: window.streamGenerate,
             isAbortLikeError: window.isAbortLikeError,
-            isAuthExpiredError: window.isAuthExpiredError,
-            setConfirmUseState: window.setConfirmUseState,
-            getAuthHeaders: window.getAuthHeaders,
-            parseBackendErrorMessage: window.parseBackendErrorMessage,
-            getChapterResponseTimeoutMs: window.getChapterResponseTimeoutMs,
-            isDisplayableChapterText: window.isDisplayableChapterText,
-            trimIncompleteChapterTail: window.trimIncompleteChapterTail,
-            createChapterResponseGuard: window.createChapterResponseGuard,
-            resolveChapterGenerationFailureContent: window.resolveChapterGenerationFailureContent,
-            CHAPTER_RESPONSE_TIMEOUT_MS: window.CHAPTER_RESPONSE_TIMEOUT_MS,
-            CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT: window.CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT
+            setConfirmUseState: window.setConfirmUseState
         };
     }
 
@@ -97,23 +83,19 @@
             Utils,
             Toast,
             Modal,
-            gA,
+            Confirm,
             gB,
             gTPublic,
             getSelectedModelConfig,
-            getRequestTier,
             calculateChapterNumber,
             buildGenerationPrompt,
             getLastChapterGenerationCallSpec,
             validateChapterGenerationOutput,
             parseChapterWordTargetInput,
-            getSegmentedWritingPlan,
-            getSegmentedWritingBudget,
-            getChapterSegmentDisplayPlan,
-            getChapterSupplementalWritingPlan,
-            buildSegmentedWritingPrompt,
-            getSegmentedWritingInputBudget,
-            calcChapterSegmentMaxTokens,
+            normalizeChapterGenerationFocus,
+            getChapterGenerationPlan,
+            executeChapterGenerationPlan,
+            countChapterGenerationWords,
             markChapterGenerating,
             genTaskKey,
             updateGeneratingStatus,
@@ -121,17 +103,7 @@
             updateWordProgress,
             streamGenerate,
             isAbortLikeError,
-            isAuthExpiredError,
-            setConfirmUseState,
-            getAuthHeaders,
-            parseBackendErrorMessage,
-            getChapterResponseTimeoutMs,
-            isDisplayableChapterText,
-            trimIncompleteChapterTail,
-            createChapterResponseGuard,
-            resolveChapterGenerationFailureContent,
-            CHAPTER_RESPONSE_TIMEOUT_MS,
-            CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT
+            setConfirmUseState
         } = getDeps();
 
                 // ===== 真正的生成按钮逻辑 =====
@@ -150,19 +122,8 @@
                     return err;
                 }
 
-                function replaceChapterDraft(resultBox, content, isActiveChapter) {
-                    if (!isActiveChapter || !resultBox) return;
-                    if (typeof window.ZhiyuEditorAdapter?.replaceContent === 'function') {
-                        window.ZhiyuEditorAdapter.replaceContent(resultBox, content);
-                    } else {
-                        resultBox.textContent = content;
-                    }
-                }
-
                 function preserveCompletedChapterContent(bookName, vi, ci, content, resultBox, regenerationSnapshot, targetWords) {
-                    const completedContent = typeof trimIncompleteChapterTail === 'function'
-                        ? trimIncompleteChapterTail(content).content
-                        : String(content || '').trim();
+                    const completedContent = String(content || '').trim();
                     if (!completedContent) return false;
                     const books = gB();
                     const chapter = window.applyChapterRegenerationContent?.(regenerationSnapshot, completedContent)
@@ -198,78 +159,19 @@
                     return true;
                 }
 
-                function validateGeneratedChapterOrThrow(content, options) {
-                    if (typeof validateChapterGenerationOutput !== 'function') return;
-                    const result = validateChapterGenerationOutput(content, options || {});
-                    if (!result || result.ok) return;
-                    throw makeGenerationValidationError('AI输出未通过基础校验：' + result.reasons.join('；'), result.reasons);
-                }
-
-                async function requestGeneratedChapterFormatRetry(basePrompt, badContent, reason, signal, modelCfg) {
-                    const retryPrompt = [
-                        basePrompt,
-                        '',
-                        '【上一次输出未通过校验】',
-                        reason || '输出不符合正文要求',
-                        '',
-                        '【上一次输出】',
-                        String(badContent || '').slice(0, 12000),
-                        '',
-                        '【本次重试要求】',
-                        '请重新输出小说正文。只输出正文，不要标题、说明、分析、总结、道歉、推理过程或<think>标签。',
-                        '如果上一次输出为空或过短，请根据上方完整任务重新生成本章正文。'
-                    ].join('\n');
-                    const model = modelCfg?.base && modelCfg?.model
-                        ? modelCfg
-                        : window.getSelectedModelConfig?.();
-                    if (!model?.base || !model?.model) throw new Error('请先添加并选择一个自备模型');
-                    const response = await window.callLLMAPI(
-                            { key: '', base: '', model: '' },
-                            '你是小说正文生成助手，只输出合格正文。',
-                            retryPrompt,
-                            model,
-                            {
-                                label: '正文格式重试',
-                                aiAction: 'chapter_format_retry',
-                                signal: signal || undefined
-                            }
-                        );
-                    const retryContent = response?.content?.[0]?.text || '';
-                    if (String(retryContent).trim()) return retryContent;
-                    throw new Error('自备模型未返回正文修复内容');
-                }
-
                 async function validateGeneratedChapterWithRetry(content, options) {
                     const initial = typeof validateChapterGenerationOutput === 'function'
                         ? validateChapterGenerationOutput(content, options || {})
                         : { ok: true, content };
-                    if (initial?.ok !== false) return initial?.content || content;
-                    Utils.appendLog(null, '⚠️ AI输出未通过校验，正在自动修复一次...', 'progress');
-                    try {
-                        return await window.ensureGeneratedChapterOutputValidOnce(
-                            content,
-                            async result => {
-                                const failureReason = String(result.message || result.reasons?.join('；') || '').slice(0, 1000);
-                                return requestGeneratedChapterFormatRetry(
-                                    options.basePrompt,
-                                    content,
-                                    failureReason,
-                                    options.signal,
-                                    options.modelCfg
-                                );
-                            },
-                            Object.assign({}, options, { validator: validateChapterGenerationOutput })
-                        );
-                    } catch (error) {
-                        throw makeGenerationValidationError('AI输出自动修复后仍未通过校验：' + (error.message || '格式不正确'), [error.message || '格式不正确']);
+                    const preserved = String(initial?.content || content || '').trim();
+                    if (!preserved) {
+                        throw makeGenerationValidationError('AI没有返回可保留的正文内容', ['正文为空']);
                     }
-                }
-
-                function clearGeneratedDraftOnValidationFailure(resultBox, taskKey) {
-                    if (resultBox) resultBox.textContent = '';
-                    if (window.generationTasks && window.generationTasks[taskKey]) {
-                        window.generationTasks[taskKey].generatedContent = '';
+                    if (initial?.ok === false) {
+                        const reason = String(initial?.message || initial?.reasons?.join('；') || '格式需要人工检查');
+                        Utils.appendLog(null, '⚠️ 正文已保留，但本地校验提示：' + reason + '。系统不会另调模型修复。', 'warn');
                     }
+                    return preserved;
                 }
 
                 function logGenerationFailure(error) {
@@ -291,31 +193,6 @@
                         resultBox.setAttribute('aria-busy', active ? 'true' : 'false');
                     }
                     window.updateChapterComposerState?.();
-                }
-
-                function makeChapterGenerationPreflightTimeout(timeoutMs) {
-                    const err = new Error('生成准备超时，请重试');
-                    err.code = 'CHAPTER_PREFLIGHT_TIMEOUT';
-                    err.timeoutMs = timeoutMs;
-                    return err;
-                }
-
-                async function ensureAuthSessionForGeneration() {
-                    if (typeof window.ensureAuthSessionForAction !== 'function') return;
-                    const timeoutMs = Math.max(1000, Number(window.CHAPTER_AUTH_PREFLIGHT_TIMEOUT_MS || 12000) || 12000);
-                    let timeoutId = null;
-                    try {
-                        await Promise.race([
-                            Promise.resolve().then(function() { return window.ensureAuthSessionForAction(); }),
-                            new Promise(function(_resolve, reject) {
-                                timeoutId = setTimeout(function() {
-                                    reject(makeChapterGenerationPreflightTimeout(timeoutMs));
-                                }, timeoutMs);
-                            })
-                        ]);
-                    } finally {
-                        if (timeoutId) clearTimeout(timeoutId);
-                    }
                 }
 
                 function stopChapterGenerationBeforeStart(message) {
@@ -340,21 +217,10 @@
                     setChapterGenerationPreflight(true);
                     Utils.appendLog(null, '等待生成...', 'info');
                     window.setChapterStep?.('正在确认模型配置...', true);
-                    try {
-                        await ensureAuthSessionForGeneration();
-                    } catch (error) {
-                        if (error?.code === 'CHAPTER_PREFLIGHT_TIMEOUT') {
-                            stopChapterGenerationBeforeStart(error.message);
-                            return;
-                        }
-                        if (!error?.handled && typeof window.handleAuthExpired === 'function') {
-                            window.handleAuthExpired(error?.message, error?.code);
-                        }
-                        setChapterGenerationPreflight(false);
-                        window.setChapterStep?.('', false);
-                        return;
-                    }
-                    const startModelCfg = getSelectedModelConfig();
+                    const modelCfg = Object.freeze({ ...getSelectedModelConfig() });
+                    const generationFocus = typeof normalizeChapterGenerationFocus === 'function'
+                        ? normalizeChapterGenerationFocus(AppState.gen?.chapterGenerationFocus)
+                        : 'story';
                     Modal.close('generateModal');
                     const genInfo = { ...AppState.chapter };
 
@@ -369,12 +235,7 @@
                         genInfo.ci
                     ) || null;
 
-                    const apiConfig = gA();
-                    // 合并选中模型的配置（base/model 优先使用模型选择器中的值）
-                    const modelCfg = getSelectedModelConfig();
                     const customGeneration = Boolean(modelCfg?.base && modelCfg?.model);
-                    apiConfig.base = modelCfg.base || apiConfig.base;
-                    apiConfig.model = modelCfg.model || apiConfig.model;
                     // 社区版只直连用户自备模型。
                     if (!customGeneration) {
                         setChapterGenerationPreflight(false);
@@ -422,7 +283,6 @@
                     );
 
                     // 构建提示词
-                    const systemPrompt = ``;
                     const chapterTargetInput = document.getElementById('chapterTargetWordsInput');
                     const parsedWordTarget = parseChapterWordTargetInput(
                         chapterTargetInput?.value,
@@ -430,7 +290,7 @@
                     );
                     if (!parsedWordTarget.ok) {
                         setChapterGenerationPreflight(false);
-                        Toast.warn('本章字数请输入大于 0 的整数，或留空使用模版字数');
+                        Toast.warn('本章字数请输入 1—20000 的整数，或留空使用 3000 字');
                         return;
                     }
                     const requestedWordTarget = parsedWordTarget.value;
@@ -505,22 +365,24 @@
                             // 自备模型需要在本机装入用户选择的模板内容。
                             systemPrompt: String(template?.systemPrompt || '')
                         };
-                        segmentPlan = getSegmentedWritingPlan(requestedWordTarget, String(template?.systemPrompt || ''));
+                        segmentPlan = getChapterGenerationPlan(
+                            requestedWordTarget,
+                            String(template?.systemPrompt || ''),
+                            generationFocus
+                        );
                         wordTarget = segmentPlan.targetWords;
                         userMessage = buildGenerationPrompt(bookName, vi, ci, plotInput, promptTemplate, linkedFiles, refChapters, wordTarget, extraGenerationContext);
                         callSpec = typeof getLastChapterGenerationCallSpec === 'function' ? getLastChapterGenerationCallSpec() : null;
-                        if (!customGeneration && typeof getSegmentedWritingInputBudget === 'function') {
-                            const inputBudget = getSegmentedWritingInputBudget(
-                                userMessage,
-                                segmentPlan,
-                                window.CHAPTER_GENERATION_INPUT_LIMIT || 50000
+                        if (segmentPlan.requiresHighRequestConfirmation) {
+                            const confirmed = await Confirm.show(
+                                '字数模式本章目标为 ' + segmentPlan.targetWords + ' 字，预计最多调用你的模型 API '
+                                    + segmentPlan.executionTotal + ' 次。每次都可能由模型供应商计费，确定继续吗？'
                             );
-                            if (!inputBudget.ok) {
-                                throw new Error(
-                                    '本次正文全部资料加上分段续写说明后需要约 '
-                                    + inputBudget.requiredCharacters + ' 个字符，超过最多 '
-                                    + inputBudget.inputLimit + ' 个字符；请减少关联文件或参考章节后再试，本次尚未调用 AI'
-                                );
+                            if (!confirmed) {
+                                setChapterGenerationPreflight(false);
+                                window.setChapterStep?.('', false);
+                                Utils.appendLog(null, '已取消高次数正文生成，本次没有调用模型 API。', 'info');
+                                return;
                             }
                         }
                     } catch (error) {
@@ -573,112 +435,88 @@
 
                     // ===== 自定义模型：前端直连 =====
                     if (customGeneration) {
-                        const modelCfg = getSelectedModelConfig();
-                        const customApiConfig = { ...modelCfg, maxTokens: calcChapterSegmentMaxTokens() };
+                        const customApiConfig = {
+                            ...modelCfg,
+                            maxTokens: segmentPlan.focus === 'words' && segmentPlan.longTarget ? 3600 : 16384
+                        };
                         let completedSegmentCount = 0;
                         try {
-                            const systemPrompt = ``;
-                            const maxChapterSegmentCount = segmentPlan.total
-                                + Math.max(1, Number(CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT || 3));
-                            for (let seg = 1; seg <= maxChapterSegmentCount; seg++) {
-                                if (!shouldStartChapterSegment(segmentPlan, seg, generatedContent)) break;
-                                const displayPlan = typeof getChapterSegmentDisplayPlan === 'function'
-                                    ? getChapterSegmentDisplayPlan(segmentPlan, seg)
-                                    : { ...segmentPlan, total: Math.max(segmentPlan.total, seg) };
-                                const segmentStartContent = generatedContent;
-                                const segmentPrompt = buildSegmentedWritingPrompt(userMessage, displayPlan, seg, generatedContent);
-                                let segmentError = '';
-                                Utils.appendLog(null, displayPlan.total > 1 ? ('✍️ 正在生成第 ' + seg + '/' + displayPlan.total + ' 段...') : '✍️ 正在生成正文...');
-                                if (window.generationTasks[taskKey]) {
-                                    window.generationTasks[taskKey].segmentIndex = seg;
-                                    window.generationTasks[taskKey].segmentTotal = displayPlan.total;
-                                }
-                                await streamGenerate(
-                                    customApiConfig, systemPrompt, segmentPrompt,
-                                    (chunk) => {
-                                        generatedContent = appendChapterStreamingChunk(
-                                            generatedContent,
-                                            chunk,
-                                            resultBox,
-                                            AppState.chapter.book === bookName && AppState.chapter.vi === vi && AppState.chapter.ci === ci
-                                        );
-                                        // 缓存到 task 中，切换章节后回来也能看到
-                                        if (window.generationTasks[taskKey]) {
-                                            window.generationTasks[taskKey].generatedContent = generatedContent;
-                                        }
-                                        updateChapWordCount(generatedContent);
-                                        document.getElementById('chapCreditCost').textContent = '0 (自定义)';
-                                        const progressBase = Math.max(segmentPlan.targetWords || wordTarget || 3000, segmentPlan.segmentTarget * segmentPlan.total);
-                                        const pct = Math.min(95, Math.round((generatedContent.length / progressBase) * 100));
-                                        window.updateGenerationProgressFill?.(pct);
-                                    },
-                                    () => {},
-                                    (err) => { segmentError = err?.message || err || '正文生成失败'; },
-                                    abortController.signal
-                                );
-                                if (segmentError) throw new Error(segmentError);
-                                if (abortController.signal.aborted) throw new DOMException('已停止生成', 'AbortError');
-                                const segmentResult = typeof trimIncompleteChapterTail === 'function'
-                                    ? trimIncompleteChapterTail(generatedContent.slice(segmentStartContent.length))
-                                    : { content: generatedContent.slice(segmentStartContent.length).trim(), complete: true };
-                                if (!segmentResult.complete || !segmentResult.content) {
-                                    generatedContent = segmentStartContent;
-                                    replaceChapterDraft(
-                                        resultBox,
+                            const executionResult = await executeChapterGenerationPlan({
+                                plan: segmentPlan,
+                                basePrompt: userMessage,
+                                systemPrompt: '',
+                                modelConfig: customApiConfig,
+                                streamGenerate,
+                                signal: abortController.signal,
+                                onExecutionStart: function(info) {
+                                    const seg = info.stepIndex;
+                                    Utils.appendLog(
+                                        null,
+                                        segmentPlan.focus === 'story'
+                                            ? '✍️ 剧情模式：正在一次生成完整正文...'
+                                            : (segmentPlan.executionTotal > 1
+                                                ? ('✍️ 字数模式：正在执行第 ' + seg + '/' + segmentPlan.executionTotal + ' 次生成...')
+                                                : '✍️ 字数模式：正在生成正文...')
+                                    );
+                                    if (window.generationTasks[taskKey]) {
+                                        window.generationTasks[taskKey].segmentIndex = seg;
+                                        window.generationTasks[taskKey].segmentTotal = segmentPlan.executionTotal;
+                                    }
+                                },
+                                onChunk: function(visibleChunk, fullContent) {
+                                    generatedContent = appendChapterStreamingChunk(
                                         generatedContent,
+                                        visibleChunk,
+                                        resultBox,
                                         AppState.chapter.book === bookName && AppState.chapter.vi === vi && AppState.chapter.ci === ci
                                     );
-                                    const incompleteError = new Error('本段没有形成完整自然段，已丢弃未完成尾段。');
-                                    incompleteError.code = 'CHAPTER_SEGMENT_INCOMPLETE';
-                                    throw incompleteError;
+                                    if (generatedContent !== fullContent) generatedContent = fullContent;
+                                    if (window.generationTasks[taskKey]) {
+                                        window.generationTasks[taskKey].generatedContent = generatedContent;
+                                    }
+                                    updateChapWordCount(generatedContent);
+                                    const creditCost = document.getElementById('chapCreditCost');
+                                    if (creditCost) creditCost.textContent = '0（自备 API）';
+                                    const generatedWords = countChapterGenerationWords(generatedContent);
+                                    const progressBase = Math.max(1, segmentPlan.targetWords || wordTarget || 3000);
+                                    const pct = Math.min(95, Math.round((generatedWords / progressBase) * 100));
+                                    window.updateGenerationProgressFill?.(pct);
+                                },
+                                onExecutionComplete: function(info) {
+                                    completedSegmentCount = info.completedExecutionCount;
+                                    generatedContent = info.generatedContent;
+                                    if (window.generationTasks[taskKey]) {
+                                        window.generationTasks[taskKey].completedSegmentCount = completedSegmentCount;
+                                        window.generationTasks[taskKey].completedContent = generatedContent;
+                                    }
+                                    if (segmentPlan.focus === 'words'
+                                        && !info.reachedTarget
+                                        && info.stepIndex < segmentPlan.executionTotal) {
+                                        Utils.appendLog(null, '✅ 第 ' + info.stepIndex + ' 次生成完成，正文仍不足目标，继续无缝补写', 'success');
+                                    }
                                 }
-                                generatedContent = segmentStartContent + segmentResult.content;
-                                replaceChapterDraft(
-                                    resultBox,
-                                    generatedContent,
-                                    AppState.chapter.book === bookName && AppState.chapter.vi === vi && AppState.chapter.ci === ci
-                                );
-                                completedSegmentCount += 1;
-                                if (window.generationTasks[taskKey]) {
-                                    window.generationTasks[taskKey].completedSegmentCount = completedSegmentCount;
-                                    window.generationTasks[taskKey].completedContent = generatedContent;
-                                }
-                                if (hasReachedChapterAcceptedLength(segmentPlan, generatedContent)) break;
-                                Utils.appendLog(null, '✅ 第 ' + seg + ' 段完成，正文仍不足目标，继续自然补写', 'success');
-                            }
-                            if (!hasReachedChapterAcceptedLength(segmentPlan, generatedContent)) {
-                                const targetError = new Error('模型连续补写后仍未达到本章目标字数，已保留完整草稿，但不会按完成状态保存。');
-                                targetError.code = 'CHAPTER_TARGET_NOT_REACHED';
-                                throw targetError;
-                            }
+                            });
+                            generatedContent = executionResult.content;
+                            completedSegmentCount = executionResult.completedExecutionCount;
                             window.setChapterStep?.('正在校验正文完整性...', true);
                             generatedContent = await validateGeneratedChapterWithRetry(generatedContent, { wordTarget: segmentPlan.targetWords, basePrompt: userMessage, modelCfg, customApiConfig, signal: abortController.signal, templateId: selectedTemplateId || '' });
-                            const validatedResult = typeof trimIncompleteChapterTail === 'function'
-                                ? trimIncompleteChapterTail(generatedContent)
-                                : { content: String(generatedContent || '').trim(), complete: true };
-                            if (!validatedResult.complete || !validatedResult.content) {
-                                throw makeGenerationValidationError('AI输出没有形成完整自然段', ['没有完整自然段']);
-                            }
-                            generatedContent = validatedResult.content;
-                            if (!hasReachedChapterAcceptedLength(segmentPlan, generatedContent)) {
-                                const targetError = new Error('正文清理后仍未达到本章目标字数，已保留完整草稿，但不会按完成状态保存。');
-                                targetError.code = 'CHAPTER_TARGET_NOT_REACHED';
-                                throw targetError;
+                            const generatedWords = countChapterGenerationWords(generatedContent);
+                            if (segmentPlan.focus === 'words' && generatedWords < segmentPlan.targetWords) {
+                                Utils.appendLog(
+                                    null,
+                                    'ℹ️ 字数模式已完成计划内请求，当前约 ' + generatedWords
+                                        + ' 字，未继续增加额外 API 请求。',
+                                    'info'
+                                );
                             }
                             finishChapterGen(bookName, vi, ci, generatedContent, null, resultBox, regenerationSnapshot);
                         } catch (_e) {
-                            if (_e && _e.code === 'GENERATION_OUTPUT_INVALID') {
-                                generatedContent = '';
-                                clearGeneratedDraftOnValidationFailure(resultBox, taskKey);
-                                logGenerationFailure(_e);
+                            if (!generatedContent && _e?.generatedContent) {
+                                generatedContent = String(_e.generatedContent);
                             }
-                            else if (isAbortLikeError(_e)) { Utils.appendLog(null, '已停止生成', 'warn'); }
-                            else { logGenerationFailure(_e); }
-                            const stoppedTask = window.generationTasks[taskKey];
-                            const completedContent = _e?.code !== 'GENERATION_OUTPUT_INVALID'
-                                && Number(stoppedTask?.completedSegmentCount || 0) > 0
-                                ? String(stoppedTask.completedContent || '')
-                                : '';
+                            if (isAbortLikeError(_e)) Utils.appendLog(null, '已停止生成', 'warn');
+                            else logGenerationFailure(_e);
+                            const completedContent = String(generatedContent || '').trim();
                             if (completedContent && preserveCompletedChapterContent(
                                 bookName,
                                 vi,
@@ -689,7 +527,13 @@
                                 segmentPlan.targetWords
                             )) {
                                 generatedContent = completedContent;
-                                Utils.appendLog(null, '✅ 已保留已经完成的 ' + completedSegmentCount + ' 段正文', 'success');
+                                Utils.appendLog(
+                                    null,
+                                    _e?.code === 'AI_STORY_INCOMPLETE'
+                                        ? '⚠️ 已保留本次未完整收束的剧情草稿，状态仍为失败。'
+                                        : '✅ 已保留本次已经生成的正文草稿',
+                                    _e?.code === 'AI_STORY_INCOMPLETE' ? 'warn' : 'success'
+                                );
                             } else {
                                 window.restoreChapterRegenerationSnapshot?.(regenerationSnapshot, resultBox);
                                 generatedContent = '';

@@ -432,13 +432,54 @@
                 return typeof window[name] === 'function' ? window[name] : null;
             }
 
+            function recoverActionPanelUiAfterError(name) {
+                var tab = name === 'triggerDecompose'
+                    ? 'decompose'
+                    : (name === 'startNaturalize' ? 'aiPolish' : (name === 'doOGSend' ? 'fineOutline' : ''));
+                if (!tab) return;
+                var controllerKey = tab === 'decompose'
+                    ? 'dcAbortController'
+                    : (tab === 'aiPolish' ? 'apAbortController' : 'ogAbortController');
+                ACTION_PANEL_APP_STATE.outlineGen[controllerKey] = null;
+                var contentBox = tab === 'decompose'
+                    ? document.getElementById('dcContentBox')
+                    : (tab === 'aiPolish' ? document.getElementById('apContentBox') : document.getElementById('ogContentBox'));
+                contentBox?.classList.remove('generating');
+                if ((ACTION_PANEL_APP_STATE.outlineGen?.activeTab || 'fineOutline') === tab) {
+                    getActionPanelFn('setOGSendWorking')?.(false);
+                }
+            }
+
+            function getActionPanelFailureLabel(name) {
+                if (name === 'doOGSend') return '细纲生成失败';
+                if (name === 'triggerDecompose') return '拆书失败';
+                if (name === 'startNaturalize') return 'AI优化失败';
+                if (name === 'saveOGToMemory') return '保存细纲失败';
+                if (name === 'saveDecomposeToMemory') return '保存拆书失败';
+                return '操作失败';
+            }
+
             async function runActionPanelFn(name) {
                 var fn = getActionPanelFn(name);
                 if (!fn) {
                     ACTION_PANEL_TOAST.warn('功能尚未初始化完成，请刷新页面后重试');
                     return null;
                 }
-                return await fn();
+                try {
+                    return await fn();
+                } catch(error) {
+                    recoverActionPanelUiAfterError(name);
+                    var isAbort = getActionPanelFn('isAbortLikeError');
+                    if ((isAbort && isAbort(error)) || error?.name === 'AbortError') return null;
+                    var label = getActionPanelFailureLabel(name);
+                    var formatter = getActionPanelFn('formatAiErrorForDisplay');
+                    var message = formatter
+                        ? formatter(error, label)
+                        : String(error?.message || error || label);
+                    ACTION_PANEL_UTILS.appendLog?.(null, message, 'error');
+                    ACTION_PANEL_TOAST.error(message);
+                    return null;
+                }
             }
 
             function bindActionPanelButton(el, fnName) {

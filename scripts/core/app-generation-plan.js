@@ -2,12 +2,16 @@
     'use strict';
 
         const DEFAULT_CHAPTER_TARGET_WORDS = 3000;
+        const MAX_CHAPTER_TARGET_WORDS = 20000;
+        const CHAPTER_HIGH_REQUEST_CONFIRM_THRESHOLD = 5;
         const CHAPTER_SEGMENT_TARGET_WORDS = 1300;
         const CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT = 3;
         const CHAPTER_SEGMENT_MAX_TOKENS = 3600;
         const MAX_CHAPTER_OUTPUT_TOKENS = 16384;
+        const CHAPTER_FULL_SAFE_TARGET_WORDS = Math.floor(MAX_CHAPTER_OUTPUT_TOKENS / 3);
         const CHAPTER_GENERATION_INPUT_LIMIT = 50000;
         const CHAPTER_SEGMENT_TAIL_CHARS = 2200;
+        const CHAPTER_STORY_COMPLETION_MARKER = '[[ZHIYU_STORY_COMPLETE_6F4C]]';
         // 单段限制在 16K：部分模型服务的长连接可能提前断开，
         // 24K 输出在慢模型上可能超过该时限；分段数量不变，整本容量仍足够。
         const OUTLINE_SEGMENT_MAX_TOKENS = 16384;
@@ -47,6 +51,7 @@
             const value = Number(raw);
             if (!Number.isSafeInteger(value)
                 || value <= 0
+                || value > MAX_CHAPTER_TARGET_WORDS
                 || !Number.isSafeInteger(Math.floor(value * 1.2))) {
                 return { ok: false, value: 0, automatic: false };
             }
@@ -60,6 +65,13 @@
             return extractExplicitChapterWordTarget(templatePrompt) || DEFAULT_CHAPTER_TARGET_WORDS;
         }
 
+        function resolveChapterGenerationTarget(wordTarget) {
+            const numericTarget = Number(wordTarget);
+            return Number.isSafeInteger(numericTarget) && numericTarget > 0
+                ? numericTarget
+                : DEFAULT_CHAPTER_TARGET_WORDS;
+        }
+
         // 根据字数目标计算 max_tokens。这里只是输出上限，不会强制模型写满。
         function calcMaxTokensFromTemplate(_unused, wordTarget) {
             const target = resolveChapterWordTarget(wordTarget);
@@ -68,6 +80,113 @@
 
         function calcChapterSegmentMaxTokens() {
             return CHAPTER_SEGMENT_MAX_TOKENS;
+        }
+
+        function normalizeChapterGenerationFocus(value) {
+            return String(value || '').trim().toLowerCase() === 'words' ? 'words' : 'story';
+        }
+
+        function countChapterGenerationWords(value) {
+            const entities = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+            const text = String(value || '')
+                .replace(/<[^>]*>/g, '')
+                .replace(/&(?:nbsp|#160|#x0*a0);/gi, ' ')
+                .replace(/&#(\d+);/g, function(_match, code) {
+                    const point = Number(code);
+                    return Number.isInteger(point) && point >= 0 && point <= 0x10ffff
+                        ? String.fromCodePoint(point)
+                        : '';
+                })
+                .replace(/&#x([\da-f]+);/gi, function(_match, code) {
+                    const point = Number.parseInt(code, 16);
+                    return Number.isInteger(point) && point >= 0 && point <= 0x10ffff
+                        ? String.fromCodePoint(point)
+                        : '';
+                })
+                .replace(/&(amp|lt|gt|quot|apos);/gi, function(_match, name) {
+                    return entities[String(name || '').toLowerCase()] || '';
+                });
+            let count = 0;
+            for (const character of text) {
+                if (/^[\p{L}\p{N}]$/u.test(character)) count += 1;
+            }
+            return count;
+        }
+
+        function getChapterGenerationPlan(wordTarget, _templatePrompt, focus) {
+            const targetWords = resolveChapterGenerationTarget(wordTarget);
+            const generationFocus = normalizeChapterGenerationFocus(focus);
+            const wordExecutionTotal = Math.max(1, Math.round(targetWords / CHAPTER_SEGMENT_TARGET_WORDS));
+            const longTarget = targetWords > CHAPTER_FULL_SAFE_TARGET_WORDS;
+            const executionTotal = generationFocus === 'story'
+                ? 1
+                : (longTarget ? wordExecutionTotal : 2);
+            return {
+                focus: generationFocus,
+                operation: generationFocus === 'story' ? 'chapter_story' : 'chapter_words',
+                targetWords,
+                executionTotal,
+                wordExecutionTotal,
+                total: executionTotal,
+                longTarget,
+                requiresHighRequestConfirmation: generationFocus === 'words'
+                    && executionTotal > CHAPTER_HIGH_REQUEST_CONFIRM_THRESHOLD,
+                segmentTarget: generationFocus === 'story' || !longTarget
+                    ? targetWords
+                    : Math.ceil(targetWords / executionTotal)
+            };
+        }
+
+        function getChapterGenerationBudget(plan, stepIndex, generatedContent) {
+            const source = plan || getChapterGenerationPlan(DEFAULT_CHAPTER_TARGET_WORDS, '', 'story');
+            const targetWords = Math.max(1, Number(source.targetWords || DEFAULT_CHAPTER_TARGET_WORDS));
+            const executionTotal = Math.max(1, Number(source.executionTotal || source.total || 1));
+            const current = Math.min(executionTotal, Math.max(1, Number(stepIndex || 1)));
+            const generatedWords = countChapterGenerationWords(generatedContent);
+            const remainingTargetWords = Math.max(0, targetWords - generatedWords);
+            const remainingSteps = Math.max(1, executionTotal - current + 1);
+            const stepTargetWords = source.focus === 'story' || (!source.longTarget && current === 1)
+                ? targetWords
+                : Math.max(1, Math.ceil(remainingTargetWords / remainingSteps));
+            return {
+                generatedWords,
+                targetWords,
+                remainingTargetWords,
+                reachedTarget: generatedWords >= targetWords,
+                stepTargetWords
+            };
+        }
+
+        function shouldStartChapterGenerationStep(plan, stepIndex, generatedContent) {
+            const source = plan || getChapterGenerationPlan(DEFAULT_CHAPTER_TARGET_WORDS, '', 'story');
+            const current = Math.max(1, Number(stepIndex || 1));
+            const executionTotal = Math.max(1, Number(source.executionTotal || source.total || 1));
+            if (current > executionTotal) return false;
+            if (current === 1) return true;
+            if (source.focus === 'story') return false;
+            return !getChapterGenerationBudget(source, current, generatedContent).reachedTarget;
+        }
+
+        function buildChapterGenerationPrompt(basePrompt, plan, stepIndex, generatedContent) {
+            const source = plan || getChapterGenerationPlan(DEFAULT_CHAPTER_TARGET_WORDS, '', 'story');
+            const current = Math.max(1, Number(stepIndex || 1));
+            const budget = getChapterGenerationBudget(source, current, generatedContent);
+            let rule;
+            if (source.focus === 'story') {
+                rule = `剧情优先：一次写完整章，约${source.targetWords}字自然收束；连贯优先，勿凑字。\n`
+                    + `只有在本章剧情已经完整推进并自然收束后，才在正文最后另起一行输出 ${CHAPTER_STORY_COMPLETION_MARKER}；该标记后不得再输出任何内容。`
+                    + '如果正文尚未写完，禁止输出该标记。';
+            } else if (current === 1) {
+                rule = source.longTarget
+                    ? `字数优先：本章总目标${source.targetWords}字；先从本章开头写约${budget.stepTargetWords}字并自然推进，勿提前收束。`
+                    : `字数优先：本章目标${source.targetWords}字；直接写完整章，达标即自然收束。`;
+            } else {
+                const isLast = current >= Number(source.executionTotal || source.total || 1);
+                rule = `承接上文，补约${budget.stepTargetWords}字${isLast ? '后收束' : '并自然推进'}；勿重复，勿另开支线。`;
+                const tail = getSegmentTail(generatedContent, CHAPTER_SEGMENT_TAIL_CHARS);
+                if (tail) rule += `\n【已写正文末尾】\n${tail}`;
+            }
+            return String(basePrompt || '') + '\n\n---\n\n【正文生成控制】\n' + rule;
         }
 
         // 大纲生成按篇幅阶梯计算 maxTokens
@@ -317,7 +436,7 @@
             prompt += `小说篇幅：${wcLabel}。\n`;
             prompt += `目标总字数约 ${effectivePlan.targetWords} 字，按每章正文约 ${OUTLINE_CHAPTER_WORDS} 字规划，目标总章节约 ${effectivePlan.targetChapters} 章。\n\n`;
             prompt += `当前生成第 ${segmentIndex}/${effectivePlan.total} 段。\n`;
-            prompt += '只输出大纲正文，不要输出解释、创作说明、提示词分析或“第几段”字样。\n';
+            prompt += '全部可见内容必须使用简体中文。只输出大纲正文，不要输出 <think> 标签、推理过程、解释、创作说明、提示词分析或“第几段”字样。\n';
             if (isFirst) {
                 prompt += String(window.ZHIYU_FORMAT_CONSTRAINTS?.OUTLINE_FOUNDATION || '')
                     + '\n这是第一阶段，只生成基础设定与角色初始信息。即使所选模板要求完整大纲，本阶段也不得输出章节粗纲、全书阶段剧情或结局规划。\n';
@@ -525,6 +644,176 @@
             return { content: '', removedTail: source, complete: false };
         }
 
+        function createChapterStoryCompletionFilter(enabled) {
+            const active = enabled === true;
+            let pending = '';
+            let markerFound = false;
+            let finished = false;
+            let finalResult = null;
+
+            function getMarkerPrefixTailLength(value) {
+                const maximum = Math.min(value.length, CHAPTER_STORY_COMPLETION_MARKER.length - 1);
+                for (let length = maximum; length > 0; length -= 1) {
+                    if (value.endsWith(CHAPTER_STORY_COMPLETION_MARKER.slice(0, length))) return length;
+                }
+                return 0;
+            }
+
+            function push(value) {
+                const chunk = String(value || '');
+                if (!active || finished || !chunk) return chunk;
+                if (markerFound) {
+                    pending += chunk;
+                    return '';
+                }
+                pending += chunk;
+                const markerIndex = pending.indexOf(CHAPTER_STORY_COMPLETION_MARKER);
+                if (markerIndex >= 0) {
+                    const visible = pending.slice(0, markerIndex);
+                    pending = pending.slice(markerIndex + CHAPTER_STORY_COMPLETION_MARKER.length);
+                    markerFound = true;
+                    return visible;
+                }
+                const retainedLength = getMarkerPrefixTailLength(pending);
+                const visible = pending.slice(0, pending.length - retainedLength);
+                pending = pending.slice(pending.length - retainedLength);
+                return visible;
+            }
+
+            function finish() {
+                if (finished) return finalResult;
+                finished = true;
+                if (!active) {
+                    finalResult = { complete: true, markerFound: false, tail: '' };
+                    return finalResult;
+                }
+                const trailing = pending.split(CHAPTER_STORY_COMPLETION_MARKER).join('');
+                pending = '';
+                const hasTrailingContent = trailing.trim().length > 0;
+                finalResult = {
+                    complete: markerFound && !hasTrailingContent,
+                    markerFound,
+                    tail: markerFound && hasTrailingContent ? trailing : ''
+                };
+                return finalResult;
+            }
+
+            return { push, finish };
+        }
+
+        function createChapterExecutionError(message, code) {
+            const error = new Error(message || '正文生成失败');
+            if (code) error.code = code;
+            return error;
+        }
+
+        function normalizeChapterExecutionError(value) {
+            if (value instanceof Error) return value;
+            const source = value && typeof value === 'object' ? value : null;
+            const error = createChapterExecutionError(String(source?.message || value || '正文生成失败'));
+            ['status', 'upstreamStatus', 'code', 'rawBody', 'name'].forEach(function(key) {
+                if (source?.[key] !== undefined && source[key] !== null && source[key] !== '') {
+                    error[key] = source[key];
+                }
+            });
+            return error;
+        }
+
+        function createChapterAbortError() {
+            const error = createChapterExecutionError('已停止生成', 'AI_REQUEST_CANCELLED');
+            error.name = 'AbortError';
+            return error;
+        }
+
+        async function executeChapterGenerationPlan(options) {
+            const opts = options || {};
+            const plan = opts.plan || getChapterGenerationPlan(DEFAULT_CHAPTER_TARGET_WORDS, '', 'story');
+            const stream = opts.streamGenerate;
+            if (typeof stream !== 'function') {
+                throw createChapterExecutionError('正文生成传输模块未加载', 'AI_TRANSPORT_UNAVAILABLE');
+            }
+            const modelConfig = Object.freeze({ ...(opts.modelConfig || {}) });
+            if (!modelConfig.base || !modelConfig.model) {
+                throw createChapterExecutionError('请先添加并选择自己的模型', 'COMMUNITY_MODEL_REQUIRED');
+            }
+            let generatedContent = String(opts.initialContent || '');
+            let completedExecutionCount = 0;
+            try {
+                for (let stepIndex = 1; stepIndex <= plan.executionTotal; stepIndex += 1) {
+                    if (!shouldStartChapterGenerationStep(plan, stepIndex, generatedContent)) break;
+                    const prompt = buildChapterGenerationPrompt(
+                        String(opts.basePrompt || ''),
+                        plan,
+                        stepIndex,
+                        generatedContent
+                    );
+                    const completionFilter = createChapterStoryCompletionFilter(plan.focus === 'story');
+                    let requestError = null;
+                    opts.onExecutionStart?.({ stepIndex, plan, prompt, generatedContent, modelConfig });
+                    await stream(
+                        modelConfig,
+                        String(opts.systemPrompt || ''),
+                        prompt,
+                        function(chunk) {
+                            const visibleChunk = completionFilter.push(chunk);
+                            if (!visibleChunk) return;
+                            generatedContent += visibleChunk;
+                            opts.onChunk?.(visibleChunk, generatedContent, { stepIndex, plan, modelConfig });
+                        },
+                        function(result) {
+                            opts.onRequestDone?.(result, { stepIndex, plan, modelConfig });
+                        },
+                        function(error) {
+                            requestError = normalizeChapterExecutionError(error);
+                        },
+                        opts.signal
+                    );
+                    const completion = completionFilter.finish();
+                    if (completion.tail) {
+                        generatedContent += completion.tail;
+                        opts.onChunk?.(completion.tail, generatedContent, { stepIndex, plan, modelConfig });
+                    }
+                    if (requestError) throw requestError;
+                    if (opts.signal?.aborted) throw createChapterAbortError();
+                    if (!generatedContent.trim()) {
+                        throw createChapterExecutionError('AI没有返回可保留的正文内容', 'AI_STREAM_EMPTY');
+                    }
+                    if (plan.focus === 'story' && !completion.complete) {
+                        const incompleteError = createChapterExecutionError(
+                            '本章剧情没有完整结束，已保留当前正文；剧情模式不会自动补写。',
+                            'AI_STORY_INCOMPLETE'
+                        );
+                        incompleteError.contentDelivered = true;
+                        throw incompleteError;
+                    }
+                    completedExecutionCount += 1;
+                    const generatedWords = countChapterGenerationWords(generatedContent);
+                    opts.onExecutionComplete?.({
+                        stepIndex,
+                        plan,
+                        generatedContent,
+                        generatedWords,
+                        completedExecutionCount,
+                        reachedTarget: generatedWords >= plan.targetWords,
+                        modelConfig
+                    });
+                    if (generatedWords >= plan.targetWords) break;
+                }
+                return {
+                    content: generatedContent,
+                    generatedWords: countChapterGenerationWords(generatedContent),
+                    completedExecutionCount,
+                    modelConfig,
+                    plan
+                };
+            } catch (value) {
+                const error = normalizeChapterExecutionError(value);
+                error.generatedContent = generatedContent;
+                error.completedExecutionCount = completedExecutionCount;
+                throw error;
+            }
+        }
+
         function createChapterResponseGuard(options) {
             const opts = options || {};
             const timeoutMs = Math.max(1, Number(opts.timeoutMs || CHAPTER_RESPONSE_TIMEOUT_MS));
@@ -591,24 +880,37 @@
 
 
     window.DEFAULT_CHAPTER_TARGET_WORDS = DEFAULT_CHAPTER_TARGET_WORDS;
+    window.MAX_CHAPTER_TARGET_WORDS = MAX_CHAPTER_TARGET_WORDS;
+    window.CHAPTER_HIGH_REQUEST_CONFIRM_THRESHOLD = CHAPTER_HIGH_REQUEST_CONFIRM_THRESHOLD;
     window.CHAPTER_SEGMENT_TARGET_WORDS = CHAPTER_SEGMENT_TARGET_WORDS;
     window.CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT = CHAPTER_SUPPLEMENTAL_SEGMENT_LIMIT;
     window.CHAPTER_SEGMENT_MAX_TOKENS = CHAPTER_SEGMENT_MAX_TOKENS;
     window.MAX_CHAPTER_OUTPUT_TOKENS = MAX_CHAPTER_OUTPUT_TOKENS;
+    window.CHAPTER_FULL_SAFE_TARGET_WORDS = CHAPTER_FULL_SAFE_TARGET_WORDS;
     window.CHAPTER_GENERATION_INPUT_LIMIT = CHAPTER_GENERATION_INPUT_LIMIT;
+    window.CHAPTER_STORY_COMPLETION_MARKER = CHAPTER_STORY_COMPLETION_MARKER;
     window.OUTLINE_SEGMENT_MAX_TOKENS = OUTLINE_SEGMENT_MAX_TOKENS;
     window.CHAPTER_RESPONSE_TIMEOUT_MS = CHAPTER_RESPONSE_TIMEOUT_MS;
     window.getChapterResponseTimeoutMs = getChapterResponseTimeoutMs;
     window.isDisplayableChapterText = isDisplayableChapterText;
     window.endsWithCompleteChapterParagraph = endsWithCompleteChapterParagraph;
     window.trimIncompleteChapterTail = trimIncompleteChapterTail;
+    window.createChapterStoryCompletionFilter = createChapterStoryCompletionFilter;
+    window.executeChapterGenerationPlan = executeChapterGenerationPlan;
     window.createChapterResponseGuard = createChapterResponseGuard;
     window.resolveChapterGenerationFailureContent = resolveChapterGenerationFailureContent;
     window.extractExplicitChapterWordTarget = extractExplicitChapterWordTarget;
     window.parseChapterWordTargetInput = parseChapterWordTargetInput;
     window.resolveChapterWordTarget = resolveChapterWordTarget;
+    window.resolveChapterGenerationTarget = resolveChapterGenerationTarget;
     window.calcMaxTokensFromTemplate = calcMaxTokensFromTemplate;
     window.calcChapterSegmentMaxTokens = calcChapterSegmentMaxTokens;
+    window.normalizeChapterGenerationFocus = normalizeChapterGenerationFocus;
+    window.countChapterGenerationWords = countChapterGenerationWords;
+    window.getChapterGenerationPlan = getChapterGenerationPlan;
+    window.getChapterGenerationBudget = getChapterGenerationBudget;
+    window.shouldStartChapterGenerationStep = shouldStartChapterGenerationStep;
+    window.buildChapterGenerationPrompt = buildChapterGenerationPrompt;
     window.calcOutlineMaxTokens = calcOutlineMaxTokens;
     window.getOutlineSegmentPlan = getOutlineSegmentPlan;
     window.getOutlineChapterStageRange = getOutlineChapterStageRange;

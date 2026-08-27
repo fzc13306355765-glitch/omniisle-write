@@ -7,7 +7,7 @@
     const DEMO_BOOK_INPUT_NAME = '雾城夜巡';
     const DEMO_BOOK_COVER = './assets/tutorials/mist-city-night-patrol-cover.png';
     const DEMO_MODEL_NAME = 'DeepSeek V4 Flash';
-    const DEMO_TEMPLATE_NAME = '大纲生成模板';
+    const DEMO_TEMPLATE_NAME = '知屿·长篇小说大纲';
     const DEMO_MEMORY_FOLDER_NAME = '关联文件夹';
     const NEW_HOMEPAGE_PATH = '/';
     const REQUESTED_TUTORIAL = new URLSearchParams(window.location.search).get('tutorial') || '';
@@ -983,11 +983,12 @@
 
     function getTutorialTemplate(context) {
         const demoDecomposeTemplate = TUTORIAL_MAINLINE_STAGE_PACK.content.DEMO_DECOMPOSE_TEMPLATE;
+        const officialTemplateIds = window.ZHIYU_COMMUNITY_OFFICIAL_TEMPLATE_IDS || {};
         const id = context === 'decompose'
             ? demoDecomposeTemplate.id
             : (context === 'chapter'
-                ? 'official_template_v1_platform_blockbuster'
-                : (context === 'fineOutline' ? 'd0dc319b6a2a427c00165f1e7f2139ea' : 'official_template_v1_outline'));
+                ? officialTemplateIds.chapterTomato
+                : (context === 'fineOutline' ? officialTemplateIds.fineOutline : officialTemplateIds.outline));
         const templates = typeof window.gTPublic === 'function' ? window.gTPublic() : [];
         return templates.find(item => String(item?.id || '') === id)
             || (context === 'decompose' ? demoDecomposeTemplate : null);

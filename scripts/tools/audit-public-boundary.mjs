@@ -102,6 +102,10 @@ const missingPublicFiles = (config.requiredPublicFiles || [])
     .filter(relativePath => !exists(relativePath));
 
 const codeScanExclusions = new Set((config.codeScanExclusions || []).map(normalize));
+const forbiddenCodeAllowances = new Map((config.forbiddenCodeAllowances || []).map(entry => [
+    normalize(entry.path),
+    new Set(entry.labels || [])
+]));
 const codeFiles = new Set();
 for (const scanRoot of config.codeScanRoots || []) {
     for (const relativePath of walk(scanRoot)) {
@@ -114,6 +118,10 @@ const forbiddenCodeFindings = [];
 for (const rule of config.forbiddenCodePatterns || []) {
     const matcher = new RegExp(rule.pattern, 'i');
     const matchingFiles = [...codeFiles].filter(relativePath => {
+        if (forbiddenCodeAllowances.get(relativePath)?.has(rule.label)) {
+            // 只豁免配置中逐项声明的防御性常量；该文件仍接受其余公开边界扫描。
+            return false;
+        }
         if (rule.label === '商业或后台实现' && relativePath.toLowerCase().endsWith('.css')) {
             // 源样式保留原版共用视觉规则；构建器会从公开运行包中剔除商业功能选择器。
             return false;

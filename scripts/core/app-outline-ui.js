@@ -156,9 +156,91 @@
         return doesOutlineGenerationRuntimeMatchCurrent(runtime, runtime.mode);
     }
 
+    function getOutlineTagPrefixTailLength(value, tagPrefix) {
+        const source = String(value || '');
+        const prefix = String(tagPrefix || '').toLowerCase();
+        const maximum = Math.min(source.length, Math.max(0, prefix.length - 1));
+        for (let length = maximum; length > 0; length -= 1) {
+            if (source.slice(-length).toLowerCase() === prefix.slice(0, length)) return length;
+        }
+        return 0;
+    }
+
+    function filterOutlineReasoningChunk(value, streamState) {
+        const state = streamState || {};
+        let pending = String(state.reasoningPending || '') + String(value || '');
+        state.reasoningPending = '';
+        let visible = '';
+
+        while (pending) {
+            const lower = pending.toLowerCase();
+            if (state.insideReasoning === true) {
+                const closeIndex = lower.indexOf('</think');
+                if (closeIndex < 0) {
+                    const retainedLength = getOutlineTagPrefixTailLength(pending, '</think');
+                    state.reasoningPending = retainedLength ? pending.slice(-retainedLength) : '';
+                    return visible;
+                }
+                const boundary = pending.charAt(closeIndex + 7);
+                if (!boundary) {
+                    state.reasoningPending = pending.slice(closeIndex);
+                    return visible;
+                }
+                if (!/[\s>]/.test(boundary)) {
+                    pending = pending.slice(closeIndex + 2);
+                    continue;
+                }
+                const closeEnd = pending.indexOf('>', closeIndex + 7);
+                if (closeEnd < 0) {
+                    state.reasoningPending = pending.slice(closeIndex);
+                    return visible;
+                }
+                state.insideReasoning = false;
+                pending = pending.slice(closeEnd + 1);
+                continue;
+            }
+
+            const openIndex = lower.indexOf('<think');
+            if (openIndex < 0) {
+                const retainedLength = getOutlineTagPrefixTailLength(pending, '<think');
+                visible += pending.slice(0, pending.length - retainedLength);
+                state.reasoningPending = retainedLength ? pending.slice(-retainedLength) : '';
+                return visible;
+            }
+            const boundary = pending.charAt(openIndex + 6);
+            if (!boundary) {
+                visible += pending.slice(0, openIndex);
+                state.reasoningPending = pending.slice(openIndex);
+                return visible;
+            }
+            if (!/[\s>]/.test(boundary)) {
+                visible += pending.slice(0, openIndex + 1);
+                pending = pending.slice(openIndex + 1);
+                continue;
+            }
+            const openEnd = pending.indexOf('>', openIndex + 6);
+            if (openEnd < 0) {
+                visible += pending.slice(0, openIndex);
+                state.reasoningPending = pending.slice(openIndex);
+                return visible;
+            }
+            visible += pending.slice(0, openIndex);
+            state.insideReasoning = true;
+            pending = pending.slice(openEnd + 1);
+        }
+        return visible;
+    }
+
+    function stripOutlineReasoningText(value) {
+        let text = String(value || '');
+        text = text.replace(/<think(?:\s[^>]*)?>[\s\S]*?<\/think\s*>/gi, '');
+        text = text.replace(/<think(?:\s[^>]*)?>[\s\S]*$/gi, '');
+        return text.replace(/<\/think\s*>/gi, '');
+    }
+
     function normalizeOutlineStreamText(value, streamState) {
         const state = streamState || {};
-        let text = String(value || '');
+        let text = filterOutlineReasoningChunk(value, state);
         if (!state.started) {
             text = text.replace(/^\uFEFF/, '').replace(/^(?:[ \t]*\r?\n)+/, '');
             if (!text) return '';
@@ -341,6 +423,7 @@
     function finishOutlineSuccess(ctx) {
         const { resultBox, btn, finalContent, successLog, runtime: expectedRuntime } = ctx || {};
         if (!resultBox || !btn) return;
+        const safeFinalContent = stripOutlineReasoningText(finalContent);
 
         const runtime = expectedRuntime || AppState.outline.generationRuntime;
         const runtimeMatchesCurrent = runtime
@@ -348,10 +431,10 @@
             : true;
         if (runtimeMatchesCurrent) {
             resultBox.style.background = '';
-            resultBox.textContent = finalContent || '';
+            resultBox.textContent = safeFinalContent;
         }
-        finishOutlineGenerationRuntime(finalContent || '', runtime);
-        if (runtimeMatchesCurrent) AppState.outline.content = finalContent || '';
+        finishOutlineGenerationRuntime(safeFinalContent, runtime);
+        if (runtimeMatchesCurrent) AppState.outline.content = safeFinalContent;
         AppState.outline.importedWorkSummary = '';
         AppState.outline.importedWorkName = '';
 
@@ -616,6 +699,7 @@
     window.renderOutlineMode = renderOutlineMode;
     window.startOutlineGenerationRuntime = startOutlineGenerationRuntime;
     window.updateOutlineGenerationRuntime = updateOutlineGenerationRuntime;
+    window.stripOutlineReasoningText = stripOutlineReasoningText;
     window.normalizeOutlineStreamText = normalizeOutlineStreamText;
     window.appendOutlineStreamText = appendOutlineStreamText;
     window.finishOutlineGenerationRuntime = finishOutlineGenerationRuntime;

@@ -399,6 +399,25 @@ select:focus{ border-color: var(--border); outline: none; }
         /* ===== 模型选择弹窗 ===== */
         #modelSelectModal{ z-index: 800 !important; }
         #addModelModal{ z-index: 810 !important; }
+        .custom-model-discovery-field{ margin-bottom: 16px; }
+        .custom-model-discovery-field > label,
+.custom-model-manual-field > label{ display: block; margin-bottom: 6px; color: var(--text); font-size: 13px; font-weight: 600; }
+        .custom-model-discovery-row{ display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px; align-items: center; }
+        .custom-model-discovery-row .btn{ min-height: 38px; white-space: nowrap; }
+        .custom-model-discovery-row select,
+.custom-model-manual-field input{ min-width: 0; padding: 8px 10px; border-radius: 6px; font-size: 13px; }
+        .custom-model-discovery-row select:disabled{ cursor: not-allowed; opacity: 0.72; }
+        .custom-model-discovery-status{ min-height: 18px; margin-top: 6px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+        .custom-model-discovery-status[data-state="success"]{ color: #16803a; }
+        .custom-model-discovery-status[data-state="error"]{ color: #c0392b; }
+        .custom-model-manual-toggle{ margin-top: 2px; padding: 2px 0; border: 0; background: transparent; color: #4b7f95; font-size: 12px; cursor: pointer; }
+        .custom-model-manual-toggle:hover{ text-decoration: underline; }
+        .custom-model-manual-field{ margin-top: 8px; }
+        .custom-model-manual-field[hidden]{ display: none; }
+        @media (max-width: 520px) {
+            .custom-model-discovery-row{ grid-template-columns: 1fr; }
+            .custom-model-discovery-row .btn{ justify-content: center; }
+        }
         .model-picker-box{ background: #fff; border-radius: 20px; width: 90vw; max-width: 920px; height: 72vh; max-height: 640px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; }
         .model-picker-sidebar{ width: 160px; flex-shrink: 0; background: #efefef; border-radius: 20px 0 0 20px; padding: 20px 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .model-picker-cat{ margin: 0 8px 16px; padding: 8px 12px; font-size: 13px; cursor: pointer; color: #333; background: transparent; border-radius: 10px; display: flex; align-items: center; gap: 6px; font-weight: 500; }

@@ -2,6 +2,9 @@
   "schemaVersion": 1,
   "entry": "index.html",
   "classicScripts": [
+    "./scripts/core/app-i18n-locales.js",
+    "./scripts/core/app-i18n.js",
+    "./scripts/core/app-writing-language.js",
     "./scripts/core/app-rich-text-contract.js?v=202607280442",
     "./scripts/core/app-config.js?v=202607280442",
     "./scripts/core/app-utils.js?v=202607280442",
@@ -207,6 +210,7 @@
     "./styles/app/70-action-panel-ai-polish.css?v=202607280442",
     "./styles/app/75-global-writing-backdrop.css?v=202607280442",
     "./styles/app/80-responsive-devices.css?v=202607301930",
-    "./styles/app/85-outline-tutorial.css?v=202608222342"
+    "./styles/app/85-outline-tutorial.css?v=202608222342",
+    "./styles/app/86-community-languages.css"
   ]
 }

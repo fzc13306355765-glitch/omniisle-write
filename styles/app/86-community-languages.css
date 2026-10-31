@@ -1,0 +1,11 @@
+/* Language controls preserve the existing layout and writing direction. */
+.settings-language-select { max-width: 220px; width: 42%; padding: 8px; border: 1px solid var(--border-color, #dfe5e9); border-radius: 8px; background: var(--bg-card, #fff); color: var(--text-main, #263238); }
+.settings-preference-row > div:first-child { min-width: 0; }
+.settings-preference-row label[for="interfaceLanguage"], .settings-preference-row label[for="generationLanguage"] { font-weight: 600; }
+html:not([lang="zh-CN"]) .nav-item { white-space: normal; }
+html:not([lang="zh-CN"]) .btn { overflow-wrap: anywhere; }
+html[dir="rtl"] .settings-panel, html[dir="rtl"] .modal-content { text-align: start; }
+html[dir="rtl"] .settings-preference-row { gap: 16px; }
+/* Code and endpoint inputs keep their own left-to-right meaning. */
+#customModelBase, #customModelKey, #customModelName, #customModelSelect, #customModelProtocol { direction: ltr; text-align: left; }
+@media (max-width: 600px) { .settings-language-select { max-width: 100%; width: 100%; } }

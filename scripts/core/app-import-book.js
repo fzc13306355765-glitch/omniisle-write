@@ -30,6 +30,7 @@
     }
 
     function findStandaloneImportHeadingMatches(sourceText, headingType) {
+        if (window.ZHIYU_WRITING_LANGUAGE) return window.ZHIYU_WRITING_LANGUAGE.findHeadings(sourceText, headingType);
         if (typeof window.zhiyuFindStandaloneHeadingMatches === 'function') {
             return window.zhiyuFindStandaloneHeadingMatches(sourceText, headingType);
         }

@@ -1,4 +1,6 @@
 import { build } from 'esbuild';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
 
 await build({
   entryPoints: {
@@ -33,3 +35,6 @@ await build({
 });
 
 console.log('Built split TipTap runtime in scripts/vendor/tiptap/');
+const fingerprint = crypto.createHash('sha256').update(fs.readFileSync('scripts/vendor/tiptap/runtime.js')).digest('hex').slice(0, 12);
+const html = fs.readFileSync('index.html', 'utf8');
+fs.writeFileSync('index.html', html.replace(/(scripts\/vendor\/tiptap\/runtime\.js\?v=)[^"']+/, '$1' + fingerprint));

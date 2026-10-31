@@ -12,5 +12,6 @@
 | `docs/images/omniisle-ai-polish.png` | README AI优化界面 | 界面代码和虚构演示文字由 Zeyu 提供，截图随项目文档按 `AGPL-3.0-only` 分发；截图内的 Logo、壁纸和演示封面仍分别受本表对应条目及 `TRADEMARKS.md` 约束。 |
 | `docs/images/omniisle-full-analysis.png` | README 全文分析界面 | 界面代码和虚构演示文字由 Zeyu 提供，截图随项目文档按 `AGPL-3.0-only` 分发；截图内的 Logo、壁纸和演示封面仍分别受本表对应条目及 `TRADEMARKS.md` 约束。 |
 | `docs/images/omniisle-model-setup.png` | README 模型配置界面 | 界面代码和虚构演示文字由 Zeyu 提供，截图随项目文档按 `AGPL-3.0-only` 分发；截图内的 Logo、壁纸和演示封面仍分别受本表对应条目及 `TRADEMARKS.md` 约束。 |
+| `docs/images/omniisle-languages.png` | README 免费社区版语言设置 | 本社区版实际页面截图，仅使用隔离的虚构测试数据，随文档按 `AGPL-3.0-only` 分发；Logo 和壁纸仍受本表及 `TRADEMARKS.md` 约束。 |
 
 除上表外，原项目中的模型 Logo、人物头像、二维码、宣传图片和其他壁纸均未迁入本候选目录。用户上传的提示词、图片和其他内容不属于本项目公开素材，不得进入仓库、测试样本或发行包。

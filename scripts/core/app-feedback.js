@@ -15,7 +15,7 @@
 
             function _show(msg, bg, duration) {
                 clearTimeout(_timer);
-                _el.textContent = msg;
+                _el.textContent = window.ZHIYU_I18N?.ui(msg) || msg;
                 _el.style.background = bg;
                 _el.style.opacity = '1';
                 _el.style.transform = 'translateX(-50%) translateY(0)';

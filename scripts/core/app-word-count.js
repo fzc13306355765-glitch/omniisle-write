@@ -78,6 +78,7 @@ function _isWhitespaceCode(code) {
 function countWords(text) {
     if (!text) return 0;
     const value = getChapterContentPlainText(text);
+    if (window.ZHIYU_WRITING_LANGUAGE) return window.ZHIYU_WRITING_LANGUAGE.countCharacters(value, { html: false, punctuation: _wordCountIncludePunctuation });
     let count = 0;
     for (let index = 0; index < value.length; index += 1) {
         const code = value.charCodeAt(index);
@@ -91,6 +92,7 @@ function countWords(text) {
 }
 
 function countChineseWords(text) {
+    if (window.ZHIYU_WRITING_LANGUAGE) return window.ZHIYU_WRITING_LANGUAGE.countCharacters(text, { digits: false });
     const value = String(text || '');
     const chinese = (value.match(/[一-鿿]/g) || []).length;
     const english = (value.match(/[a-zA-Z]+/g) || []).reduce((sum, word) => sum + word.length, 0);

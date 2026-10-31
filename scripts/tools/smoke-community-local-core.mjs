@@ -38,9 +38,9 @@ for (const requiredId of [
     assert.match(index, new RegExp(`id=["']${requiredId}["']`), `缺少社区核心入口：${requiredId}`);
 }
 
-assert.match(index, /<option value="minimax">MiniMax（国内）<\/option>/, 'MiniMax 缺少国内站选项');
-assert.match(index, /<option value="minimax_global">MiniMax（国际）<\/option>/, 'MiniMax 缺少国际站选项');
-assert.match(index, /<option value="opencode">OpenCode Zen（正文兼容）<\/option>/, '添加模型缺少 OpenCode Zen 正文兼容选项');
+assert.match(index, /<option value="minimax"[^>]*>MiniMax（国内）<\/option>/, 'MiniMax 缺少国内站选项');
+assert.match(index, /<option value="minimax_global"[^>]*>MiniMax（国际）<\/option>/, 'MiniMax 缺少国际站选项');
+assert.match(index, /<option value="opencode"[^>]*>OpenCode Zen<\/option>/, '添加模型缺少 OpenCode Zen 选项');
 
 for (const forbiddenId of [
     'btnLogin',
@@ -628,8 +628,8 @@ function createAiStreamResponse(events) {
     });
     assert.deepEqual(
         Array.from(models),
-        ['deepseek-v4-flash-free', 'minimax-m3', 'x-preview-f-free'],
-        'OpenCode 列表没有按官方接口过滤为正文兼容模型'
+        ['deepseek-v4-flash-free', 'minimax-m3', 'gpt-5.6-sol', 'claude-sonnet-5', 'gemini-3.7-flash', 'x-preview-f-free', 'laguna-s-2.1-free'],
+        'OpenCode 列表不应根据模型名称隐藏提供商返回的模型'
     );
     assert.equal(calls.length, 2, '本机环境没有先探测能力再走本机转发');
     assert.equal(calls[1].options.headers['X-Omniisle-Local-Token'], 'local-proxy-test-token');

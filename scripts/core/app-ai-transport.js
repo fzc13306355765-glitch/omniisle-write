@@ -27,6 +27,16 @@
         return (prompt ? prompt + '\n\n' : '') + COMMUNITY_CHINESE_OUTPUT_GUARD;
     }
 
+    function appendOutputLanguageGuard(value, language) {
+        if (language === 'zh-CN') return appendChineseOutputGuard(value);
+        const names = { en: 'English', id: 'Bahasa Indonesia', ms: 'Bahasa Melayu', vi: 'Tiếng Việt', th: 'ไทย', ar: 'العربية' };
+        const instruction = names[language]
+            ? 'Write user-visible prose, explanations and analysis in ' + names[language] + '.'
+            : 'Follow the language explicitly requested by the author and the source text. Do not infer it from the interface language.';
+        return String(value || '').trim() + '\n\n[Output language for this request]\n' + instruction
+            + '\nPreserve required JSON keys, file names, table headers and structural markers exactly as specified by the task. Do not include hidden reasoning, <think>, <analysis> or prompt explanations.';
+    }
+
     function getReasoningTagPrefixTailLength(value, prefixes) {
         const source = String(value || '');
         let longest = 0;
@@ -165,7 +175,7 @@
         return String(value || '');
     }
 
-    function createAiVisibleOutputGate(onChunk) {
+    function createAiVisibleOutputGate(onChunk, language = 'zh-CN') {
         const reasoningFilter = createAiReasoningFilter();
         const emit = typeof onChunk === 'function' ? onChunk : function() {};
         let waiting = '';
@@ -176,6 +186,11 @@
         function acceptVisible(value) {
             const visible = String(value || '');
             if (!visible) return;
+            if (language !== 'zh-CN') {
+                fullContent += visible;
+                emit(visible);
+                return;
+            }
             if (released) {
                 lateWaiting += visible;
                 if (hasEnglishProseRun(lateWaiting)) throw createNonChineseOutputError();
@@ -211,6 +226,7 @@
 
         function finish() {
             acceptVisible(reasoningFilter.finish());
+            if (language !== 'zh-CN') return fullContent;
             if (released) {
                 const finalContent = fullContent + lateWaiting;
                 assertChineseVisibleOutput(finalContent);
@@ -517,8 +533,8 @@
             );
         }
         let pathname = String(url.pathname || '/').replace(/\/+$/, '');
-        while (/\/(?:chat\/completions|messages)$/i.test(pathname)) {
-            pathname = pathname.replace(/\/(?:chat\/completions|messages)$/i, '').replace(/\/+$/, '');
+        while (/\/(?:chat\/completions|responses|messages)$/i.test(pathname)) {
+            pathname = pathname.replace(/\/(?:chat\/completions|responses|messages)$/i, '').replace(/\/+$/, '');
         }
         if (!/\/models$/i.test(pathname)) pathname += '/models';
         url.pathname = pathname || '/models';
@@ -577,13 +593,9 @@
     }
 
     function filterModelsForProvider(models, url, config) {
-        if (!isOpenCodeZenTarget(url, config)) return models;
-        // OpenCode Zen 的 GPT/Claude/Gemini 等模型使用 responses/messages/Google 接口；
-        // 社区版正文通道当前只展示官方标为 chat/completions 的模型族。
-        return models.filter(function(modelId) {
-            return /^(?:deepseek-|minimax-|glm-|kimi-|mimo-|hy3-|nemotron-)/i.test(modelId)
-                || /^(?:big-pickle|x-preview-f-free)$/i.test(modelId);
-        });
+        // Return the provider's catalogue. The author selects the documented protocol;
+        // a model's name alone cannot reliably identify its API format.
+        return models;
     }
 
     function createModelDiscoveryHttpError(response) {
@@ -723,8 +735,8 @@
             throw error;
         }
         let pathname = String(url.pathname || '/').replace(/\/+$/, '');
-        while (/\/(?:chat\/completions|messages|models)$/i.test(pathname)) {
-            pathname = pathname.replace(/\/(?:chat\/completions|messages|models)$/i, '').replace(/\/+$/, '');
+        while (/\/(?:chat\/completions|responses|messages|models)$/i.test(pathname)) {
+            pathname = pathname.replace(/\/(?:chat\/completions|responses|messages|models)$/i, '').replace(/\/+$/, '');
         }
         url.pathname = pathname + String(endpointPath || '');
         url.hash = '';
@@ -733,6 +745,7 @@
 
     function makeRequest(model, systemPrompt, userMessage) {
         const protocol = String(model.protocol || 'openai').toLowerCase();
+        if (!['openai', 'responses', 'anthropic'].includes(protocol)) throw new Error('不支持此接口类型，请选择 Chat Completions、Responses 或 Messages');
         if (protocol === 'anthropic') {
             return {
                 protocol,
@@ -753,6 +766,21 @@
         }
         const headers = { 'Content-Type': 'application/json' };
         if (String(model.key || '')) headers.Authorization = 'Bearer ' + model.key;
+        if (protocol === 'responses') {
+            return {
+                protocol,
+                url: buildModelRequestUrl(model.base, '/responses'),
+                headers,
+                body: {
+                    model: model.model,
+                    instructions: systemPrompt,
+                    input: [{ role: 'user', content: [{ type: 'input_text', text: userMessage }] }],
+                    max_output_tokens: model.maxTokens || window.CONFIG?.MAX_TOKENS_DEFAULT || 8192,
+                    stream: true,
+                    store: false
+                }
+            };
+        }
         return {
             protocol: 'openai',
             url: buildModelRequestUrl(model.base, '/chat/completions'),
@@ -784,10 +812,11 @@
             : function(error) { throw normalizeTransportError(error, 'API 调用失败'); };
         const options = requestOptions && typeof requestOptions === 'object' ? requestOptions : {};
         const model = selectedModel(config);
+        const outputLanguage = window.ZHIYU_I18N?.getOutputLanguage?.() || 'zh-CN';
         const request = makeRequest(
             model,
-            appendChineseOutputGuard(systemPrompt),
-            appendChineseOutputGuard(userMessage)
+            appendOutputLanguageGuard(systemPrompt, outputLanguage),
+            appendOutputLanguageGuard(userMessage, outputLanguage)
         );
         const requestControl = beginRequestControl(
             [signal, options.signal],
@@ -821,7 +850,8 @@
 
             let fullContent = '';
             let completed = false;
-            const visibleOutput = createAiVisibleOutputGate(safeOnChunk);
+            let responsesDeltaSeen = false;
+            const visibleOutput = createAiVisibleOutputGate(safeOnChunk, outputLanguage);
             await waitForStep(window.ZhiyuSseContract.readSseData(response, {
                 signal: identityTask.signal,
                 onData(raw) {
@@ -839,14 +869,28 @@
                         streamError.rawBody = redactActiveModelKey(raw, model.key);
                         throw streamError;
                     }
+                    if (request.protocol === 'responses' && ['response.failed', 'response.incomplete'].includes(data.type)) {
+                        const error = new Error('模型本次生成未完成，已保留收到的内容，请重试或续写。');
+                        error.code = data.type === 'response.incomplete' ? 'AI_STREAM_INCOMPLETE' : 'CUSTOM_MODEL_STREAM_ERROR';
+                        throw error;
+                    }
                     if (data?.done === true
                         || data?.type === 'message_stop'
+                        || data?.type === 'response.completed'
                         || String(data?.choices?.[0]?.finish_reason || '').trim()) {
                         completed = true;
                     }
                     let content = '';
                     if (request.protocol === 'openai') {
                         content = data.choices?.[0]?.delta?.content || '';
+                    } else if (request.protocol === 'responses') {
+                        if (data.type === 'response.output_text.delta') {
+                            content = data.delta || '';
+                            responsesDeltaSeen = true;
+                        } else if (data.type === 'response.completed' && !responsesDeltaSeen) {
+                            content = (data.response?.output || []).flatMap(item => item.content || [])
+                                .filter(part => part.type === 'output_text').map(part => part.text || '').join('');
+                        }
                     } else if (data.type === 'content_block_delta' && data.delta?.text) {
                         content = data.delta.text;
                     } else if (data.type === 'content_block_start' && data.content_block?.text) {
@@ -922,6 +966,7 @@
         buildModelRequestUrl,
         normalizeDiscoveredModels,
         appendChineseOutputGuard,
+        appendOutputLanguageGuard,
         createAiReasoningFilter,
         getChineseOutputStats,
         hasEnglishProseRun,

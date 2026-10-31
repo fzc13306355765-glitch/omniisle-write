@@ -674,7 +674,7 @@
             window.refreshOverview?.();
             window.refreshBookSelect?.();
             closeCreateBookModal();
-            Toast.success('作品「' + name + '」已创建');
+            Toast.success(window.ZHIYU_I18N?.ui('作品「{name}」已创建', { name }) || ('作品「' + name + '」已创建'));
         } catch (error) {
             delete books[name];
             Toast.error('创建失败：' + (error.message || '请稍后重试'));

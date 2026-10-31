@@ -4,6 +4,10 @@ function splitFineOutlineByChapter(generatedText) {
     var allMatches = [];
     var match;
     while ((match = chapterRegex.exec(generatedText)) !== null) { allMatches.push({ txt: match[0], idx: match.index }); }
+    if (window.ZHIYU_WRITING_LANGUAGE) {
+        allMatches = window.ZHIYU_WRITING_LANGUAGE.findHeadings(generatedText, 'chapter-any')
+            .map(item => ({ txt: item[0], idx: item.index }));
+    }
     if (allMatches.length === 0) return;
 
     var ogChapters = ACTION_PANEL_APP_STATE.outlineGen.chapters || [];
@@ -16,7 +20,10 @@ function splitFineOutlineByChapter(generatedText) {
         var title = allMatches[j].txt.trim();
         var content = generatedText.substring(startIdx, endIdx).trim();
         var num = extractChapterNum(title);
-        var cleanTitle = title.replace(/^##\s*第[一二三四五六七八九十百千\d]+章[：:\s]*/, '').trim();
+        var cleanTitle = title.replace(/^(?:#{1,6}\s*)?第\s*[零〇两一二三四五六七八九十百千万\d]+\s*[章节回][：:\s]*/, '').trim();
+        if (window.ZHIYU_WRITING_LANGUAGE?.internationalNumber(title, 'chapter') != null) {
+            cleanTitle = window.ZHIYU_WRITING_LANGUAGE.internationalTitle(title, 'chapter');
+        }
 
         if (seenNums[num] !== undefined) {
             ogChapters[seenNums[num]].content = content;

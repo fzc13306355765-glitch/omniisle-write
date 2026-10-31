@@ -300,7 +300,11 @@
         const root = document.querySelector(rootSelector);
         if (!root) return null;
         return Array.from(root.querySelectorAll('button, [role="button"], .wordcount-option'))
-            .find(element => element.textContent.trim() === text && isVisible(element)) || null;
+            .find(element => {
+                const key = element.getAttribute('data-i18n');
+                const source = key && window.ZHIYU_LOCALES?.['zh-CN']?.[key];
+                return (element.textContent.trim() === text || source === text) && isVisible(element);
+            }) || null;
     }
 
     function resolveTarget(step) {

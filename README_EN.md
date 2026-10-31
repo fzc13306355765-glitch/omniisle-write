@@ -24,7 +24,7 @@
 </p>
 
 > [!IMPORTANT]
-> This is the `0.1.0-alpha.1` community candidate. The interface, built-in prompts, and workflow currently target Chinese web fiction. It does not include Omniisle accounts, cloud sync, login, credits, payments, an admin console, or a hosted model. Configure your own compatible model API to use AI features.
+> **The community software is free to use: no registration, software subscription, or software generation-credit charges.** Version: `0.2.0-alpha.1`. This repository excludes the hosted backend, accounts, cloud sync, login, payments, and administration services. Connect your own API for AI features; any provider charges belong to your API account.
 
 ![Omniisle Write editor and long-form writing workspace](docs/images/omniisle-editor.png)
 
@@ -104,7 +104,15 @@ On first launch, the community edition adds five prompts authored by Omniisle to
 
 Model discovery uses the provider's common `/models` endpoint. Some providers do not expose a model list or do not allow browser cross-origin access; the dialog then reveals a manual model-ID fallback. During discovery, the API key is sent only as a request header to the endpoint that you entered and approved. It is never placed in the URL or execution log and is not sent to Omniisle servers.
 
-When launched with `npm run serve`, provider requests can pass through the proxy bound only to `127.0.0.1`, so services such as OpenCode Zen can work without browser CORS support. A purely static deployment can only connect directly to providers that permit browser cross-origin requests. For OpenCode Zen, select **OpenCode Zen (writing-compatible)**; the picker shows only model families documented for `chat/completions`. A pasted `/models` URL is automatically normalized back to its base URL.
+When launched with `npm run serve`, requests use the proxy bound only to `127.0.0.1`, including providers without browser CORS support. A static-only deployment requires providers that allow browser access. Provider presets are editable: use your own URL and select **OpenAI Chat Completions, OpenAI Responses, or Anthropic Messages** according to your provider's documentation. Discovery displays the returned catalogue without name-based filtering; a listed model may require a different protocol. Other native formats, including Gemini's native API, require a compatible endpoint. Full endpoint URLs are normalized to their base URL.
+
+## Languages (Beta)
+
+Open **Settings → General** to choose the interface and AI output languages independently. Both default to Chinese for compatibility. Supported choices are Chinese, English, Indonesian, Malay, Vietnamese, Thai, and Arabic. Switching the interface never translates existing works, personal prompts, filenames, or editor content. New AI requests use the selected output language while retaining required schema keys and markers.
+
+Navigation, settings, static forms, and common dialogs are localized. Some dynamic messages, tutorials, and built-in prompts remain Chinese; new community-specific messages fall back to English in regional beta translations. This is not a claim of complete localization or native-speaker review.
+
+![Free community edition language settings](docs/images/omniisle-languages.png)
 
 MiniMax uses separate mainland China and international endpoints. Use **MiniMax (China)** with keys created on the mainland platform (`https://api.minimaxi.com/v1`), and **MiniMax (International)** with keys created on the international platform (`https://api.minimax.io/v1`). Keys and endpoints from the two regions are not interchangeable.
 
@@ -134,10 +142,10 @@ This repository contains only the community edition. Publishing it does not make
 
 ## Status and roadmap
 
-- Current version: `0.1.0-alpha.1`
-- Publication status: local candidate gates are **GO**; see [OPEN-SOURCE-STATUS.md](OPEN-SOURCE-STATUS.md)
+- Current version: `0.2.0-alpha.1`
+- Publication checks and acceptance scope: see [OPEN-SOURCE-STATUS.md](OPEN-SOURCE-STATUS.md)
 - Verified: Chrome, Microsoft Edge, local writing, API-key boundaries, the AI optimization chain, full-manuscript analysis, and Chinese output from Zhiyu Assistant content feedback
-- Not yet provided: a signed installer, cloud sync, hosted models, or an English application interface
+- Not yet provided: a signed installer, cloud sync, hosted models, or complete localization of dynamic messages
 
 See [ROADMAP.md](ROADMAP.md) for planned work and [CHANGELOG.md](CHANGELOG.md) for version history.
 

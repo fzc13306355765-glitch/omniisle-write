@@ -2,8 +2,18 @@
 (function(window) {
     'use strict';
 
-    window.ZHIYU_APP_VERSION = 'V3.2';
+    window.ZHIYU_APP_VERSION = '0.2.0-alpha.1';
     window.ZHIYU_UPDATE_NOTES = Object.freeze([
+        Object.freeze({
+            version: '0.2.0-alpha.1',
+            title: '免费社区版 · 多语言更新',
+            items: Object.freeze([
+                '设置中可切换七种界面语言；AI 输出语言独立选择，默认保持中文。',
+                '用户自备 API 支持 Chat Completions、Responses 和 Messages，保留本机转发。',
+                '支持多语言章节标题识别，更新富文本编辑器依赖。',
+                '作品保存在本机，无需注册，没有软件订阅或内置生成额度收费。'
+            ])
+        }),
         Object.freeze({
             version: 'V3.2',
             title: '2026-08-02 正式版更新',

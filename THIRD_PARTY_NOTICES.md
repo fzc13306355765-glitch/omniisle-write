@@ -34,31 +34,31 @@ The Omniisle Write project license does not replace the licenses below. Each dep
 | @esbuild/win32-arm64 | 0.28.1 | Build | MIT | node_modules/esbuild/LICENSE.md |
 | @esbuild/win32-ia32 | 0.28.1 | Build | MIT | node_modules/esbuild/LICENSE.md |
 | @esbuild/win32-x64 | 0.28.1 | Build | MIT | node_modules/esbuild/LICENSE.md |
-| @tiptap/core | 3.28.0 | Runtime | MIT | node_modules/@tiptap/core/LICENSE.md |
-| @tiptap/extension-blockquote | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-blockquote/LICENSE.md |
-| @tiptap/extension-bold | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-bold/LICENSE.md |
-| @tiptap/extension-bullet-list | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-bullet-list/LICENSE.md |
-| @tiptap/extension-code | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-code/LICENSE.md |
-| @tiptap/extension-code-block | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-code-block/LICENSE.md |
-| @tiptap/extension-document | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-document/LICENSE.md |
-| @tiptap/extension-dropcursor | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-dropcursor/LICENSE.md |
-| @tiptap/extension-gapcursor | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-gapcursor/LICENSE.md |
-| @tiptap/extension-hard-break | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-hard-break/LICENSE.md |
-| @tiptap/extension-heading | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-heading/LICENSE.md |
-| @tiptap/extension-horizontal-rule | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-horizontal-rule/LICENSE.md |
-| @tiptap/extension-italic | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-italic/LICENSE.md |
-| @tiptap/extension-link | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-link/LICENSE.md |
-| @tiptap/extension-list | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-list/LICENSE.md |
-| @tiptap/extension-list-item | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-list-item/LICENSE.md |
-| @tiptap/extension-list-keymap | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-list-keymap/LICENSE.md |
-| @tiptap/extension-ordered-list | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-ordered-list/LICENSE.md |
-| @tiptap/extension-paragraph | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-paragraph/LICENSE.md |
-| @tiptap/extension-strike | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-strike/LICENSE.md |
-| @tiptap/extension-text | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-text/LICENSE.md |
-| @tiptap/extension-underline | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extension-underline/LICENSE.md |
-| @tiptap/extensions | 3.28.0 | Runtime | MIT | node_modules/@tiptap/extensions/LICENSE.md |
-| @tiptap/pm | 3.28.0 | Runtime | MIT | node_modules/@tiptap/pm/LICENSE |
-| @tiptap/starter-kit | 3.28.0 | Runtime | MIT | node_modules/@tiptap/starter-kit/LICENSE.md |
+| @tiptap/core | 3.30.5 | Runtime | MIT | node_modules/@tiptap/core/LICENSE.md |
+| @tiptap/extension-blockquote | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-blockquote/LICENSE.md |
+| @tiptap/extension-bold | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-bold/LICENSE.md |
+| @tiptap/extension-bullet-list | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-bullet-list/LICENSE.md |
+| @tiptap/extension-code | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-code/LICENSE.md |
+| @tiptap/extension-code-block | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-code-block/LICENSE.md |
+| @tiptap/extension-document | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-document/LICENSE.md |
+| @tiptap/extension-dropcursor | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-dropcursor/LICENSE.md |
+| @tiptap/extension-gapcursor | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-gapcursor/LICENSE.md |
+| @tiptap/extension-hard-break | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-hard-break/LICENSE.md |
+| @tiptap/extension-heading | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-heading/LICENSE.md |
+| @tiptap/extension-horizontal-rule | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-horizontal-rule/LICENSE.md |
+| @tiptap/extension-italic | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-italic/LICENSE.md |
+| @tiptap/extension-link | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-link/LICENSE.md |
+| @tiptap/extension-list | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-list/LICENSE.md |
+| @tiptap/extension-list-item | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-list-item/LICENSE.md |
+| @tiptap/extension-list-keymap | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-list-keymap/LICENSE.md |
+| @tiptap/extension-ordered-list | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-ordered-list/LICENSE.md |
+| @tiptap/extension-paragraph | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-paragraph/LICENSE.md |
+| @tiptap/extension-strike | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-strike/LICENSE.md |
+| @tiptap/extension-text | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-text/LICENSE.md |
+| @tiptap/extension-underline | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extension-underline/LICENSE.md |
+| @tiptap/extensions | 3.30.5 | Runtime | MIT | node_modules/@tiptap/extensions/LICENSE.md |
+| @tiptap/pm | 3.30.5 | Runtime | MIT | node_modules/@tiptap/pm/LICENSE |
+| @tiptap/starter-kit | 3.30.5 | Runtime | MIT | node_modules/@tiptap/starter-kit/LICENSE.md |
 | core-util-is | 1.0.3 | Runtime | MIT | node_modules/core-util-is/LICENSE |
 | esbuild | 0.28.1 | Build | MIT | node_modules/esbuild/LICENSE.md |
 | immediate | 3.0.6 | Runtime | MIT | node_modules/immediate/LICENSE.txt |
@@ -67,7 +67,7 @@ The Omniisle Write project license does not replace the licenses below. Each dep
 | jsonrepair | 3.15.0 | Runtime | ISC | node_modules/jsonrepair/LICENSE.md |
 | jszip | 3.10.1 | Runtime | (MIT OR GPL-3.0-or-later) | node_modules/jszip/LICENSE.markdown |
 | lie | 3.3.0 | Runtime | MIT | node_modules/lie/license.md |
-| linkifyjs | 4.3.3 | Runtime | MIT | node_modules/linkifyjs/LICENSE |
+| linkifyjs | 4.4.0 | Runtime | MIT | node_modules/linkifyjs/LICENSE |
 | orderedmap | 2.1.1 | Runtime | MIT | node_modules/orderedmap/LICENSE |
 | pako | 1.0.11 | Runtime | (MIT AND Zlib) | node_modules/pako/LICENSE |
 | process-nextick-args | 2.0.1 | Runtime | MIT | node_modules/process-nextick-args/license.md |
@@ -78,12 +78,12 @@ The Omniisle Write project license does not replace the licenses below. Each dep
 | prosemirror-history | 1.5.0 | Runtime | MIT | node_modules/prosemirror-history/LICENSE |
 | prosemirror-inputrules | 1.5.1 | Runtime | MIT | node_modules/prosemirror-inputrules/LICENSE |
 | prosemirror-keymap | 1.2.3 | Runtime | MIT | node_modules/prosemirror-keymap/LICENSE |
-| prosemirror-model | 1.25.11 | Runtime | MIT | node_modules/prosemirror-model/LICENSE |
+| prosemirror-model | 1.25.12 | Runtime | MIT | node_modules/prosemirror-model/LICENSE |
 | prosemirror-schema-list | 1.5.1 | Runtime | MIT | node_modules/prosemirror-schema-list/LICENSE |
 | prosemirror-state | 1.4.4 | Runtime | MIT | node_modules/prosemirror-state/LICENSE |
 | prosemirror-tables | 1.8.5 | Runtime | MIT | node_modules/prosemirror-tables/LICENSE |
 | prosemirror-transform | 1.12.0 | Runtime | MIT | node_modules/prosemirror-transform/LICENSE |
-| prosemirror-view | 1.42.1 | Runtime | MIT | node_modules/prosemirror-view/LICENSE |
+| prosemirror-view | 1.42.9 | Runtime | MIT | node_modules/prosemirror-view/LICENSE |
 | readable-stream | 2.3.8 | Runtime | MIT | node_modules/readable-stream/LICENSE |
 | rope-sequence | 1.3.4 | Runtime | MIT | node_modules/rope-sequence/LICENSE |
 | safe-buffer | 5.1.2 | Runtime | MIT | node_modules/safe-buffer/LICENSE |
@@ -124,7 +124,7 @@ SOFTWARE.
 
 ### Notice group 2
 
-Packages: @tiptap/core@3.28.0, @tiptap/extension-blockquote@3.28.0, @tiptap/extension-bold@3.28.0, @tiptap/extension-bullet-list@3.28.0, @tiptap/extension-code@3.28.0, @tiptap/extension-code-block@3.28.0, @tiptap/extension-document@3.28.0, @tiptap/extension-dropcursor@3.28.0, @tiptap/extension-gapcursor@3.28.0, @tiptap/extension-hard-break@3.28.0, @tiptap/extension-heading@3.28.0, @tiptap/extension-horizontal-rule@3.28.0, @tiptap/extension-italic@3.28.0, @tiptap/extension-link@3.28.0, @tiptap/extension-list@3.28.0, @tiptap/extension-list-item@3.28.0, @tiptap/extension-list-keymap@3.28.0, @tiptap/extension-ordered-list@3.28.0, @tiptap/extension-paragraph@3.28.0, @tiptap/extension-strike@3.28.0, @tiptap/extension-text@3.28.0, @tiptap/extension-underline@3.28.0, @tiptap/extensions@3.28.0, @tiptap/pm@3.28.0, @tiptap/starter-kit@3.28.0
+Packages: @tiptap/core@3.30.5, @tiptap/extension-blockquote@3.30.5, @tiptap/extension-bold@3.30.5, @tiptap/extension-bullet-list@3.30.5, @tiptap/extension-code@3.30.5, @tiptap/extension-code-block@3.30.5, @tiptap/extension-document@3.30.5, @tiptap/extension-dropcursor@3.30.5, @tiptap/extension-gapcursor@3.30.5, @tiptap/extension-hard-break@3.30.5, @tiptap/extension-heading@3.30.5, @tiptap/extension-horizontal-rule@3.30.5, @tiptap/extension-italic@3.30.5, @tiptap/extension-link@3.30.5, @tiptap/extension-list@3.30.5, @tiptap/extension-list-item@3.30.5, @tiptap/extension-list-keymap@3.30.5, @tiptap/extension-ordered-list@3.30.5, @tiptap/extension-paragraph@3.30.5, @tiptap/extension-strike@3.30.5, @tiptap/extension-text@3.30.5, @tiptap/extension-underline@3.30.5, @tiptap/extensions@3.30.5, @tiptap/pm@3.30.5, @tiptap/starter-kit@3.30.5
 
 ```text
 MIT License
@@ -941,7 +941,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 ### Notice group 10
 
-Packages: linkifyjs@4.3.3
+Packages: linkifyjs@4.4.0
 
 ```text
 Copyright (c) 2024 Nick Frasser
@@ -1073,7 +1073,7 @@ THE SOFTWARE.
 
 ### Notice group 15
 
-Packages: prosemirror-commands@1.7.1, prosemirror-dropcursor@1.8.3, prosemirror-gapcursor@1.4.1, prosemirror-history@1.5.0, prosemirror-inputrules@1.5.1, prosemirror-keymap@1.2.3, prosemirror-model@1.25.11, prosemirror-schema-list@1.5.1, prosemirror-state@1.4.4, prosemirror-transform@1.12.0, prosemirror-view@1.42.1
+Packages: prosemirror-commands@1.7.1, prosemirror-dropcursor@1.8.3, prosemirror-gapcursor@1.4.1, prosemirror-history@1.5.0, prosemirror-inputrules@1.5.1, prosemirror-keymap@1.2.3, prosemirror-model@1.25.12, prosemirror-schema-list@1.5.1, prosemirror-state@1.4.4, prosemirror-transform@1.12.0, prosemirror-view@1.42.9
 
 ```text
 Copyright (C) 2015-2017 by Marijn Haverbeke <marijn@haverbeke.berlin> and others

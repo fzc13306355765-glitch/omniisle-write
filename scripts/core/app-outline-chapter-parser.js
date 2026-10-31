@@ -14,6 +14,8 @@
         }
 
         function extractChapterNum(rawStr) {
+            var international = window.ZHIYU_WRITING_LANGUAGE?.internationalNumber(rawStr, 'chapter');
+            if (international != null) return international;
             var match = rawStr.match(/第\s*([零〇两一二三四五六七八九十百千万\d]+)\s*(?:章|回|节)/);
             if (!match) return 0;
             return chineseToNumber(match[1]);
@@ -21,6 +23,8 @@
 
         function extractChapterNumberFromName(name) {
             if (!name) return 0;
+            var international = window.ZHIYU_WRITING_LANGUAGE?.internationalNumber(name, 'chapter');
+            if (international != null) return international;
             var m = name.match(/第\s*(\d+)\s*(?:章|回|节)/);
             if (m) return parseInt(m[1]);
             m = name.match(/第\s*([零〇两一二三四五六七八九十百千万\d]+)\s*(?:章|回|节)/);
@@ -29,8 +33,29 @@
         }
 
         // 5. 逐章拆分（正则）
+        function internationalSections(source) {
+            var language = window.ZHIYU_WRITING_LANGUAGE;
+            if (!language) return null;
+            var headings = language.findHeadings(source, 'chapter-any');
+            if (!headings.some(item => language.internationalNumber(item[0], 'chapter') != null)) return null;
+            return headings.map(function(item, index) {
+                var title = item[0];
+                var num = extractChapterNum(title);
+                return { num: num, title: title,
+                    cleanTitle: language.internationalTitle(title, 'chapter').replace(/^第\s*[零〇两一二三四五六七八九十百千万\d]+\s*(?:章|回|节)[：:\s]*/, ''),
+                    content: source.slice(item.index, headings[index + 1]?.index ?? source.length).trim() };
+            }).filter(item => item.num > 0);
+        }
+
         function regexSplitChapters(text, startChap, endChap) {
             text = String(text || '').replace(/\r\n/g, '\n');
+            var international = internationalSections(text);
+            if (international) {
+                var first = Number(startChap) || international[0]?.num || 1;
+                var last = Number(endChap) || first + 9;
+                return international.filter(item => item.num >= first && item.num <= last).slice(0, 10)
+                    .map(item => ({ num: item.num, title: item.cleanTitle || item.title, content: item.content, checked: true }));
+            }
             var chapterNumChars = '零〇两一二三四五六七八九十百千万\\d';
             var headingRegex = new RegExp(
                 '(?:^|\\n)[\\t ]*(?:[-*+][\\t ]+)?(?:\\d+[\\.、][\\t ]*)?(?:#{1,6}[\\t ]*)?[《【\\[]?[\\t ]*'
@@ -77,6 +102,8 @@
 
         function splitGeneratedChapterSections(content) {
             var text = String(content || '').replace(/\r\n/g, '\n');
+            var international = internationalSections(text);
+            if (international) return international;
             var chapterNumChars = '零〇两一二三四五六七八九十百千万\\d';
             var headingRegex = new RegExp(
                 '(?:^|\\n)[\\t ]*(?:[-*+][\\t ]+)?(?:#{1,6}[\\t ]*)?[《【\\[]?[\\t ]*'

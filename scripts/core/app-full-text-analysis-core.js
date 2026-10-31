@@ -246,6 +246,9 @@
     }
 
     function parseChapterNumber(value) {
+        const language = typeof window !== 'undefined' ? window.ZHIYU_WRITING_LANGUAGE : null;
+        const international = language?.internationalNumber(asText(value), 'chapter');
+        if (international != null) return international;
         const match = asText(value).match(/第\s*([零〇一二两三四五六七八九十百千万\d]+)\s*章/);
         return match ? chineseNumberToInt(match[1]) : 0;
     }

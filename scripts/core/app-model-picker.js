@@ -138,6 +138,11 @@ function getCustomModelProtocol(provider) {
     return protocolMap[String(provider || '').trim()] || 'openai';
 }
 
+function getCustomModelFormProtocol(provider) {
+    const value = document.getElementById('customModelProtocol')?.value;
+    return ['openai', 'responses', 'anthropic'].includes(value) ? value : getCustomModelProtocol(provider);
+}
+
 function getCustomProviderBaseUrlMap() {
     return {
         openai: 'https://api.openai.com/v1',
@@ -161,8 +166,8 @@ function getDefaultCustomModelBaseUrl(provider) {
 
 function normalizeCustomModelBaseUrl(base) {
     let value = String(base || '').trim().replace(/\/+$/, '');
-    while (/\/(?:chat\/completions|messages|models)$/i.test(value)) {
-        value = value.replace(/\/(?:chat\/completions|messages|models)$/i, '').replace(/\/+$/, '');
+    while (/\/(?:chat\/completions|responses|messages|models)$/i.test(value)) {
+        value = value.replace(/\/(?:chat\/completions|responses|messages|models)$/i, '').replace(/\/+$/, '');
     }
     return value;
 }
@@ -177,7 +182,7 @@ function isOpenCodeZenBaseUrl(base) {
 }
 
 function getCustomModelEndpointPath(protocol) {
-    return protocol === 'anthropic' ? '/messages' : '/chat/completions';
+    return protocol === 'anthropic' ? '/messages' : protocol === 'responses' ? '/responses' : '/chat/completions';
 }
 
 function buildCustomModelTargetUrl(base, protocol) {
@@ -219,7 +224,7 @@ function getCustomModelDiscoveryElements() {
 function setCustomModelDiscoveryStatus(message, state) {
     const status = getCustomModelDiscoveryElements().status;
     if (!status) return;
-    status.textContent = String(message || '');
+    status.textContent = window.ZHIYU_I18N?.ui(String(message || '')) || String(message || '');
     status.dataset.state = String(state || 'idle');
 }
 
@@ -230,7 +235,8 @@ function setCustomModelManualFieldVisible(visible, options) {
     if (elements.manualField) elements.manualField.hidden = !show;
     if (elements.manualToggle) {
         elements.manualToggle.setAttribute('aria-expanded', show ? 'true' : 'false');
-        elements.manualToggle.textContent = show ? '收起手动填写' : '无法检索？手动填写模型 ID';
+        const source = show ? '收起手动填写' : '无法检索？手动填写模型 ID';
+        elements.manualToggle.textContent = window.ZHIYU_I18N?.ui(source) || source;
     }
     if (!opts.preserveValue && elements.manualInput) elements.manualInput.value = '';
     if (show && opts.focus !== false) elements.manualInput?.focus?.();
@@ -241,7 +247,7 @@ function clearCustomModelDiscoveryOptions(message) {
     if (elements.select) {
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = '请先检索模型';
+        placeholder.textContent = window.ZHIYU_I18N?.ui('请先检索模型') || '请先检索模型';
         elements.select.replaceChildren(placeholder);
         elements.select.disabled = true;
     }
@@ -316,6 +322,8 @@ function clearCustomModelForm() {
     const baseInput = document.getElementById('customModelBase');
     const keyToggle = document.getElementById('toggleKeyVisibility');
     if (providerInput) providerInput.value = '';
+    const protocolInput = document.getElementById('customModelProtocol');
+    if (protocolInput) protocolInput.value = 'openai';
     if (keyInput) {
         keyInput.value = '';
         keyInput.type = 'password';
@@ -891,6 +899,8 @@ setTimeout(refreshModelHealthIfOpen, 300);
 // 供应商选择自动填充 Base URL
 document.getElementById('customModelProvider')?.addEventListener('change', function() {
     const provider = this.value;
+    const protocolInput = document.getElementById('customModelProtocol');
+    if (protocolInput) protocolInput.value = getCustomModelProtocol(provider);
     const normalizedBaseInput = document.getElementById('customModelBase');
     syncCustomModelBaseInputForProvider(normalizedBaseInput, provider, { force: true, clear: provider === 'custom' });
     const providerHint = provider === 'minimax'
@@ -899,6 +909,10 @@ document.getElementById('customModelProvider')?.addEventListener('change', funct
             ? '已填写 MiniMax 国际站地址，请使用国际站申请的 API Key'
             : '提供商已变化，请重新检索模型');
     resetCustomModelDiscovery(providerHint);
+});
+
+document.getElementById('customModelProtocol')?.addEventListener('change', function() {
+    resetCustomModelDiscovery('接口类型已变化，请重新检索模型');
 });
 
 ['customModelBase', 'customModelKey'].forEach(function(id) {
@@ -962,14 +976,14 @@ document.getElementById('btnDiscoverCustomModels')?.addEventListener('click', as
             base,
             key,
             provider,
-            protocol: getCustomModelProtocol(provider)
+            protocol: getCustomModelFormProtocol(provider)
         }, {
             signal: customModelDiscoveryController.signal,
             timeoutMs: 20000
         });
         if (requestRevision !== customModelDiscoveryRevision) return;
         renderDiscoveredCustomModels(models);
-        setCustomModelDiscoveryStatus('已找到 ' + models.length + ' 个模型，请从列表中选择', 'success');
+        setCustomModelDiscoveryStatus(window.ZHIYU_I18N?.ui('已找到 {count} 个模型，请从列表中选择', { count: models.length }) || ('已找到 ' + models.length + ' 个模型，请从列表中选择'), 'success');
     } catch (error) {
         if (requestRevision !== customModelDiscoveryRevision || error?.name === 'AbortError') return;
         const message = getCustomModelDiscoveryErrorMessage(error, { provider, base });
@@ -1023,7 +1037,7 @@ document.getElementById('btnSaveCustomModel')?.addEventListener('click', async f
         // 安全提醒：Key 将保存在浏览器本地存储中，请勿在公共设备上使用
         if (!confirm('您的 API Key 将保存在浏览器本地存储中（localStorage）。\n\n⚠️ 安全提示：\n- 请勿在公共或共享设备上保存 Key\n- 浏览器插件可能读取本地存储\n- 清除浏览器数据会导致 Key 丢失\n\n是否继续保存？')) return;
     }
-    const protocol = getCustomModelProtocol(p);
+    const protocol = getCustomModelFormProtocol(p);
     const rememberKey = window.ZHIYU_COMMUNITY_MODE === true
         ? document.getElementById('rememberCustomModelKey')?.checked === true
         : true;

@@ -1,6 +1,6 @@
 {
   "name": "omniisle-write",
-  "version": "0.1.0-alpha.1",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "type": "module",
   "description": "知屿写作 Omniisle Write 本地社区版公开候选仓库",
@@ -16,15 +16,16 @@
     "serve": "node scripts/tools/serve-community.mjs",
     "test": "npm run build:check && node scripts/tools/smoke-community-local-core.mjs && node scripts/tools/smoke-community-builtin-templates.mjs && node scripts/tools/smoke-community-local-proxy.mjs && node scripts/tools/smoke-community-analysis.mjs && node scripts/tools/smoke-community-key-storage.mjs && node scripts/tools/smoke-community-model-key-upgrade.mjs",
     "audit:public": "node scripts/tools/audit-public-boundary.mjs",
-    "verify:public": "npm test && npm run licenses:check && npm run secrets:check && npm run audit:public"
+    "test:languages": "node scripts/tools/smoke-community-multilingual.mjs",
+    "verify:public": "npm test && npm run test:languages && npm run licenses:check && npm run secrets:check && npm run audit:public"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "@tiptap/core": "3.28.0",
-    "@tiptap/pm": "3.28.0",
-    "@tiptap/starter-kit": "3.28.0",
+    "@tiptap/core": "3.30.5",
+    "@tiptap/pm": "3.30.5",
+    "@tiptap/starter-kit": "3.30.5",
     "jsonrepair": "3.15.0",
     "jszip": "3.10.1"
   },

@@ -2,6 +2,8 @@
     'use strict';
 
         function parseChapterNum(chapterName) {
+            const international = window.ZHIYU_WRITING_LANGUAGE?.internationalNumber(chapterName, 'chapter');
+            if (international != null) return international;
             const normalizedName = String(chapterName || '').replace(/[０-９]/g, function(char) {
                 return String.fromCharCode(char.charCodeAt(0) - 65248);
             });
